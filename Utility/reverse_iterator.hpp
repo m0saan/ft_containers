@@ -151,7 +151,7 @@ namespace ft {
 	template<typename Iterator>
 	typename reverse_iterator<Iterator>::reference reverse_iterator<Iterator>::operator[](difference_type n) {
 		assert(n > 0);
-		return &_baseIter[n];
+		return *(this->_baseIter + n);
 	}
 
 	template<typename Iterator>
