@@ -52,6 +52,8 @@ namespace ft {
 		vector(const vector& x);
 		~vector();
 
+		size_type size() const;
+
 		vector& operator=(const vector& x);
 		reference operator[](difference_type n) { return _arr[n]; }
 
@@ -76,7 +78,7 @@ namespace ft {
 	};
 
 	template<typename T, typename Alloc>
-	vector<T, Alloc>::vector(const allocator_type &alloc) : _size(0), _capacity(0), _arr(NULL), _alloc(alloc) {
+	vector<T, Alloc>::vector(const allocator_type &alloc) : _size(0), _capacity(0), _alloc(alloc), _arr(NULL) {
 		std::cout << "default" << std::endl;
 	}
 
@@ -136,7 +138,7 @@ namespace ft {
 	}
 
 	template<typename T, typename Alloc>
-	vector<T, Alloc>::vector(const vector &x) {
+	vector<T, Alloc>::vector(const vector &x) : _size(0), _capacity(0) {
 		*this = x;
 	}
 
@@ -161,6 +163,11 @@ namespace ft {
 		_arr = NULL;
 		_size = 0;
 		_capacity = 0;
+	}
+
+	template<typename T, typename Alloc>
+	typename vector<T, Alloc>::size_type vector<T, Alloc>::size() const {
+		return _size;
 	}
 
 }
