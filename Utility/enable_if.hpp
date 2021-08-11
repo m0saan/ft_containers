@@ -7,13 +7,11 @@
 
 namespace ft {
 	template<bool Cond, typename T = void>
-	class enable_if {
+	struct enable_if {
 	};
 
 	template<typename T>
-	class enable_if<true, T> {
-
-	public:
+	struct enable_if<true, T> {
 		typedef T type;
 	};
 
