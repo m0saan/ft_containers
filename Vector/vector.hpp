@@ -27,8 +27,8 @@ namespace ft {
 		typedef typename allocator_type::const_pointer const_pointer;
 		typedef VectorIterator<value_type> iterator;
 		typedef VectorIterator<const value_type> const_iterator;
-		// typedef reverse_iterator<iterator> reverse_iterator;
-		// typedef reverse_iterator<const_iterator> const_reverse_iterator;
+		typedef reverse_iterator<const_iterator> const_reverse_iterator;
+		typedef reverse_iterator<iterator> reverse_iterator;
 		typedef std::ptrdiff_t difference_type;
 		typedef std::size_t size_type;
 
@@ -63,11 +63,31 @@ namespace ft {
 
 		void print();
 
+		void push_back(const T &value);
+
+		size_type max_size() const;
+
+		size_type capacity() const;
+
+		bool empty() const;
+
+		void resize(size_type n, value_type val = value_type());
+
 		iterator begin();
 
 		iterator end();
+
 		const_iterator begin() const;
+
 		const_iterator end() const;
+
+		reverse_iterator rbegin();
+
+		reverse_iterator rend();
+
+		const_reverse_iterator rbegin() const;
+
+		const_reverse_iterator rend() const;
 
 	private:
 		std::size_t _size;
@@ -80,24 +100,24 @@ namespace ft {
 
 		T *_allocate(std::allocator<T> &alloc, std::size_t n);
 
-		void _fill(const value_type &val);
+		void _reallocate(std::allocator<T> &alloc, std::size_t newSize);
+
+		void _fill(std::size_t start, std::size_t end, const value_type &val);
 
 		template<typename InputIterator>
 		void _fill(InputIterator first, InputIterator last);
 
-		void _deallocate();
+		void _deallocate(std::size_t start, std::size_t end, bool reset);
 	};
 
 	template<typename T, typename Alloc>
-	vector<T, Alloc>::vector(const allocator_type &alloc) : _size(0), _capacity(0), _alloc(alloc), _arr(NULL) {
-		std::cout << "default" << std::endl;
-	}
+	vector<T, Alloc>::vector(const allocator_type &alloc) : _size(0), _capacity(0), _alloc(alloc), _arr(NULL) {}
 
 	template<typename T, typename Alloc>
 	vector<T, Alloc>::vector(vector::size_type n, const value_type &val, const allocator_type &alloc)
 			: _size(n), _capacity(n), _alloc(alloc) {
 		_arr = _allocate(_alloc, n);
-		_fill(val);
+		_fill(0, _size, val);
 	}
 
 	template<typename T, typename Alloc>
@@ -122,9 +142,11 @@ namespace ft {
 	}
 
 	template<typename T, typename Alloc>
-	void vector<T, Alloc>::_fill(const value_type &val) {
-		for(std::size_t i = 0; i < _size; ++i)
+	void vector<T, Alloc>::_fill(std::size_t start, std::size_t end, const value_type &val) {
+		for(std::size_t i = start; i < end; ++i) {
 			_arr[i] = val;
+		}
+
 	}
 
 	template<typename T, typename Alloc>
@@ -137,7 +159,7 @@ namespace ft {
 
 	template<typename T, typename Alloc>
 	vector<T, Alloc>::~vector() {
-		_deallocate();
+		_deallocate(0, _size, true);
 	}
 
 	template<typename T, typename Alloc>
@@ -156,7 +178,7 @@ namespace ft {
 	template<typename T, typename Alloc>
 	vector<T, Alloc> &vector<T, Alloc>::operator=(const vector &x) {
 		if(this != &x) {
-			_deallocate();
+			_deallocate(0, _size, true);
 			_size = x._size;
 			_capacity = x._capacity;
 			_arr = _allocate(_alloc, _size);
@@ -166,14 +188,16 @@ namespace ft {
 	}
 
 	template<typename T, typename Alloc>
-	void vector<T, Alloc>::_deallocate() {
+	void vector<T, Alloc>::_deallocate(std::size_t start, std::size_t end, bool reset) {
 		if(!_size) return;
-		for(std::size_t i = 0; i < _size; ++i)
+		for(std::size_t i = start; i < end; ++i)
 			_alloc.destroy(&_arr[i]);
 		_alloc.deallocate(_arr, _size);
-		_arr = NULL;
-		_size = 0;
-		_capacity = 0;
+		if(reset) {
+			_arr = NULL;
+			_size = 0;
+			_capacity = 0;
+		}
 	}
 
 	template<typename T, typename Alloc>
@@ -198,7 +222,79 @@ namespace ft {
 
 	template<typename T, typename Alloc>
 	typename vector<T, Alloc>::const_iterator vector<T, Alloc>::end() const {
-		return const_iterator (_arr + _size);
+		return const_iterator(_arr + _size);
+	}
+
+	template<typename T, typename Alloc>
+	typename vector<T, Alloc>::reverse_iterator vector<T, Alloc>::rbegin() {
+		return reverse_iterator(end());
+	}
+
+	template<typename T, typename Alloc>
+	typename vector<T, Alloc>::reverse_iterator vector<T, Alloc>::rend() {
+		return reverse_iterator(begin());
+	}
+
+	template<typename T, typename Alloc>
+	typename vector<T, Alloc>::const_reverse_iterator vector<T, Alloc>::rbegin() const {
+		return reverse_iterator(end());;
+	}
+
+	template<typename T, typename Alloc>
+	typename vector<T, Alloc>::const_reverse_iterator vector<T, Alloc>::rend() const {
+		return reverse_iterator(begin());
+	}
+
+	template<typename T, typename Alloc>
+	void vector<T, Alloc>::push_back(const value_type &value) {
+		if (empty())
+			_arr = _allocate(_alloc, 1);
+		else if (_size >= _capacity)
+			_reallocate(_alloc, _size * 2);
+		_arr[_size++] = value;
+
+		if (empty() || _size == 1)
+			_capacity = 1;
+	}
+
+	template<typename T, typename Alloc>
+	typename vector<T, Alloc>::size_type vector<T, Alloc>::max_size() const {
+		return _alloc.max_size();
+	}
+
+	template<typename T, typename Alloc>
+	typename vector<T, Alloc>::size_type vector<T, Alloc>::capacity() const {
+		return _capacity;
+	}
+
+	template<typename T, typename Alloc>
+	bool vector<T, Alloc>::empty() const {
+		return !_size;
+	}
+
+	template<typename T, typename Alloc>
+	void vector<T, Alloc>::resize(size_type n, value_type val) {
+		if(n < _size) {
+			_deallocate(n, _size, false);
+			_size = n;
+		}
+
+		if(n > _size) {
+			if(n > _capacity)
+				_reallocate(_alloc, n);
+			else
+				_fill(_size, n, val);
+		}
+	}
+
+	template<typename T, typename Alloc>
+	void vector<T, Alloc>::_reallocate(std::allocator<T> &alloc, std::size_t newSize) {
+		value_type *other = alloc.allocate(newSize);
+		for(std::size_t i = 0; i < _size; ++i)
+			other[i] = _arr[i];
+		_deallocate(0, size(), false);
+		_arr = other;
+		_capacity = newSize;
 	}
 
 }
