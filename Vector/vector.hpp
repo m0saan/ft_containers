@@ -73,6 +73,8 @@ namespace ft {
 
 		void resize(size_type n, value_type val = value_type());
 
+		void reserve (size_type n);
+
 		iterator begin();
 
 		iterator end();
@@ -247,13 +249,13 @@ namespace ft {
 
 	template<typename T, typename Alloc>
 	void vector<T, Alloc>::push_back(const value_type &value) {
-		if (empty())
+		if (empty() && !_capacity)
 			_arr = _allocate(_alloc, 1);
 		else if (_size >= _capacity)
 			_reallocate(_alloc, _size * 2);
 		_arr[_size++] = value;
 
-		if (empty() || _size == 1)
+		if (empty() || _capacity == 1)
 			_capacity = 1;
 	}
 
@@ -296,6 +298,9 @@ namespace ft {
 		_arr = other;
 		_capacity = newSize;
 	}
+
+	template<typename T, typename Alloc>
+	void vector<T, Alloc>::reserve(vector::size_type n) { if (n > _capacity) _reallocate(_alloc, n); }
 
 }
 
