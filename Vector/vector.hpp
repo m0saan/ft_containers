@@ -17,6 +17,135 @@
 
 namespace ft {
 
+	template<typename Vector>
+	class VectorIterator {
+
+	public:
+
+		typedef ptrdiff_t difference_type;
+		typedef std::random_access_iterator_tag iterator_category;
+		typedef typename Vector::value_type value_type;
+		typedef value_type &reference;
+		typedef value_type *pointer;
+
+		/*
+		 * Constructor & Copy assignment operator.
+		 */
+
+		explicit VectorIterator(pointer p = NULL) : _ptr(p) {}
+
+		VectorIterator(const VectorIterator &other) { *this = other; }
+
+		VectorIterator &operator=(const VectorIterator &other) {
+			if(this != &other)
+				_ptr = other._ptr;
+			return *this;
+		}
+
+		/*
+		 * Overloaded operators
+		 */
+
+		reference &operator*() { return *_ptr; }
+
+		pointer *operator->() { return operator*(); }
+
+		VectorIterator &operator++() {
+			_ptr++;
+			return *this;
+		}
+
+		VectorIterator &operator--() {
+			_ptr++;
+			return *this;
+		}
+
+		// int parameter means this is postfix operator++;
+		VectorIterator operator++(int) {
+			VectorIterator tmp = *this;
+			_ptr++;
+			return tmp;
+		}
+
+		VectorIterator operator--(int) {
+			VectorIterator tmp = (*this);
+			operator--();
+			return tmp;
+		}
+
+		VectorIterator operator+(difference_type n) { return VectorIterator(_ptr + n); }
+
+		VectorIterator operator-(difference_type n) { return VectorIterator(_ptr - n); }
+
+		VectorIterator &operator+=(difference_type n) {
+			_ptr += n;
+			return VectorIterator(_ptr);
+		}
+
+		VectorIterator &operator-=(difference_type n) {
+			_ptr -= n;
+			return VectorIterator(_ptr);
+		}
+
+		reference &operator[](difference_type n) {
+			assert(n > 0);
+			return *(_ptr + n);
+		}
+
+		template<class U>
+		friend bool operator==(const VectorIterator<U> &lhs, const VectorIterator<U> &rhs);
+
+		template<class U>
+		friend bool operator!=(const VectorIterator<U> &lhs, const VectorIterator<U> &rhs);
+
+		template<class U>
+		friend bool operator<(const VectorIterator<U> &lhs, const VectorIterator<U> &rhs);
+
+		template<class U>
+		friend bool operator<=(const VectorIterator<U> &lhs, const VectorIterator<U> &rhs);
+
+		template<class U>
+		friend bool operator>(const VectorIterator<U> &lhs, const VectorIterator<U> &rhs);
+
+		template<class U>
+		friend bool operator>=(const VectorIterator<U> &lhs, const VectorIterator<U> &rhs);
+
+
+	private:
+		pointer _ptr;
+	};
+
+	template<typename U>
+	bool operator==(const VectorIterator<U> &lhs, const VectorIterator<U> &rhs) {
+		return (lhs._ptr == rhs._ptr);
+	}
+
+	template<typename U>
+	bool operator!=(const VectorIterator<U> &lhs, const VectorIterator<U> &rhs) {
+		return !(lhs == rhs);
+	}
+
+	template<typename U>
+	bool operator<(const VectorIterator<U> &lhs, const VectorIterator<U> &rhs) {
+		return (lhs._ptr < rhs._ptr);
+	}
+
+	template<typename U>
+	bool operator<=(const VectorIterator<U> &lhs, const VectorIterator<U> &rhs) {
+		return (lhs._ptr <= rhs._ptr);
+	}
+
+	template<typename U>
+	bool operator>(const VectorIterator<U> &lhs, const VectorIterator<U> &rhs) {
+		return !(lhs < rhs);
+	}
+
+	template<typename U>
+	bool operator>=(const VectorIterator<U> &lhs, const VectorIterator<U> &rhs) {
+		return !(lhs <= rhs);
+	}
+
+
 	template<typename T, typename Alloc = std::allocator<T> >
 	class vector {
 	public:
@@ -25,8 +154,9 @@ namespace ft {
 		typedef typename allocator_type::reference reference;
 		typedef typename allocator_type::pointer pointer;
 		typedef typename allocator_type::const_pointer const_pointer;
-		typedef VectorIterator<value_type> iterator;
-		typedef VectorIterator<const value_type> const_iterator;
+
+		typedef VectorIterator<vector<T> > iterator;
+		typedef VectorIterator<const vector<T> > const_iterator;
 		typedef reverse_iterator<const_iterator> const_reverse_iterator;
 		typedef reverse_iterator<iterator> reverse_iterator;
 		typedef std::ptrdiff_t difference_type;
@@ -73,7 +203,7 @@ namespace ft {
 
 		void resize(size_type n, value_type val = value_type());
 
-		void reserve (size_type n);
+		void reserve(size_type n);
 
 		iterator begin();
 
@@ -90,6 +220,7 @@ namespace ft {
 		const_reverse_iterator rbegin() const;
 
 		const_reverse_iterator rend() const;
+
 
 	private:
 		std::size_t _size;
@@ -209,7 +340,7 @@ namespace ft {
 
 	template<typename T, typename Alloc>
 	typename vector<T, Alloc>::iterator vector<T, Alloc>::begin() {
-		return VectorIterator<T>(_arr);
+		return iterator(_arr);
 	}
 
 	template<typename T, typename Alloc>
@@ -249,13 +380,13 @@ namespace ft {
 
 	template<typename T, typename Alloc>
 	void vector<T, Alloc>::push_back(const value_type &value) {
-		if (empty() && !_capacity)
+		if(empty() && !_capacity)
 			_arr = _allocate(_alloc, 1);
-		else if (_size >= _capacity)
+		else if(_size >= _capacity)
 			_reallocate(_alloc, _size * 2);
 		_arr[_size++] = value;
 
-		if (empty() || _capacity == 1)
+		if(empty() || _capacity == 1)
 			_capacity = 1;
 	}
 
@@ -300,8 +431,8 @@ namespace ft {
 	}
 
 	template<typename T, typename Alloc>
-	void vector<T, Alloc>::reserve(vector::size_type n) { if (n > _capacity) _reallocate(_alloc, n); }
-
+	void vector<T, Alloc>::reserve(vector::size_type n) { if(n > _capacity) _reallocate(_alloc, n); }
+	
 }
 
 #endif // __VECTOR_HPP__
