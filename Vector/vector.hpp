@@ -49,15 +49,25 @@ namespace ft {
 			   const allocator_type &alloc = allocator_type(),
 			   typename ft::enable_if<!ft::is_integral<InputIterator>::value,
 					   InputIterator>::type = InputIterator());
-		vector(const vector& x);
+
+		vector(const vector &x);
+
 		~vector();
 
 		size_type size() const;
 
-		vector& operator=(const vector& x);
-		reference operator[](difference_type n) { return _arr[n]; }
+		vector &operator=(const vector &x);
+
+		reference operator[](difference_type n) { return *(_arr + n); }
+		// reference operator->() { return _arr; }
 
 		void print();
+
+		iterator begin();
+
+		iterator end();
+		const_iterator begin() const;
+		const_iterator end() const;
 
 	private:
 		std::size_t _size;
@@ -69,6 +79,7 @@ namespace ft {
 
 
 		T *_allocate(std::allocator<T> &alloc, std::size_t n);
+
 		void _fill(const value_type &val);
 
 		template<typename InputIterator>
@@ -94,7 +105,7 @@ namespace ft {
 	vector<T, Alloc>::vector(InputIterator first, InputIterator last, const allocator_type &alloc,
 							 typename ft::enable_if<!ft::is_integral<InputIterator>::value,
 									 InputIterator>::type)
-	: _size(last - first), _capacity(last - first), _alloc(alloc) {
+			: _size(last - first), _capacity(last - first), _alloc(alloc) {
 		_arr = _allocate(_alloc, last - first);
 		_fill(first, last);
 	}
@@ -144,7 +155,7 @@ namespace ft {
 
 	template<typename T, typename Alloc>
 	vector<T, Alloc> &vector<T, Alloc>::operator=(const vector &x) {
-		if (this != &x) {
+		if(this != &x) {
 			_deallocate();
 			_size = x._size;
 			_capacity = x._capacity;
@@ -156,7 +167,7 @@ namespace ft {
 
 	template<typename T, typename Alloc>
 	void vector<T, Alloc>::_deallocate() {
-		if (!_size) return;
+		if(!_size) return;
 		for(std::size_t i = 0; i < _size; ++i)
 			_alloc.destroy(&_arr[i]);
 		_alloc.deallocate(_arr, _size);
@@ -168,6 +179,26 @@ namespace ft {
 	template<typename T, typename Alloc>
 	typename vector<T, Alloc>::size_type vector<T, Alloc>::size() const {
 		return _size;
+	}
+
+	template<typename T, typename Alloc>
+	typename vector<T, Alloc>::iterator vector<T, Alloc>::begin() {
+		return VectorIterator<T>(_arr);
+	}
+
+	template<typename T, typename Alloc>
+	typename vector<T, Alloc>::iterator vector<T, Alloc>::end() {
+		return iterator(_arr + _size);
+	}
+
+	template<typename T, typename Alloc>
+	typename vector<T, Alloc>::const_iterator vector<T, Alloc>::begin() const {
+		return const_iterator(_arr);
+	}
+
+	template<typename T, typename Alloc>
+	typename vector<T, Alloc>::const_iterator vector<T, Alloc>::end() const {
+		return const_iterator (_arr + _size);
 	}
 
 }

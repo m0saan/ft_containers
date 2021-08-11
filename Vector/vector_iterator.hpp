@@ -26,7 +26,7 @@ namespace ft {
 
 		VectorIterator(const VectorIterator &other) { *this = other; }
 
-		VectorIterator &operator=(const VectorIterator &other) {
+		VectorIterator& operator=(const VectorIterator &other) {
 			if(this != &other)
 				_p = other._p;
 			return *this;
@@ -40,14 +40,20 @@ namespace ft {
 
 		T *operator->() { return operator*(_p); }
 
-		VectorIterator& operator++() { ++_p; return *this; }
+		VectorIterator &operator++() {
+			_p++;
+			return *this;
+		}
 
-		VectorIterator& operator--() { --_p; return *this; }
+		VectorIterator &operator--() {
+			_p++;
+			return *this;
+		}
 
 		// int parameter means this is postfix operator++;
 		VectorIterator operator++(int) {
-			VectorIterator tmp(*this);
-			operator++();
+			VectorIterator tmp = *this;
+			_p++;
 			return tmp;
 		}
 
@@ -76,18 +82,23 @@ namespace ft {
 			return *(_p + n);
 		}
 
+		template<class U>
+		friend bool operator==(const VectorIterator<U> &lhs, const VectorIterator<U> &rhs);
 
-		friend bool operator==(const VectorIterator &lhs, const VectorIterator &rhs);
+		template<class U>
+		friend bool operator!=(const VectorIterator<U> &lhs, const VectorIterator<U> &rhs);
 
-		friend bool operator!=(const VectorIterator &lhs, const VectorIterator &rhs);
+		template<class U>
+		friend bool operator<(const VectorIterator<U> &lhs, const VectorIterator<U> &rhs);
 
-		friend bool operator<(const VectorIterator &lhs, const VectorIterator &rhs);
+		template<class U>
+		friend bool operator<=(const VectorIterator<U> &lhs, const VectorIterator<U> &rhs);
 
-		friend bool operator<=(const VectorIterator &lhs, const VectorIterator &rhs);
+		template<class U>
+		friend bool operator>(const VectorIterator<U> &lhs, const VectorIterator<U> &rhs);
 
-		friend bool operator>(const VectorIterator &lhs, const VectorIterator &rhs);
-
-		friend bool operator>=(const VectorIterator &lhs, const VectorIterator &rhs);
+		template<class U>
+		friend bool operator>=(const VectorIterator<U> &lhs, const VectorIterator<U> &rhs);
 
 
 	protected:
@@ -95,33 +106,33 @@ namespace ft {
 		T *_p;
 	};
 
-	template<typename T>
-	bool operator==(const VectorIterator<T> &lhs, const VectorIterator<T> &rhs) {
+	template<typename U>
+	bool operator==(const VectorIterator<U> &lhs, const VectorIterator<U> &rhs) {
 		return (lhs._p == rhs._p);
 	}
 
-	template<typename T>
-	bool operator!=(const VectorIterator<T> &lhs, const VectorIterator<T> &rhs) {
+	template<typename U>
+	bool operator!=(const VectorIterator<U> &lhs, const VectorIterator<U> &rhs) {
 		return !(lhs == rhs);
 	}
 
-	template<typename T>
-	bool operator<(const VectorIterator<T> &lhs, const VectorIterator<T> &rhs) {
+	template<typename U>
+	bool operator<(const VectorIterator<U> &lhs, const VectorIterator<U> &rhs) {
 		return (lhs._p < rhs._p);
 	}
 
-	template<typename T>
-	bool operator<=(const VectorIterator<T> &lhs, const VectorIterator<T> &rhs) {
+	template<typename U>
+	bool operator<=(const VectorIterator<U> &lhs, const VectorIterator<U> &rhs) {
 		return (lhs._p <= rhs._p);
 	}
 
-	template<typename T>
-	bool operator>(const VectorIterator<T> &lhs, const VectorIterator<T> &rhs) {
+	template<typename U>
+	bool operator>(const VectorIterator<U> &lhs, const VectorIterator<U> &rhs) {
 		return !(lhs < rhs);
 	}
 
-	template<typename T>
-	bool operator>=(const VectorIterator<T> &lhs, const VectorIterator<T> &rhs) {
+	template<typename U>
+	bool operator>=(const VectorIterator<U> &lhs, const VectorIterator<U> &rhs) {
 		return !(lhs <= rhs);
 	}
 
