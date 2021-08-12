@@ -17,16 +17,37 @@
 
 namespace ft {
 
+	template<bool flag, class IsTrue, class IsFalse>
+	struct choose;
+
+	template<class IsTrue, class IsFalse>
+	struct choose<true, IsTrue, IsFalse> {
+		typedef IsTrue type;
+	};
+
+	template<class IsTrue, class IsFalse>
+	struct choose<false, IsTrue, IsFalse> {
+		typedef IsFalse type;
+	};
+
+	template<class T>
+	struct is_const : std::false_type {
+	};
+	template<class T>
+	struct is_const<const T> : std::true_type {
+	};
+
 	template<typename Vector>
-	class VectorIterator {
+	class VectorIterator : ft::iterator<std::random_access_iterator_tag, typename Vector::value_type> {
 
 	public:
 
 		typedef ptrdiff_t difference_type;
 		typedef std::random_access_iterator_tag iterator_category;
 		typedef typename Vector::value_type value_type;
-		typedef value_type &reference;
-		typedef value_type *pointer;
+
+		typedef typename choose<is_const<value_type>::value, const value_type &, value_type &>::type reference;
+		typedef typename choose<is_const<value_type>::value, const value_type *, value_type *>::type pointer;
 
 		/*
 		 * Constructor & Copy assignment operator.
@@ -46,9 +67,9 @@ namespace ft {
 		 * Overloaded operators
 		 */
 
-		reference &operator*() { return *_ptr; }
+		reference operator*() { return *_ptr; }
 
-		pointer *operator->() { return operator*(); }
+		pointer operator->() { return &(*_ptr); }
 
 		VectorIterator &operator++() {
 			_ptr++;
@@ -77,17 +98,17 @@ namespace ft {
 
 		VectorIterator operator-(difference_type n) { return VectorIterator(_ptr - n); }
 
-		VectorIterator &operator+=(difference_type n) {
+		VectorIterator operator+=(difference_type n) {
 			_ptr += n;
 			return VectorIterator(_ptr);
 		}
 
-		VectorIterator &operator-=(difference_type n) {
+		VectorIterator operator-=(difference_type n) {
 			_ptr -= n;
 			return VectorIterator(_ptr);
 		}
 
-		reference &operator[](difference_type n) {
+		reference operator[](difference_type n) {
 			assert(n > 0);
 			return *(_ptr + n);
 		}
@@ -110,6 +131,21 @@ namespace ft {
 		template<class U>
 		friend bool operator>=(const VectorIterator<U> &lhs, const VectorIterator<U> &rhs);
 
+		template<typename U>
+		friend VectorIterator<Vector>
+		operator-(typename VectorIterator<U>::difference_type n, const VectorIterator<U> &rhs);
+
+		template<typename U>
+		friend VectorIterator<Vector>
+		operator+(typename VectorIterator<U>::difference_type n, const VectorIterator<U> &rhs);
+
+		template<class Iter1, class Iter2>
+		friend typename VectorIterator<Iter1>::difference_type
+		operator-(const VectorIterator<Iter1> &lhs, const VectorIterator<Iter2> &rhs);
+
+		template<class Iter1, class Iter2>
+		friend typename VectorIterator<Iter1>::difference_type
+		operator+(const VectorIterator<Iter1> &lhs, const VectorIterator<Iter2> &rhs);
 
 	private:
 		pointer _ptr;
@@ -145,6 +181,28 @@ namespace ft {
 		return !(lhs <= rhs);
 	}
 
+	template<typename U>
+	VectorIterator<U> operator+(typename VectorIterator<U>::difference_type n, const VectorIterator<U> &rhs) {
+		return rhs + n;
+	}
+
+	template<typename U>
+	VectorIterator<U> operator-(typename VectorIterator<U>::difference_type n, const VectorIterator<U> &rhs) {
+		return rhs - n;
+	}
+
+	template<class Iter1, class Iter2>
+	typename VectorIterator<Iter1>::difference_type
+	operator-(const VectorIterator<Iter1> &lhs, const VectorIterator<Iter2> &rhs) {
+		return (lhs._ptr - rhs._ptr);
+	}
+
+	template<class Iter1, class Iter2>
+	typename VectorIterator<Iter1>::difference_type
+	operator+(const VectorIterator<Iter1> &lhs, const VectorIterator<Iter2> &rhs) {
+		return (lhs._ptr - rhs._ptr);
+	}
+
 
 	template<typename T, typename Alloc = std::allocator<T> >
 	class vector {
@@ -156,7 +214,7 @@ namespace ft {
 		typedef typename allocator_type::const_pointer const_pointer;
 
 		typedef VectorIterator<vector<T> > iterator;
-		typedef VectorIterator<const vector<T> > const_iterator;
+		typedef VectorIterator<vector<T> > const_iterator;
 		typedef reverse_iterator<const_iterator> const_reverse_iterator;
 		typedef reverse_iterator<iterator> reverse_iterator;
 		typedef std::ptrdiff_t difference_type;
@@ -432,7 +490,7 @@ namespace ft {
 
 	template<typename T, typename Alloc>
 	void vector<T, Alloc>::reserve(vector::size_type n) { if(n > _capacity) _reallocate(_alloc, n); }
-	
+
 }
 
 #endif // __VECTOR_HPP__
