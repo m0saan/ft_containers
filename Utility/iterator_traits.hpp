@@ -10,9 +10,7 @@
 namespace ft {
 
 	template<typename Iterator>
-	class iterator_traits {
-
-	public:
+	struct iterator_traits {
 
 		typedef typename Iterator::difference_type	difference_type;
 		typedef typename Iterator::value_type		value_type;

@@ -13,41 +13,22 @@
 #include "../Utility/enable_if.hpp"
 #include "../Utility/is_integral.hpp"
 #include "../Utility/iterator_traits.hpp"
-#include "vector_iterator.hpp"
+#include "../Utility/choose.hpp"
 
 namespace ft {
 
-	template<bool flag, class IsTrue, class IsFalse>
-	struct choose;
-
-	template<class IsTrue, class IsFalse>
-	struct choose<true, IsTrue, IsFalse> {
-		typedef IsTrue type;
-	};
-
-	template<class IsTrue, class IsFalse>
-	struct choose<false, IsTrue, IsFalse> {
-		typedef IsFalse type;
-	};
-
-	template<class T>
-	struct is_const : std::false_type {
-	};
-	template<class T>
-	struct is_const<const T> : std::true_type {
-	};
+	typedef ptrdiff_t difference_type;
 
 	template<typename Vector>
-	class VectorIterator : ft::iterator<std::random_access_iterator_tag, typename Vector::value_type> {
+	class VectorIterator : public ft::iterator<std::random_access_iterator_tag, typename Vector::value_type> {
 
 	public:
 
-		typedef ptrdiff_t difference_type;
 		typedef std::random_access_iterator_tag iterator_category;
 		typedef typename Vector::value_type value_type;
 
-		typedef typename choose<is_const<value_type>::value, const value_type &, value_type &>::type reference;
-		typedef typename choose<is_const<value_type>::value, const value_type *, value_type *>::type pointer;
+		typedef typename ft::choose<is_const<value_type>::value, const value_type &, value_type &>::type reference;
+		typedef typename ft::choose<is_const<value_type>::value, const value_type *, value_type *>::type pointer;
 
 		/*
 		 * Constructor & Copy assignment operator.
@@ -77,7 +58,7 @@ namespace ft {
 		}
 
 		VectorIterator &operator--() {
-			_ptr++;
+			_ptr--;
 			return *this;
 		}
 
@@ -94,101 +75,108 @@ namespace ft {
 			return tmp;
 		}
 
-		VectorIterator operator+(difference_type n) { return VectorIterator(_ptr + n); }
+		VectorIterator operator+(difference_type n) const { return VectorIterator(_ptr + n); }
 
-		VectorIterator operator-(difference_type n) { return VectorIterator(_ptr - n); }
+		VectorIterator operator-(difference_type n) const { return VectorIterator(_ptr - n); }
 
-		VectorIterator operator+=(difference_type n) {
-			_ptr += n;
-			return VectorIterator(_ptr);
-		}
+		VectorIterator operator+=(difference_type n) { _ptr += n; return VectorIterator(_ptr); }
 
-		VectorIterator operator-=(difference_type n) {
-			_ptr -= n;
-			return VectorIterator(_ptr);
-		}
+		VectorIterator operator-=(difference_type n) { _ptr -= n; return VectorIterator(_ptr); }
 
-		reference operator[](difference_type n) {
-			assert(n > 0);
-			return *(_ptr + n);
-		}
+		reference operator[](difference_type n) { assert(n >= 0); return *(_ptr + n); }
 
-		template<class U>
-		friend bool operator==(const VectorIterator<U> &lhs, const VectorIterator<U> &rhs);
+		template<class Iter>
+		friend bool operator==(const VectorIterator<Iter>&lhs, const VectorIterator<Iter> &rhs);
 
-		template<class U>
-		friend bool operator!=(const VectorIterator<U> &lhs, const VectorIterator<U> &rhs);
+		template<class Iter>
+		friend bool operator!=(const VectorIterator<Iter> &lhs, const VectorIterator<Iter> &rhs);
+		template<class Iter>
 
-		template<class U>
-		friend bool operator<(const VectorIterator<U> &lhs, const VectorIterator<U> &rhs);
+		friend bool operator<(const VectorIterator<Iter> &lhs, const VectorIterator<Iter> &rhs);
 
-		template<class U>
-		friend bool operator<=(const VectorIterator<U> &lhs, const VectorIterator<U> &rhs);
+		template<class Iter>
+		friend bool operator<=(const VectorIterator<Iter> &lhs, const VectorIterator<Iter> &rhs);
 
-		template<class U>
-		friend bool operator>(const VectorIterator<U> &lhs, const VectorIterator<U> &rhs);
+		template<class Iter>
+		friend bool operator>(const VectorIterator<Iter> &lhs, const VectorIterator<Iter> &rhs);
 
-		template<class U>
-		friend bool operator>=(const VectorIterator<U> &lhs, const VectorIterator<U> &rhs);
+		template<class Iter>
+		friend bool operator>=(const VectorIterator<Iter> &lhs, const VectorIterator<Iter>&rhs);
 
-		template<typename U>
-		friend VectorIterator<Vector>
-		operator-(typename VectorIterator<U>::difference_type n, const VectorIterator<U> &rhs);
+		template<class Iter>
+		friend VectorIterator operator-(difference_type n, const VectorIterator<Iter> &rhs);
 
-		template<typename U>
-		friend VectorIterator<Vector>
-		operator+(typename VectorIterator<U>::difference_type n, const VectorIterator<U> &rhs);
+		template<class Iter>
+		friend VectorIterator<Iter> operator+(typename VectorIterator<Iter>::difference_type, VectorIterator<Iter>);
 
 		template<class Iter1, class Iter2>
-		friend typename VectorIterator<Iter1>::difference_type
-		operator-(const VectorIterator<Iter1> &lhs, const VectorIterator<Iter2> &rhs);
+		friend typename VectorIterator<Iter1>::difference_type operator-(const VectorIterator<Iter1> &lhs,
+				const VectorIterator<Iter2> &rhs);
 
 		template<class Iter1, class Iter2>
-		friend typename VectorIterator<Iter1>::difference_type
-		operator+(const VectorIterator<Iter1> &lhs, const VectorIterator<Iter2> &rhs);
+		friend typename VectorIterator<Iter1>::difference_type operator+(const VectorIterator<Iter1> &lhs,
+				const VectorIterator<Iter2> &rhs);
 
 	private:
 		pointer _ptr;
 	};
 
-	template<typename U>
-	bool operator==(const VectorIterator<U> &lhs, const VectorIterator<U> &rhs) {
+	template<typename Iter>
+
+	bool operator==(const VectorIterator<Iter> &lhs, const VectorIterator<Iter> &rhs) {
 		return (lhs._ptr == rhs._ptr);
 	}
 
-	template<typename U>
-	bool operator!=(const VectorIterator<U> &lhs, const VectorIterator<U> &rhs) {
+	template<typename Iter>
+
+	bool operator!=(const VectorIterator<Iter>
+					&lhs, const VectorIterator<Iter>
+					&rhs) {
 		return !(lhs == rhs);
 	}
 
-	template<typename U>
-	bool operator<(const VectorIterator<U> &lhs, const VectorIterator<U> &rhs) {
+	template<typename Iter>
+
+	bool operator<(const VectorIterator<Iter>
+				   &lhs, const VectorIterator<Iter>
+				   &rhs) {
 		return (lhs._ptr < rhs._ptr);
 	}
 
-	template<typename U>
-	bool operator<=(const VectorIterator<U> &lhs, const VectorIterator<U> &rhs) {
+	template<typename Iter>
+
+	bool operator<=(const VectorIterator<Iter>
+					&lhs, const VectorIterator<Iter>
+					&rhs) {
 		return (lhs._ptr <= rhs._ptr);
 	}
 
-	template<typename U>
-	bool operator>(const VectorIterator<U> &lhs, const VectorIterator<U> &rhs) {
+	template<typename Iter>
+
+	bool operator>(const VectorIterator<Iter>
+				   &lhs, const VectorIterator<Iter>
+				   &rhs) {
 		return !(lhs < rhs);
 	}
 
-	template<typename U>
-	bool operator>=(const VectorIterator<U> &lhs, const VectorIterator<U> &rhs) {
+	template<typename Iter>
+
+	bool operator>=(const VectorIterator<Iter>
+					&lhs, const VectorIterator<Iter>
+					&rhs) {
 		return !(lhs <= rhs);
 	}
 
-	template<typename U>
-	VectorIterator<U> operator+(typename VectorIterator<U>::difference_type n, const VectorIterator<U> &rhs) {
-		return rhs + n;
+	template<class Iter>
+	VectorIterator<Iter> operator+(typename VectorIterator<Iter>::difference_type n, VectorIterator<Iter> rhs) {
+		rhs += n;
+		return rhs;
 	}
 
-	template<typename U>
-	VectorIterator<U> operator-(typename VectorIterator<U>::difference_type n, const VectorIterator<U> &rhs) {
-		return rhs - n;
+	template<class Iter>
+	VectorIterator<Iter> operator-(difference_type n, const VectorIterator<Iter> &rhs) {
+		rhs -= n;
+		return rhs;
 	}
 
 	template<class Iter1, class Iter2>
@@ -200,7 +188,7 @@ namespace ft {
 	template<class Iter1, class Iter2>
 	typename VectorIterator<Iter1>::difference_type
 	operator+(const VectorIterator<Iter1> &lhs, const VectorIterator<Iter2> &rhs) {
-		return (lhs._ptr - rhs._ptr);
+		return (lhs._ptr + rhs._ptr);
 	}
 
 
@@ -215,8 +203,8 @@ namespace ft {
 
 		typedef VectorIterator<vector<T> > iterator;
 		typedef VectorIterator<vector<T> > const_iterator;
-		typedef reverse_iterator<const_iterator> const_reverse_iterator;
-		typedef reverse_iterator<iterator> reverse_iterator;
+		typedef reverse_iterator< const iterator > const_reverse_iterator;
+		typedef reverse_iterator<iterator > reverse_iterator;
 		typedef std::ptrdiff_t difference_type;
 		typedef std::size_t size_type;
 
@@ -418,22 +406,23 @@ namespace ft {
 
 	template<typename T, typename Alloc>
 	typename vector<T, Alloc>::reverse_iterator vector<T, Alloc>::rbegin() {
-		return reverse_iterator(end());
+
+		return reverse_iterator (iterator(end()));
 	}
 
 	template<typename T, typename Alloc>
 	typename vector<T, Alloc>::reverse_iterator vector<T, Alloc>::rend() {
-		return reverse_iterator(begin());
+		return reverse_iterator(iterator(begin() - 1));
 	}
 
 	template<typename T, typename Alloc>
 	typename vector<T, Alloc>::const_reverse_iterator vector<T, Alloc>::rbegin() const {
-		return reverse_iterator(end());;
+		return reverse_iterator(end() - 1);;
 	}
 
 	template<typename T, typename Alloc>
 	typename vector<T, Alloc>::const_reverse_iterator vector<T, Alloc>::rend() const {
-		return reverse_iterator(begin());
+		return reverse_iterator(begin() - 1);
 	}
 
 	template<typename T, typename Alloc>
