@@ -6,7 +6,6 @@
 #define __VECTOR_HPP__
 
 #include <memory>
-#include <algorithm>
 
 #include "../Utility/iterator.hpp"
 #include "../Utility/reverse_iterator.hpp"
@@ -15,6 +14,8 @@
 #include "../Utility/iterator_traits.hpp"
 #include "../Utility/choose.hpp"
 #include "../Utility/initializer_list.hpp"
+
+#include <algorithm>
 
 namespace ft {
 
@@ -252,7 +253,11 @@ namespace ft {
 
                 void print();
 
+                allocator_type get_allocator() const;
+
                 void push_back(const T &value);
+
+                void pop_back();
 
                 size_type max_size() const;
 
@@ -276,6 +281,13 @@ namespace ft {
                 const_reference back() const;
 
                 pointer data();
+
+                void clear();
+
+                iterator insert( iterator pos, const T& value );
+                // void insert( iterator pos, size_type count, const T& value );
+                // template< typename InputIt >
+                //     void insert( iterator pos, InputIt first, InputIt last);
 
                 iterator begin();
 
@@ -400,6 +412,11 @@ namespace ft {
         }
 
     template<typename T, typename Alloc>
+        typename vector<T, Alloc>::allocator_type vector<T, Alloc>::get_allocator() const {
+            return _alloc;
+        }
+
+    template<typename T, typename Alloc>
         void vector<T, Alloc>::_deallocate(std::size_t start, std::size_t end, bool reset) {
             if(!_size) return;
             for(std::size_t i = start; i < end; ++i)
@@ -462,6 +479,12 @@ namespace ft {
             return _arr;
         }
 
+    template <typename T, typename Alloc>
+        void vector<T, Alloc>::clear() {
+            _alloc.deallocate(_arr, _size);
+            _size = 0;
+        }
+
     template<typename T, typename Alloc>
         typename vector<T, Alloc>::iterator vector<T, Alloc>::begin() {
             return iterator(_arr);
@@ -505,12 +528,18 @@ namespace ft {
 
     template<typename T, typename Alloc>
         void vector<T, Alloc>::push_back(const value_type &value) {
-            int newSize = 0;
+            std::size_t newSize = 0;
             if (_size + 1 > _capacity) {
-                newSize = std::max(1, 2 * _size);
+                newSize = std::max((std::size_t) 1, (std::size_t) 2 * _size);
                 _reallocate(_alloc, newSize);
             }
             _arr[_size++] = value;
+        }
+
+    template <typename T, typename Alloc>
+        void vector<T, Alloc>::pop_back() {
+            _alloc.destroy(&back());
+            --_size; 
         }
 
     template<typename T, typename Alloc>
@@ -556,6 +585,18 @@ namespace ft {
     template<typename T, typename Alloc>
         void vector<T, Alloc>::reserve(vector::size_type n) { if(n > _capacity) _reallocate(_alloc, n); }
 
+    template <typename T, typename Alloc>
+        typename vector<T, Alloc>::iterator vector<T, Alloc>::insert( vector<T, Alloc>::iterator pos, const T& value ){
+            std::size_t dst = pos - begin();
+            if (_size + 1 >= _capacity)
+                _reallocate(_alloc, std::max((std::size_t)1, _size * 2));
+            std::size_t last = _size;
+            for (; last > dst; --last)
+                _arr[last + 1]= _arr[last];
+            ++_size;
+            _arr[dst] = value;
+            return iterator (_arr + dst);
+        }
 }
 
 #endif // __VECTOR_HPP__
