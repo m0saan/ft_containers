@@ -62,8 +62,53 @@ namespace ft {
 			return current != NULL;
 		}
 
-	private:
+		void preOrderTraversal() {
+			_preOrderTraversal(_root);
+			std::cout << std::endl;
+		}
+
+		void inOrderTraversal() {
+			_inOrderTraversal(_root);
+			std::cout << std::endl;
+		}
+
+		void postOrderTraversal() {
+			_postOrderTraversal(_root);
+			std::cout << std::endl;
+		}
+
+	private: // /* Private Member Variables */
+
 		Node *_root;
+
+	private: // /* Private Member Functions */
+
+		void _preOrderTraversal(Node *root) {
+			if (root == NULL)
+				return;
+
+			std::cout << root->_value << ' ';
+			_preOrderTraversal(root->_leftChild);
+			_preOrderTraversal(root->_rightChild);
+		}
+
+		void _inOrderTraversal(Node* root) {
+			if (root == NULL)
+				return;
+
+			_inOrderTraversal(root->_leftChild);
+			std::cout << root->_value << ' ';
+			_inOrderTraversal(root->_rightChild);
+		}
+
+		void _postOrderTraversal(Node* root) {
+			if (root == NULL)
+				return;
+
+			_postOrderTraversal(root->_leftChild);
+			_postOrderTraversal(root->_rightChild);
+			std::cout << root->_value << ' ';
+		}
 
 	};
 }
