@@ -16,14 +16,14 @@ int main() {
 		ft::stack<int> c2(c1);
 		std::cout << c2.size() << '\n';
 
-		std::vector<int> vec {3, 1, 4, 1, 5};
+		ft::vector<int> vec(2, 10);
 		ft::stack<int> c3(vec);
 		std::cout << c3.size() << '\n';
 	}
 
 	std::cout << "********************* <Testing Top() method. *********************" << std::endl;
 	{
-		std::stack<int>   s;
+		ft::stack<int>   s;
 
 		s.push( 2 );
 		s.push( 6 );
@@ -43,7 +43,7 @@ int main() {
 	{
 		std::cout << std::boolalpha;
 
-		std::stack<int> container;
+		ft::stack<int> container;
 
 		std::cout << "Initially, container.empty(): " << container.empty() << '\n';
 
@@ -55,7 +55,7 @@ int main() {
 	{
 		std::cout << std::boolalpha;
 
-		std::stack<int> container;
+		ft::stack<int> container;
 
 		std::cout << "Initially, container.size(): " << container.size() << '\n';
 
