@@ -23,6 +23,11 @@ namespace ft {
 
 
 	public:
+
+		typedef T value_type;
+		typedef T &reference;
+		typedef T *pointer;
+
 		BST() : _root(NULL) {}
 
 		void insert(const T &value) {
@@ -62,19 +67,43 @@ namespace ft {
 			return current != NULL;
 		}
 
-		void preOrderTraversal() {
+		/**************************/
+		/* BST Traversal Methods */
+		/**************************/
+
+		void preOrderTraversal() const _NOEXCEPT {
 			_preOrderTraversal(_root);
 			std::cout << std::endl;
 		}
 
-		void inOrderTraversal() {
+		void inOrderTraversal() const _NOEXCEPT {
 			_inOrderTraversal(_root);
 			std::cout << std::endl;
 		}
 
-		void postOrderTraversal() {
+		void postOrderTraversal() const _NOEXCEPT {
 			_postOrderTraversal(_root);
 			std::cout << std::endl;
+		}
+
+		/**************************/
+		/* BST Depth and Height */
+		/**************************/
+
+		int height() const _NOEXCEPT {
+			if(_root == NULL)
+				return -1;
+			return _height(_root);
+		}
+
+		value_type min() const {
+			if(_root == NULL)
+				throw std::bad_exception();
+			return _min(_root);
+		}
+
+		bool equals(const BST<T> &other) {
+			return _equals(_root, other._root);
 		}
 
 	private: // /* Private Member Variables */
@@ -83,8 +112,8 @@ namespace ft {
 
 	private: // /* Private Member Functions */
 
-		void _preOrderTraversal(Node *root) {
-			if (root == NULL)
+		void _preOrderTraversal(Node *root) const _NOEXCEPT {
+			if(root == NULL)
 				return;
 
 			std::cout << root->_value << ' ';
@@ -92,8 +121,8 @@ namespace ft {
 			_preOrderTraversal(root->_rightChild);
 		}
 
-		void _inOrderTraversal(Node* root) {
-			if (root == NULL)
+		void _inOrderTraversal(Node *root) const _NOEXCEPT {
+			if(root == NULL)
 				return;
 
 			_inOrderTraversal(root->_leftChild);
@@ -101,13 +130,43 @@ namespace ft {
 			_inOrderTraversal(root->_rightChild);
 		}
 
-		void _postOrderTraversal(Node* root) {
-			if (root == NULL)
+		void _postOrderTraversal(Node *root) const _NOEXCEPT {
+			if(root == NULL)
 				return;
 
 			_postOrderTraversal(root->_leftChild);
 			_postOrderTraversal(root->_rightChild);
 			std::cout << root->_value << ' ';
+		}
+
+		std::size_t _height(Node *root) const _NOEXCEPT {
+			if(isLeaf(root))
+				return 0;
+
+			return 1 + std::max(_height(root->_leftChild), _height(root->_rightChild));
+		}
+
+		bool isLeaf(const Node *root) const { return root->_leftChild == NULL && root->_rightChild == NULL; }
+
+		value_type _min(Node *root) const {
+			if(isLeaf(root))
+				return root->_value;
+
+			value_type leftMin = _min(root->_leftChild);
+			value_type rightMin = _min(root->_rightChild);
+
+			return std::min(std::min(leftMin, rightMin), root->_value);
+		}
+
+		bool _equals(Node *root, Node *other) {
+			if(root == NULL && other == NULL)
+				return true;
+
+			if(root != NULL && other != NULL)
+				return (root->_value == other->_value
+						&& _equals(root->_leftChild, other->_leftChild)
+						&& _equals(root->_rightChild, other->_rightChild));
+			return false;
 		}
 
 	};
