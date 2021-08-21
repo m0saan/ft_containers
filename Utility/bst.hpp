@@ -5,20 +5,23 @@
 #ifndef __BST_HPP__
 #define __BST_HPP__
 
+#include "../Vector/vector.hpp"
+
 namespace ft {
 
 	template<typename T>
 	class BST {
 
-	private:
+	protected:
 
 		class Node {
 		public:
 			explicit Node(T const &value, Node *left = NULL, Node *right = NULL)
-					: _value(value), _leftChild(left), _rightChild(right) {}
+					: _value(value), _leftChild(left), _rightChild(right), _height(0) {}
 
 			T _value;
 			Node *_leftChild, *_rightChild;
+			std::size_t _height;
 		};
 
 
@@ -29,8 +32,9 @@ namespace ft {
 		typedef T *pointer;
 
 		BST() : _root(NULL) {}
+		virtual ~BST() {}
 
-		void insert(const T &value) {
+		virtual void insert(const T &value) {
 			Node *newNode = new Node(value);
 			if(_root == NULL)
 				_root = newNode;
@@ -86,6 +90,12 @@ namespace ft {
 			std::cout << std::endl;
 		}
 
+		void traverseLevelOrder() {
+			int treeHeight = height();
+			for(int i = 0; i <= treeHeight; ++i)
+				getNodesAtDistance(i);
+		}
+
 		/**************************/
 		/* BST Depth and Height */
 		/**************************/
@@ -98,7 +108,7 @@ namespace ft {
 
 		value_type min() const {
 			if(_root == NULL)
-				throw std::bad_exception();
+				throw std::logic_error("root node is null");
 			return _min(_root);
 		}
 
@@ -106,7 +116,18 @@ namespace ft {
 			return _equals(_root, other._root);
 		}
 
-	private: // /* Private Member Variables */
+		void getNodesAtDistance(int k) {
+			if(!_root)
+				throw std::logic_error("root node is null");
+			ft::vector<T> nodes;
+			_getNodesAtDistance(_root, k, nodes);
+
+			for(typename ft::vector<T>::size_type i = 0; i < nodes.size(); ++i)
+				std::cout << nodes[i] << ' ';
+			std::cout << std::endl;
+		}
+
+	protected: // /* Private Member Variables */
 
 		Node *_root;
 
@@ -167,6 +188,15 @@ namespace ft {
 						&& _equals(root->_leftChild, other->_leftChild)
 						&& _equals(root->_rightChild, other->_rightChild));
 			return false;
+		}
+
+		void _getNodesAtDistance(Node *root, int k, ft::vector<T> &nodes) {
+			if(k == 0) {
+				nodes.push_back(root->_value);
+				return;
+			}
+			_getNodesAtDistance(root->_leftChild, k - 1, nodes);
+			_getNodesAtDistance(root->_rightChild, k - 1, nodes);
 		}
 
 	};
