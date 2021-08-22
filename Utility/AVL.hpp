@@ -6,22 +6,193 @@
 #define __AVL_HPP__
 
 #include "bst.hpp"
+#include "iterator.hpp"
 
 namespace ft {
 
-	template<typename T>
+	template<typename AVL>
+	class AVLTreeIterator : public ft::iterator<std::bidirectional_iterator_tag, typename AVL::value_type> {
+
+	public:
+
+		typedef typename AVL::Key key_type;
+		typedef typename AVL::mapped_type mapped_type;
+		typedef std::pair<const key_type, mapped_type> value_type;
+		typedef std::size_t size_type;
+		typedef std::ptrdiff_t difference_type;
+		typedef typename AVL::Compare key_compare;
+		typedef value_type &reference;
+		typedef const value_type &const_reference;
+		typedef typename AVL::pointer pointer;
+		typedef typename AVL::const_pointer const_pointer;
+		typedef AVLTreeIterator<value_type> iterator;
+		typedef AVLTreeIterator<const value_type> const_iterator;
+		typedef ft::reverse_iterator<iterator> reverse_iterator;
+		typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
+
+
+		explicit AVLTreeIterator(pointer _t = NULL) : _base(_t) {}
+
+		AVLTreeIterator(const AVLTreeIterator &other) {
+			*this = other;
+		}
+
+		AVLTreeIterator &operator=(const AVLTreeIterator &other) {
+			if(this != &other) { _base = other._base; }
+			return *this;
+		}
+
+		reference operator*() const _NOEXCEPT {
+			return *_base;
+		}
+
+		pointer operator->() const _NOEXCEPT {
+			return &(*_base);
+		}
+
+		AVLTreeIterator &operator++() _NOEXCEPT {
+			// _ptr++;
+			return *this;
+		}
+
+		AVLTreeIterator &operator--() {
+			// _ptr--;
+			return *this;
+		}
+
+		// postincrement
+		AVLTreeIterator operator++ (int) {
+
+		}
+
+
+		// postdecrement
+		AVLTreeIterator  operator-- (int) {
+
+		}
+
+		friend bool operator==(const AVLTreeIterator &lhs, const AVLTreeIterator &rhs);
+
+		friend bool operator!=(const AVLTreeIterator &lhs, const AVLTreeIterator &rhs);
+
+	private:
+		pointer _base;
+	};
+
+	template<typename AVL>
+	bool operator==(const AVLTreeIterator<AVL> &lhs, const AVLTreeIterator<AVL> &rhs) {
+		return lhs.equals(rhs);
+	}
+
+	template<typename AVL>
+	bool operator!=(const AVLTreeIterator<AVL> &lhs, const AVLTreeIterator<AVL> &rhs) {
+		return !(lhs.equals(rhs));
+	}
+
+
+	template<typename T, typename Compare>
 	class AVL : public BST<T> {
 	public:
 
-		typedef typename BST<T>::Node Node;
+		typedef T value_type;
+		typedef typename T::first_type first_type;
+		typedef typename T::second_type second_type;
+		typedef typename BST<value_type>::Node Node;
+		typedef std::size_t size_type;
+		typedef std::ptrdiff_t difference_type;
+		typedef Compare key_compare;
+		typedef value_type &reference;
+		typedef const value_type &const_reference;
+		typedef T *pointer;
+		typedef const T *const_pointer;
 
+		typedef AVLTreeIterator<value_type> const_iterator;
+		typedef const_iterator iterator;
+
+		typedef ft::reverse_iterator<iterator> reverse_iterator;
+		typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
+
+		/**
+		 * Constructor and Destructor.
+		 */
 		AVL() {}
 
 		~AVL() {}
 
+
+		/**
+		 * Insert x into the tree; duplicates are ignored.
+		 */
+
 		void insert(const T &value) {
 			Node *newNode = new Node(value);
 			this->_root = _insert(this->_root, newNode, value);
+			_last = newNode;
+		}
+
+		/*
+  		 *	search for item. if found, return an iterator pointing
+   		 *	at it in the tree; otherwise, return end()
+		*/
+		const_iterator find(const value_type &item) const {
+
+		}
+
+		/*
+		 * Find the smallest item in the tree
+		 *
+		*/
+		reference findMin() const _NOEXCEPT {
+
+		}
+
+		/*
+		 * Find the greatest item in the tree
+		*/
+
+		reference findMax() const _NOEXCEPT {
+
+		}
+
+		/*
+		 * returns true if found otherwise false
+		 */
+
+		bool contains(const value_type &x) const _NOEXCEPT {
+
+		}
+
+		/* Test if the tree is logically empty.
+		* Return true if empty, false otherwise.
+		*/
+		bool isEmpty() const { return this->_root == NULL; }
+
+
+		/*
+ 		* Make the tree logically empty.
+ 		*/
+		void makeEmpty();
+
+
+		/**
+		 * Remove x from the tree. Nothing is done if x is not found.
+		 */
+		void remove(const value_type &x);
+
+		/**
+		 * return an iterator pointing to the first item (inorder)
+ 		*/
+		const_iterator begin() const _NOEXCEPT {
+			return iterator(this->_root);
+		}
+
+		/**
+		 * return an iterator pointing just past the end of
+		 * the tree data
+		 */
+
+		iterator end() const _NOEXCEPT {
+			return iterator(_last + 1);
 		}
 
 	private:
@@ -30,14 +201,14 @@ namespace ft {
 			if(!root)
 				return newNode;
 
-			if (value > root->_value)
+			if(value > root->_value)
 				root->_rightChild = _insert(root->_rightChild, newNode, value);
 			else
 				root->_leftChild = _insert(root->_leftChild, newNode, value);
 
 			root->_height = 1 + std::max(getHeight(root->_leftChild), getHeight(root->_rightChild));
 
-			return balanceTree(root);;
+			return balanceTree(root);
 		}
 
 		Node *balanceTree(Node *root) {
@@ -51,8 +222,6 @@ namespace ft {
 				if(_getBalanceFactor(root->_rightChild) > 0)
 					root->_rightChild = root = _rightRotate(root);
 			return _leftRotate(root);
-
-			return root;
 		}
 
 		Node *_leftRotate(Node *root) {
@@ -87,6 +256,9 @@ namespace ft {
 			if(!node) return -1;
 			return node->_height;
 		}
+
+	private:
+		Node *_last;
 
 	};
 }
