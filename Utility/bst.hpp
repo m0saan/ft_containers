@@ -16,11 +16,11 @@ namespace ft {
 
 		class Node {
 		public:
-			explicit Node(T const &value, Node *left = NULL, Node *right = NULL)
-					: _value(value), _leftChild(left), _rightChild(right), _height(0) {}
+			explicit Node(T const &value, Node *left = NULL, Node *right = NULL, Node *par = NULL)
+					: _value(value), _leftChild(left), _rightChild(right), _parent(par), _height(0) {}
 
 			T _value;
-			Node *_leftChild, *_rightChild;
+			Node *_leftChild, *_rightChild, *_parent;
 			std::size_t _height;
 		};
 
@@ -32,6 +32,7 @@ namespace ft {
 		typedef T *pointer;
 
 		BST() : _root(NULL) {}
+
 		virtual ~BST() {}
 
 		virtual void insert(const T &value) {
