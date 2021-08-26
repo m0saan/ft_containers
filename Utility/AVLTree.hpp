@@ -7,6 +7,8 @@
 
 #include "iterator.hpp"
 #include "reverse_iterator.hpp"
+#include "choose.hpp"
+
 #include <map>
 
 namespace ft {
@@ -30,25 +32,26 @@ namespace ft {
 
 		public:
 
+			typedef T value_type;
 			typedef typename T::first_type key_type;
 			typedef typename T::second_type mapped_type;
-			typedef std::pair<const key_type, mapped_type> value_type;
-
-			friend class AVLTree;
-
-
+			// typedef value_type* pointer;
+			// typedef value_type& reference;
 			typedef std::size_t size_type;
 			typedef std::ptrdiff_t difference_type;
 			//typedef typename AVLTree<T>::Compare key_compare;
-			typedef value_type &reference;
-			typedef const value_type &const_reference;
-			typedef T *pointer;
-			typedef const pointer const_pointer;
 			typedef AVLTreeIterator const_iterator;
 			typedef const_iterator iterator;
 			typedef ft::reverse_iterator<iterator> reverse_iterator;
 			typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
 
+			typedef typename ft::choose<is_const<value_type>::value, const value_type &, value_type &>::type reference;
+			typedef typename ft::choose<is_const<value_type>::value, const value_type *, value_type *>::type pointer;
+
+
+			friend class AVLTree;
+
+			AVLTreeIterator() : _nodePtr(), _tree() {}
 
 			AVLTreeIterator(const AVLTreeIterator &other) {
 				*this = other;
@@ -64,11 +67,11 @@ namespace ft {
 			}
 
 			reference operator*() const _NOEXCEPT {
-				return *_nodePtr->_value;
+				return _nodePtr->_value;
 			}
 
 			pointer operator->() const {
-				return &(*_nodePtr->_value);
+				return (&this->_nodePtr->_value);
 			}
 
 			AVLTreeIterator &operator++() {
@@ -185,6 +188,8 @@ namespace ft {
 			}
 
 			friend bool operator==(const AVLTreeIterator &lhs, const AVLTreeIterator &rhs) {
+				if (!lhs._nodePtr && !rhs._nodePtr)
+					return true;
 				return lhs._nodePtr->_value == rhs._nodePtr->_value;
 			}
 
@@ -202,10 +207,10 @@ namespace ft {
 			root pointer, which is needed for ++ and --
 			when the iterator value is end.
 			 */
-			const Node *_nodePtr;
+			Node *_nodePtr;
 			const AVLTree *_tree;
 
-			AVLTreeIterator(const Node *p, const AVLTree *t) : _nodePtr(p), _tree(t) {}
+			AVLTreeIterator(Node *p, const AVLTree *t) : _nodePtr(p), _tree(t) {}
 		};
 
 
@@ -218,15 +223,12 @@ namespace ft {
 		typedef std::ptrdiff_t difference_type;
 		// typedef Compare key_compare;
 		typedef value_type &reference;
-		typedef const value_type &const_reference;
 		typedef T *pointer;
-		typedef const T *const_pointer;
 
-		typedef AVLTreeIterator const_iterator;
-		typedef const_iterator iterator;
+		typedef AVLTreeIterator iterator;
 
 		typedef ft::reverse_iterator<iterator> reverse_iterator;
-		typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
+		// typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
 
 		/**
 		 * Constructor and Destructor.
@@ -249,7 +251,7 @@ namespace ft {
   		 *	search for item. if found, return an iterator pointing
    		 *	at it in the tree; otherwise, return end()
 		*/
-		const_iterator find(const value_type &value) const {
+		iterator find(const value_type &value) const {
 			Node *current = _root;
 			while(current != NULL) {
 				if(value > current->_value)
@@ -288,8 +290,8 @@ namespace ft {
 		/**
 		 * return an iterator pointing to the first item (inorder)
  		*/
-		const_iterator inline begin() const _NOEXCEPT {
-			return const_iterator(min(), this);
+		iterator inline begin() const _NOEXCEPT {
+			return iterator(min(), this);
 		}
 
 
@@ -298,7 +300,7 @@ namespace ft {
 		 * the tree data
 		 */
 
-		const_iterator inline end() const _NOEXCEPT {
+		iterator inline end() const _NOEXCEPT {
 			return iterator(NULL, this);
 		}
 
@@ -535,3 +537,8 @@ namespace ft {
 }
 
 #endif // __AVL_HPP__
+
+
+
+// std::__1::pair<const int, std::__1::basic_string<char> > *
+// std::__1::pair<int, std::__1::basic_string<char> > *
