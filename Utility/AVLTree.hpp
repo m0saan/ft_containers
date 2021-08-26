@@ -35,15 +35,11 @@ namespace ft {
 			typedef T value_type;
 			typedef typename T::first_type key_type;
 			typedef typename T::second_type mapped_type;
-			// typedef value_type* pointer;
-			// typedef value_type& reference;
 			typedef std::size_t size_type;
 			typedef std::ptrdiff_t difference_type;
 			//typedef typename AVLTree<T>::Compare key_compare;
 			typedef AVLTreeIterator const_iterator;
 			typedef const_iterator iterator;
-			typedef ft::reverse_iterator<iterator> reverse_iterator;
-			typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
 
 			typedef typename ft::choose<is_const<value_type>::value, const value_type &, value_type &>::type reference;
 			typedef typename ft::choose<is_const<value_type>::value, const value_type *, value_type *>::type pointer;
@@ -99,7 +95,7 @@ namespace ft {
 						 *	right subtree
 						 */
 						_nodePtr = _nodePtr->_rightChild;
-						while(!_nodePtr)
+						while(_nodePtr->_leftChild != NULL)
 							_nodePtr = _nodePtr->_leftChild;
 					} else {
 						// have already processed the left subtree, and
@@ -188,7 +184,7 @@ namespace ft {
 			}
 
 			friend bool operator==(const AVLTreeIterator &lhs, const AVLTreeIterator &rhs) {
-				if (!lhs._nodePtr && !rhs._nodePtr)
+				if(!lhs._nodePtr && !rhs._nodePtr)
 					return true;
 				return lhs._nodePtr->_value == rhs._nodePtr->_value;
 			}
@@ -243,15 +239,30 @@ namespace ft {
 		 */
 
 		void insert(const T &value) {
-			Node *newNode = new Node(value);
-			_root = _insert(this->_root, newNode, value);
+			if(!findByKey(value)) {
+				Node *newNode = new Node(value);
+				_root = _insert(this->_root, newNode, value);
+			}
 		}
 
 		/*
   		 *	search for item. if found, return an iterator pointing
    		 *	at it in the tree; otherwise, return end()
 		*/
-		iterator find(const value_type &value) const {
+		bool findByKey(const value_type &value) const {
+			Node *current = _root;
+			while(current != NULL) {
+				if(value.first > current->_value.first)
+					current = current->_rightChild;
+				else if(value.first < current->_value.first)
+					current = current->_leftChild;
+				else
+					return true;
+			}
+			return false;
+		}
+
+		std::pair<iterator, bool> find(const value_type &value) const {
 			Node *current = _root;
 			while(current != NULL) {
 				if(value > current->_value)
@@ -261,7 +272,9 @@ namespace ft {
 				else
 					break;
 			}
-			return current != NULL;
+			return (std::make_pair(current, current != NULL
+											&& current->_value->first == value->first
+											&& current->_value->second == value->second));
 		}
 
 		/*
@@ -314,9 +327,9 @@ namespace ft {
 
 			if(value > root->_value)
 				root->_rightChild = _insert(root->_rightChild, newNode, value, root);
-			else
+			else if(value < root->_value)
 				root->_leftChild = _insert(root->_leftChild, newNode, value, root);
-
+			else;
 			root->_height = 1 + std::max(_getHeight(root->_leftChild), _getHeight(root->_rightChild));
 
 			return _balanceTree(root);
@@ -401,11 +414,11 @@ namespace ft {
 
 			if(_isLeftHeavy(balanceFactor)) {
 				if(_getBalanceFactor(root->_leftChild) < 0)
-					root->_leftChild = _leftRotate(root);
+					root->_leftChild = _leftRotate(root->_leftChild);
 				return _rightRotate(root);
 			} else if(_isRightHeavy(balanceFactor)) {
 				if(_getBalanceFactor(root->_rightChild) > 0)
-					root->_rightChild = _rightRotate(root);
+					root->_rightChild = _rightRotate(root->_rightChild);
 				return _leftRotate(root);
 			}
 			return root;
