@@ -1,43 +1,10 @@
 #include <iostream>
 #include "Vector/vector.hpp"
+#include "Map/map.hpp"
+#include "Utility/AVLTree.hpp"
+#include "Utility/bst.hpp"
 #include <iterator>
 #include <vector>
-
-#if 0
-template<typename T>
-void print_elem(const T &t) {
-    std::cout << "(" << t << ") ";
-}
-
-template<typename T>
-void print_collection(const T &t) {
-    std::cout << "  " << t.size() << " elements: ";
-
-    for(const auto &p : t) {
-        print_elem(p);
-    }
-    std::cout << std::endl;
-}
-
-#endif
-
-    template<typename T>
-void print(T const & xs)
-{
-    std::cout << "[ ";
-    for(auto const & x : xs) {
-        std::cout << x << ' ';
-    }
-    std::cout << "]\n";
-}
-
-
-using namespace std;
-class Foo {
-    public:
-        Foo () { cout << "Foo is Born!" << endl;}
-        ~Foo() { cout << "Foo is Gone!" << endl;}
-};
 
 int main() {
 #if 0
@@ -311,14 +278,10 @@ int main() {
     }
 
 #endif
-    {
 
-        ft::vector<int> vec(3,100);
-        print(vec);
-
-        auto it = vec.begin();
-        it = vec.insert(it, 200);
-        print(vec);
+    ft::AVLTree::AVLTree<std::pair<int, std::string> > avlTree;
+    for (int i = 0; i < 10; ++i) {
+        ft::
     }
     return 0;
 }
