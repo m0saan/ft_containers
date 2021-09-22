@@ -301,6 +301,8 @@ namespace ft {
 		template<typename InputIt>
 		void assign(InputIt first, InputIt last);
 
+		// void swap(vector &other);
+
 		iterator begin();
 
 		iterator end();
@@ -664,8 +666,11 @@ namespace ft {
 		_fill(first, last);
 		_size = dst;
 	}
+
+	// template<typename T, typename Alloc>
+	// void vector<T, Alloc>::swap(vector &other) {
+	// 	pointer beginTmp = begin();
+	// 	pointer endTmp = end();}
 }
 
 #endif // __VECTOR_HPP__
-
-

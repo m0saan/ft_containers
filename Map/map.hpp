@@ -6,32 +6,18 @@
 #define __MAP_HPP__
 
 #include <functional>
-#include "../Utility/AVL.hpp"
+#include "../Utility/AVLTree.hpp"
 #include "../Utility/reverse_iterator.hpp"
 #include "../Utility/enable_if.hpp"
 #include <map>
 
 namespace ft {
 
-
-	template<class Map>
-	class MapIterator {
-	public:
-		typedef typename Map::value_type value_type;
-		typedef typename Map::pointer pointer;
-		typedef typename Map::reference reference;
-
-		explicit MapIterator(pointer p = NULL) : _ptr(p) {}
-
-	private:
-		pointer _ptr;
-	};
-
 	template <
 			typename Key,
 			typename T,
 			typename Compare = std::less<Key>,
-			typename Allocator = std::allocator<std::pair<const Key, T>>
+			typename Allocator = std::allocator<std::pair<const Key, T> >
 	>
 	class map {
 
@@ -39,7 +25,7 @@ namespace ft {
 
 		typedef Key key_type;
 		typedef T mapped_type;
-		typedef std::pair<const Key, T> value_type;
+		typedef std::pair<Key, T> value_type;
 		typedef std::size_t size_type;
 		typedef std::ptrdiff_t difference_type;
 		typedef Compare key_compare;
@@ -48,16 +34,29 @@ namespace ft {
 		typedef const value_type &const_reference;
 		typedef typename Allocator::pointer pointer;
 		typedef typename Allocator::const_pointer const_pointer;
-		typedef MapIterator<value_type> iterator;
-		typedef MapIterator<const value_type> const_iterator;
+		typedef typename AVLTree<value_type, Compare>::AVLTreeIterator iterator;
+		typedef const iterator const_iterator;
 		typedef ft::reverse_iterator<iterator> reverse_iterator;
 		typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
 
 
-		map() {}
+		class value_compare {
+
+		protected:
+
+			explicit value_compare(Compare c) : comp(c) {}
+			bool operator()(const value_type& lhs, const value_type& rhs) const {
+				return comp(lhs.first, rhs.first);
+			}
+
+			Compare comp;
+		};
+
+
+		map() : _tree(), _size(), _compare() {}
 
 		explicit map(const Compare &comp, const Allocator &alloc = Allocator())
-				: _compare(comp), _alloc(alloc) {}
+		: _tree(), _size(), _compare(comp), _alloc(alloc) {}
 
 		template<class InputIt>
 		map(InputIt first, InputIt last, const Compare &comp = Compare(),
@@ -80,16 +79,15 @@ namespace ft {
 			return *this;
 		}
 
-		reference operator[](const Key &key) {
+		mapped_type& operator[](const Key &key) {
 			return insert(std::make_pair(key, T())).first->second;
 		}
 
 		std::pair<iterator, bool> insert(const value_type &value) {
-			bool isFound = _tree.find(value);
-			if (isFound)
-				return std::make_pair(iterator(), false);
-			_tree.insert(value);
-			return std::make_pair(iterator(), true);
+			std::pair<iterator, bool> res = _tree.find(value);
+			if (res.second)
+				return res;
+			return _tree.insert(value);
 		}
 
 		iterator insert(iterator hint, const value_type &value) {
@@ -106,20 +104,28 @@ namespace ft {
 		 */
 
 		size_type size() const _NOEXCEPT {
-			return _size;
+			return _tree.size();
 		}
 
 		bool empty() const _NOEXCEPT {
-			return _size == 0;
+			return _tree.isEmpty();
 		}
 
 		size_type max_size() const _NOEXCEPT {
 			return _alloc.max_size();
 		}
 
+		iterator begin() const _NOEXCEPT {
+			return iterator(_tree.begin());
+		}
+
+		iterator end() const _NOEXCEPT {
+			return iterator(_tree.end());
+		}
+
 	private:
 
-		AVL<value_type> _tree;
+		AVLTree<value_type, Compare> _tree;
 		allocator_type _alloc;
 		std::size_t _size;
 		key_compare _compare;
