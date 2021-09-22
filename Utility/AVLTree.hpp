@@ -16,7 +16,7 @@ namespace ft {
 	template<typename T, typename Compare>
 	class AVLTree {
 
-	private:
+	public:
 
 		class Node {
 		public:
@@ -229,7 +229,7 @@ namespace ft {
 		/**
 		 * Constructor and Destructor.
 		 */
-		AVLTree() : _root(NULL) {}
+		AVLTree() : _root(NULL), _size(0) {}
 
 		~AVLTree() {}
 
@@ -238,11 +238,14 @@ namespace ft {
 		 * Insert x into the tree; duplicates are ignored.
 		 */
 
-		void insert(const T &value) {
+		std::pair<iterator, bool> insert(const T &value) {
 			if(!findByKey(value)) {
 				Node *newNode = new Node(value);
 				_root = _insert(this->_root, newNode, value);
+				++_size;
+				return std::make_pair(iterator(newNode, this), true);
 			}
+			return std::make_pair(iterator(NULL, this), false);
 		}
 
 		/*
@@ -265,16 +268,14 @@ namespace ft {
 		std::pair<iterator, bool> find(const value_type &value) const {
 			Node *current = _root;
 			while(current != NULL) {
-				if(value > current->_value)
+				if(value.first > current->_value.first)
 					current = current->_rightChild;
-				else if(value < current->_value)
+				else if(value.first < current->_value.first)
 					current = current->_leftChild;
 				else
-					break;
+					return (std::make_pair(iterator(current, this), true));
 			}
-			return (std::make_pair(current, current != NULL
-											&& current->_value->first == value->first
-											&& current->_value->second == value->second));
+			return (std::make_pair(iterator(current, this), false));
 		}
 
 		/*
@@ -283,6 +284,10 @@ namespace ft {
 
 		bool contains(const value_type &x) const _NOEXCEPT {
 
+		}
+
+		std::size_t size() const _NOEXCEPT {
+			return _size;
 		}
 
 		/* Test if the tree is logically empty.
@@ -401,7 +406,8 @@ namespace ft {
 		 */
 
 	private:
-		Node *_root;
+		Node		*_root;
+		std::size_t	_size;
 
 		/*
 		 * Private Member Functions
