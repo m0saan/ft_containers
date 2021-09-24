@@ -5,7 +5,7 @@
 #ifndef __BST_HPP__
 #define __BST_HPP__
 
-#include "../Vector/vector.hpp"
+#include "../Vector/Vector.hpp"
 
 namespace ft {
 
@@ -120,10 +120,10 @@ namespace ft {
 		void getNodesAtDistance(int k) {
 			if(!_root)
 				throw std::logic_error("root node is null");
-			ft::vector<T> nodes;
+			ft::Vector<T> nodes;
 			_getNodesAtDistance(_root, k, nodes);
 
-			for(typename ft::vector<T>::size_type i = 0; i < nodes.size(); ++i)
+			for(typename ft::Vector<T>::size_type i = 0; i < nodes.size(); ++i)
 				std::cout << nodes[i] << ' ';
 			std::cout << std::endl;
 		}
@@ -191,7 +191,7 @@ namespace ft {
 			return false;
 		}
 
-		void _getNodesAtDistance(Node *root, int k, ft::vector<T> &nodes) {
+		void _getNodesAtDistance(Node *root, int k, ft::Vector<T> &nodes) {
 			if(k == 0) {
 				nodes.push_back(root->_value);
 				return;
