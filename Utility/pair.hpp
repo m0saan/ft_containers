@@ -61,6 +61,9 @@ namespace ft {
 
         T1 first;
         T2 second;
+
+        typedef T1 first_type;
+        typedef T2 second_type;
     };
 
     template<typename T1, typename T2>

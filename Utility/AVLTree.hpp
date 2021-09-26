@@ -8,223 +8,241 @@
 #include "iterator.hpp"
 #include "reverse_iterator.hpp"
 #include "choose.hpp"
+#include "pair.hpp"
+
+#include <memory>
 
 #include <map>
 
 namespace ft {
 
-    template<typename T, typename Compare>
+    template
+            <
+                    typename T,
+                    typename Compare = std::less<typename T::first_type>,
+                    typename Alloc = std::allocator<ft::pair<const typename T::first_type, typename T::second_type> >
+            >
+    class AVLTree;
+
+    template<typename T>
+    class Node {
+    public:
+        explicit Node(T const &value, Node *left = NULL, Node *right = NULL, Node *par = NULL)
+                : _value(value), _leftChild(left), _rightChild(right), _parent(par), _height(0) {}
+
+        T _value;
+        Node *_leftChild, *_rightChild, *_parent;
+        std::size_t _height;
+    };
+
+
+    template
+            <
+                    typename T,
+                    typename Compare = std::less<typename T::first_type>,
+                    typename Alloc = std::allocator<ft::pair<const typename T::first_type, typename T::second_type> >
+            >
+    class AVLTreeIterator : public ft::iterator<std::bidirectional_iterator_tag, T> {
+
+    public:
+
+        typedef T value_type;
+        typedef typename T::first_type key_type;
+        typedef typename T::second_type mapped_type;
+        typedef std::size_t size_type;
+        typedef std::ptrdiff_t difference_type;
+        typedef Node<T> Node;
+        typedef AVLTree<T, Compare, Alloc> AVLTree;
+
+        typedef T &reference;
+        typedef T *pointer;
+
+        AVLTreeIterator(Node *p, AVLTree *t) : _nodePtr(p), _tree(t) {}
+
+        AVLTreeIterator(const AVLTreeIterator &other) { *this = other; }
+
+        operator AVLTreeIterator<const T, Compare, Alloc>() {
+            return AVLTreeIterator<const T, Compare, Alloc>(_nodePtr, _tree);
+        }
+
+        AVLTreeIterator &operator=(const AVLTreeIterator &other) {
+            if (this != &other) {
+                _nodePtr = other._nodePtr;
+                _tree = other._tree;
+            }
+            return *this;
+        }
+
+        reference operator*() const {
+            return _nodePtr->_value;
+        }
+
+        pointer operator->() const {
+            return (&this->_nodePtr->_value);
+        }
+
+        AVLTreeIterator &operator++() {
+
+            Node *p;
+
+            if (_nodePtr == NULL) {
+
+                // ++ from end(). get the root of the tree
+                _nodePtr = _tree->_root;
+
+                // error! ++ requested for an empty tree
+                if (_nodePtr == NULL)
+                    throw std::logic_error("Underflow Exception.");
+
+                // move to the smallest value in the tree,
+                // which is the first node inorder
+                while (_nodePtr->_leftChild != NULL) {
+                    _nodePtr = _nodePtr->_leftChild;
+                }
+            } else {
+                if (_nodePtr->_rightChild) {
+
+                    /*	next Node is the farthest left node of
+                     *	right subtree
+                     */
+                    _nodePtr = _nodePtr->_rightChild;
+                    while (_nodePtr->_leftChild != NULL)
+                        _nodePtr = _nodePtr->_leftChild;
+                } else {
+                    // have already processed the left subtree, and
+                    // there is no right subtree. move up the tree,
+                    // looking for a parent for which nodePtr is a left child,
+                    // stopping if the parent becomes NULL. a non-NULL parent
+                    // is the successor. if parent is NULL, the original node
+                    // was the last node inorder, and its successor
+                    // is the end of the list
+                    p = _nodePtr->_parent;
+                    while (p != NULL && _nodePtr == p->_rightChild) {
+                        _nodePtr = p;
+                        p = p->_parent;
+                    }
+
+                    // if we were previously at the right-most node in
+                    // the tree, nodePtr = nullptr, and the iterator specifies
+                    // the end of the list
+                    _nodePtr = p;
+                }
+            }
+            return *this;
+        }
+
+        AVLTreeIterator &operator--() {
+            Node *p;
+            if (_nodePtr == NULL) {
+
+                // -- from end(). get the root of the tree
+                _nodePtr = _tree->max()->_parent;
+
+                // error! ++ requested for an empty tree
+                if (_nodePtr == NULL)
+                    throw std::logic_error("Underflow Exception.");
+
+                // move to the farthest value in the tree,
+                // which is the last node inorder
+                while (_nodePtr->_rightChild != NULL) {
+                    _nodePtr = _nodePtr->_rightChild;
+                }
+            } else {
+                if (_nodePtr->_leftChild) {
+
+                    /*	next Node is the farthest left node of
+                     *	right subtree
+                     */
+                    _nodePtr = _nodePtr->_leftChild;
+                    while (!_nodePtr)
+                        _nodePtr = _nodePtr->_rightChild;
+                } else {
+                    // have already processed the left subtree, and
+                    // there is no right subtree. move up the tree,
+                    // looking for a parent for which nodePtr is a left child,
+                    // stopping if the parent becomes NULL. a non-NULL parent
+                    // is the successor. if parent is NULL, the original node
+                    // was the last node inorder, and its successor
+                    // is the end of the list
+                    p = _nodePtr->_parent;
+                    while (p != NULL && _nodePtr == p->_leftChild) {
+                        _nodePtr = p;
+                        p = p->_parent;
+                    }
+
+                    // if we were previously at the right-most node in
+                    // the tree, nodePtr = nullptr, and the iterator specifies
+                    // the end of the list
+                    _nodePtr = p;
+                }
+            }
+            return *this;
+        }
+
+        // postincrement
+        AVLTreeIterator operator++(int) {
+            AVLTreeIterator tmp(*this);
+            ++(*this);
+            return tmp;
+        }
+
+
+        // postdecrement
+        AVLTreeIterator operator--(int) {
+            AVLTreeIterator tmp(*this);
+            --(*this);
+            return tmp;
+        }
+
+        friend bool operator==(const AVLTreeIterator &lhs, const AVLTreeIterator &rhs) {
+            if (!lhs._nodePtr && !rhs._nodePtr)
+                return true;
+            return (!lhs._nodePtr && !rhs._nodePtr) && (lhs._nodePtr->_value == rhs._nodePtr->_value);
+        }
+
+        friend bool operator!=(const AVLTreeIterator &lhs, const AVLTreeIterator &rhs) {
+            return !(lhs == rhs);
+        }
+
+    private:
+
+        /*
+            -> nodePtr is the current location in the tree. we can move
+        freely about the tree using left, right, and parent.
+            -> tree is the address of the stree object associated
+        with this iterator. it is used only to access the
+        root pointer, which is needed for ++ and --
+        when the iterator value is end.
+         */
+        Node *_nodePtr;
+        AVLTree *_tree;
+    };
+
+
+    template<
+            typename T,
+            typename Compare,
+            typename Alloc
+    >
     class AVLTree {
 
     public:
-
-        class Node {
-        public:
-            explicit Node(T const &value, Node *left = NULL, Node *right = NULL, Node *par = NULL)
-                    : _value(value), _leftChild(left), _rightChild(right), _parent(par), _height(0) {}
-
-            T _value;
-            Node *_leftChild, *_rightChild, *_parent;
-            std::size_t _height;
-        };
-
-        class AVLTreeIterator : public ft::iterator<std::bidirectional_iterator_tag, T> {
-
-        public:
-
-            typedef T value_type;
-            typedef typename T::first_type key_type;
-            typedef typename T::second_type mapped_type;
-            typedef std::size_t size_type;
-            typedef std::ptrdiff_t difference_type;
-            //typedef typename AVLTree<T>::Compare key_compare;
-            typedef AVLTreeIterator const_iterator;
-            typedef const_iterator iterator;
-
-            typedef typename ft::choose<is_const<value_type>::value, const value_type &, value_type &>::type reference;
-            typedef typename ft::choose<is_const<value_type>::value, const value_type *, value_type *>::type pointer;
-
-
-            friend class AVLTree;
-
-            AVLTreeIterator() : _nodePtr(), _tree() {}
-
-            AVLTreeIterator(const AVLTreeIterator &other) {
-                *this = other;
-            }
-
-
-            AVLTreeIterator &operator=(const AVLTreeIterator &other) {
-                if (this != &other) {
-                    _nodePtr = other._nodePtr;
-                    _tree = other._tree;
-                }
-                return *this;
-            }
-
-            reference operator*() const _NOEXCEPT {
-                return _nodePtr->_value;
-            }
-
-            pointer operator->() const {
-                return (&this->_nodePtr->_value);
-            }
-
-            AVLTreeIterator &operator++() {
-
-                Node *p;
-
-                if (_nodePtr == NULL) {
-
-                    // ++ from end(). get the root of the tree
-                    _nodePtr = _tree->_root;
-
-                    // error! ++ requested for an empty tree
-                    if (_nodePtr == NULL)
-                        throw std::logic_error("Underflow Exception.");
-
-                    // move to the smallest value in the tree,
-                    // which is the first node inorder
-                    while (_nodePtr->_leftChild != NULL) {
-                        _nodePtr = _nodePtr->_leftChild;
-                    }
-                } else {
-                    if (_nodePtr->_rightChild) {
-
-                        /*	next Node is the farthest left node of
-                         *	right subtree
-                         */
-                        _nodePtr = _nodePtr->_rightChild;
-                        while (_nodePtr->_leftChild != NULL)
-                            _nodePtr = _nodePtr->_leftChild;
-                    } else {
-                        // have already processed the left subtree, and
-                        // there is no right subtree. move up the tree,
-                        // looking for a parent for which nodePtr is a left child,
-                        // stopping if the parent becomes NULL. a non-NULL parent
-                        // is the successor. if parent is NULL, the original node
-                        // was the last node inorder, and its successor
-                        // is the end of the list
-                        p = _nodePtr->_parent;
-                        while (p != NULL && _nodePtr == p->_rightChild) {
-                            _nodePtr = p;
-                            p = p->_parent;
-                        }
-
-                        // if we were previously at the right-most node in
-                        // the tree, nodePtr = nullptr, and the iterator specifies
-                        // the end of the list
-                        _nodePtr = p;
-                    }
-                }
-                return *this;
-            }
-
-            AVLTreeIterator &operator--() {
-                Node *p;
-                if (_nodePtr == NULL) {
-
-                    // -- from end(). get the root of the tree
-                    _nodePtr = _tree->max()->_parent;
-
-                    // error! ++ requested for an empty tree
-                    if (_nodePtr == NULL)
-                        throw std::logic_error("Underflow Exception.");
-
-                    // move to the farthest value in the tree,
-                    // which is the last node inorder
-                    while (_nodePtr->_rightChild != NULL) {
-                        _nodePtr = _nodePtr->_rightChild;
-                    }
-                } else {
-                    if (_nodePtr->_leftChild) {
-
-                        /*	next Node is the farthest left node of
-                         *	right subtree
-                         */
-                        _nodePtr = _nodePtr->_leftChild;
-                        while (!_nodePtr)
-                            _nodePtr = _nodePtr->_rightChild;
-                    } else {
-                        // have already processed the left subtree, and
-                        // there is no right subtree. move up the tree,
-                        // looking for a parent for which nodePtr is a left child,
-                        // stopping if the parent becomes NULL. a non-NULL parent
-                        // is the successor. if parent is NULL, the original node
-                        // was the last node inorder, and its successor
-                        // is the end of the list
-                        p = _nodePtr->_parent;
-                        while (p != NULL && _nodePtr == p->_leftChild) {
-                            _nodePtr = p;
-                            p = p->_parent;
-                        }
-
-                        // if we were previously at the right-most node in
-                        // the tree, nodePtr = nullptr, and the iterator specifies
-                        // the end of the list
-                        _nodePtr = p;
-                    }
-                }
-                return *this;
-            }
-
-            // postincrement
-            AVLTreeIterator operator++(int) {
-                AVLTreeIterator tmp(*this);
-                ++(*this);
-                return tmp;
-            }
-
-
-            // postdecrement
-            AVLTreeIterator operator--(int) {
-                AVLTreeIterator tmp(*this);
-                --(*this);
-                return tmp;
-            }
-
-            friend bool operator==(const AVLTreeIterator &lhs, const AVLTreeIterator &rhs) {
-                if (!lhs._nodePtr && !rhs._nodePtr)
-                    return true;
-                return (!lhs._nodePtr && !rhs._nodePtr) && (lhs._nodePtr->_value == rhs._nodePtr->_value);
-            }
-
-            friend bool operator!=(const AVLTreeIterator &lhs, const AVLTreeIterator &rhs) {
-                return !(lhs == rhs);
-            }
-
-        private:
-
-            /*
-                -> nodePtr is the current location in the tree. we can move
-            freely about the tree using left, right, and parent.
-                -> tree is the address of the stree object associated
-            with this iterator. it is used only to access the
-            root pointer, which is needed for ++ and --
-            when the iterator value is end.
-             */
-            Node *_nodePtr;
-            const AVLTree *_tree;
-
-            AVLTreeIterator(Node *p, const AVLTree *t) : _nodePtr(p), _tree(t) {}
-        };
-
-
-    public:
-
         typedef T value_type;
         typedef typename T::first_type first_type;
         typedef typename T::second_type second_type;
         typedef std::size_t size_type;
         typedef std::ptrdiff_t difference_type;
-        // typedef Compare key_compare;
+        typedef Node<T> Node;
         typedef value_type &reference;
         typedef T *pointer;
 
-        typedef AVLTreeIterator iterator;
+        typedef AVLTreeIterator<T, Compare, Alloc> iterator;
+        typedef AVLTreeIterator<const T, Compare, Alloc> const_iterator;
 
         typedef ft::reverse_iterator<iterator> reverse_iterator;
-        // typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
+        typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
+
+        friend class AVLTreeIterator<T, Compare, Alloc>;
 
         /**
          * Constructor and Destructor.
@@ -238,16 +256,16 @@ namespace ft {
          * Insert x into the tree; duplicates are ignored.
          */
 
-        std::pair<iterator, bool> insert(const T &value) {
+        ft::pair<iterator, bool> insert(const T &value) {
             Node *newNode = new Node(value);
             bool isInserted(false);
             Node *out = _insert(this->_root, newNode, value, isInserted);
             if (isInserted) {
                 _root = out;
                 ++_size;
-                return std::make_pair(iterator(newNode, this), true);
+                return ft::make_pair(iterator(newNode, this), true);
             }
-            return std::make_pair(iterator(NULL, this), false);
+            return ft::make_pair(iterator(NULL, this), false);
         }
 
         /*
@@ -267,7 +285,7 @@ namespace ft {
             return false;
         }
 
-        std::pair<iterator, bool> find(const value_type &value) const {
+        ft::pair<iterator, bool> find(const value_type &value) const {
             Node *current = _root;
             while (current != NULL) {
                 if (value.first > current->_value.first)
@@ -275,9 +293,9 @@ namespace ft {
                 else if (value.first < current->_value.first)
                     current = current->_leftChild;
                 else
-                    return (std::make_pair(iterator(current, this), true));
+                    return (ft::make_pair(iterator(current, this), true));
             }
-            return (std::make_pair(iterator(current, this), false));
+            return (ft::make_pair(iterator(current, this), false));
         }
 
         /*
@@ -310,8 +328,12 @@ namespace ft {
         /**
          * return an iterator pointing to the first item (inorder)
          */
-        iterator inline begin() const _NOEXCEPT {
+        iterator begin() {
             return iterator(min(), this);
+        }
+
+        const_iterator begin() const {
+            return const_iterator(min(), this);
         }
 
 
@@ -320,8 +342,12 @@ namespace ft {
          * the tree data
          */
 
-        iterator inline end() const _NOEXCEPT {
+        iterator end() {
             return iterator(NULL, this);
+        }
+
+        const_iterator end() const {
+            return const_iterator(NULL, this);
         }
 
 
@@ -330,7 +356,7 @@ namespace ft {
          *
          */
 
-        friend bool operator==(const AVLTree& lhs, const AVLTree& rhs) {
+        friend bool operator==(const AVLTree &lhs, const AVLTree &rhs) {
             return lhs.equals(rhs);
         }
 
@@ -358,9 +384,9 @@ namespace ft {
                 return newNode;
             }
 
-            if (value.first > root->_value.first)
+            if (Compare(value.first, root->_value.first))
                 root->_rightChild = _insert(root->_rightChild, newNode, value, isInserted, root);
-            else if (value.first < root->_value.first)
+            else if (!Compare(value.first, root->_value.first))
                 root->_leftChild = _insert(root->_leftChild, newNode, value, isInserted, root);
             else
                 return _root;
@@ -390,11 +416,11 @@ namespace ft {
             return _height(_root);
         }
 
-        Node *min() const {
+        Node *min() {
             return _min(_root);
         }
 
-        Node *max() const {
+        Node *max() {
             return _max(_root);
         }
 
@@ -498,7 +524,7 @@ namespace ft {
                 return;
 
             _inOrderTraversal(root->_leftChild);
-            std::cout << root->_value.first << std::endl;
+            std::cout << root->_value.first << ' ' << root->_value.second << std::endl;
             _inOrderTraversal(root->_rightChild);
         }
 
@@ -520,7 +546,7 @@ namespace ft {
 
         bool _isLeaf(const Node *root) const { return root->_leftChild == NULL && root->_rightChild == NULL; }
 
-        Node *_min(Node *root) const { // O(Log(n)) time complexity.
+        Node *_min(Node *root) { // O(Log(n)) time complexity.
             if (!_root)
                 throw std::logic_error("root node is null");
             Node *current = _root;
@@ -532,7 +558,7 @@ namespace ft {
             return minNode;
         }
 
-        Node *_max(Node *root) const { // O(Log(n)) time complexity.
+        Node *_max(Node *root) { // O(Log(n)) time complexity.
             if (!_root)
                 throw std::logic_error("root node is null");
             Node *current = _root;
