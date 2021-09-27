@@ -216,6 +216,7 @@ namespace ft {
          */
         Node *_nodePtr;
         AVLTree *_tree;
+        Compare _comp;
     };
 
 
@@ -285,17 +286,17 @@ namespace ft {
             return false;
         }
 
-        ft::pair<iterator, bool> find(const value_type &value) const {
+        Node *find(const value_type &value) const {
             Node *current = _root;
             while (current != NULL) {
-                if (value.first > current->_value.first)
+                if (!_comp(value.first, current->_value.first) && !_comp(current->_value.first, value.first))
+                    return current;
+                if (!_comp(value.first, current->_value.first))
                     current = current->_rightChild;
-                else if (value.first < current->_value.first)
-                    current = current->_leftChild;
                 else
-                    return (ft::make_pair(iterator(current, this), true));
+                    current = current->_leftChild;
             }
-            return (ft::make_pair(iterator(current, this), false));
+            return NULL;
         }
 
         /*
@@ -323,7 +324,39 @@ namespace ft {
         /**
          * Remove x from the tree. Nothing is done if x is not found.
          */
-        void remove(const value_type &x) {}
+        void remove(const value_type &x) {
+            /*
+             * 1. Find the element we wish to remove
+             * 2. Replace the node we want to remove with its successor if any
+             *      to maintain the bst invariant.
+             */
+
+            /*
+             * There are Four main cases concerning removing a node.
+             *  -> Case 1: Node to remove is a leaf Node.
+             *  -> Case 2: Node to remove has a left but no right subtree.
+             *  -> Case 3: Node to remove has a right but no left subtree.
+             *  -> Case 4: Node to remove has both left and right subtree.
+             */
+
+            // Case 1
+            Node *nodeToRemove = find(x);
+            if (nodeToRemove != NULL) {
+                --_size;
+                if (_isLeaf(nodeToRemove)) {
+                    if (nodeToRemove->_parent) {
+                        if (nodeToRemove->_parent->_leftChild->_value == x)
+                            nodeToRemove->_parent->_leftChild = NULL;
+                        else
+                            nodeToRemove->_parent->_leftChild = NULL;
+                    }
+                    nodeToRemove->_parent = NULL;
+                    delete nodeToRemove;
+                    nodeToRemove = NULL;
+                }
+            }
+        }
+
 
         /**
          * return an iterator pointing to the first item (inorder)
@@ -377,22 +410,23 @@ namespace ft {
 
     private:
 
-        Node *_insert(Node *root, Node *newNode, const T &value, bool &isInserted, Node *parent = NULL) {
-            if (!root) {
+        Node *_insert(Node *cur_node, Node *newNode, const T &value, bool &isInserted, Node *parent = NULL) {
+            if (!cur_node) {
                 newNode->_parent = parent;
                 isInserted = true;
                 return newNode;
             }
 
-            if (Compare(value.first, root->_value.first))
-                root->_rightChild = _insert(root->_rightChild, newNode, value, isInserted, root);
-            else if (!Compare(value.first, root->_value.first))
-                root->_leftChild = _insert(root->_leftChild, newNode, value, isInserted, root);
+            //
+            if (!_comp(value.first, cur_node->_value.first) && !_comp(cur_node->_value.first, value.first))
+                return cur_node;
+            if (!_comp(value.first, cur_node->_value.first))
+                cur_node->_rightChild = _insert(cur_node->_rightChild, newNode, value, isInserted, cur_node);
             else
-                return _root;
-            root->_height = 1 + std::max(_getHeight(root->_leftChild), _getHeight(root->_rightChild));
+                cur_node->_leftChild = _insert(cur_node->_leftChild, newNode, value, isInserted, cur_node);
+            cur_node->_height = 1 + std::max(_getHeight(cur_node->_leftChild), _getHeight(cur_node->_rightChild));
 
-            return _balanceTree(root);
+            return _balanceTree(cur_node);
         }
 
         /**************************/
@@ -448,6 +482,7 @@ namespace ft {
     private:
         Node *_root;
         std::size_t _size;
+        Compare _comp;
 
         /*
          * Private Member Functions
@@ -490,8 +525,13 @@ namespace ft {
         }
 
         void _resetParent(Node *root, Node *newRoot) const {
+            if (!root->_parent) {
+                newRoot->_parent = NULL;
+                root->_parent = newRoot;
+                return;
+            }
+            newRoot->_parent = root->_parent;
             root->_parent = newRoot;
-            newRoot->_parent = NULL;
         }
 
         void _resetHeight(Node *root, Node *newRoot) {
