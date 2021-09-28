@@ -5,42 +5,30 @@
 #ifndef __AVL_HPP__
 #define __AVL_HPP__
 
+
+/**
+ * 
+ * Utility includes 
+ * 
+ */
+
 #include "iterator.hpp"
 #include "reverse_iterator.hpp"
 #include "choose.hpp"
 #include "pair.hpp"
 
 #include <memory>
-
 #include <map>
 
 namespace ft {
 
     template
             <
+                    typename Node, 
                     typename T,
-                    typename Compare = std::less<typename T::first_type>,
-                    typename Alloc = std::allocator<ft::pair<const typename T::first_type, typename T::second_type> >
-            >
-    class AVLTree;
-
-    template<typename T>
-    class Node {
-    public:
-        explicit Node(T const &value, Node *left = NULL, Node *right = NULL, Node *par = NULL)
-                : _value(value), _leftChild(left), _rightChild(right), _parent(par), _height(0) {}
-
-        T _value;
-        Node *_leftChild, *_rightChild, *_parent;
-        std::size_t _height;
-    };
-
-
-    template
-            <
-                    typename T,
-                    typename Compare = std::less<typename T::first_type>,
-                    typename Alloc = std::allocator<ft::pair<const typename T::first_type, typename T::second_type> >
+                    typename Compare,
+                    typename Alloc,
+                    typename Tree
             >
     class AVLTreeIterator : public ft::iterator<std::bidirectional_iterator_tag, T> {
 
@@ -51,18 +39,18 @@ namespace ft {
         typedef typename T::second_type mapped_type;
         typedef std::size_t size_type;
         typedef std::ptrdiff_t difference_type;
-        typedef Node<T> Node;
-        typedef AVLTree<T, Compare, Alloc> AVLTree;
+        // typedef Node<T> Node;
+        // typedef AVLTree<T, Compare, Alloc> AVLTree;
 
         typedef T &reference;
         typedef T *pointer;
 
-        AVLTreeIterator(Node *p, AVLTree *t) : _nodePtr(p), _tree(t) {}
+        AVLTreeIterator(Node *p, Tree *t) : _nodePtr(p), _tree(t) {}
 
         AVLTreeIterator(const AVLTreeIterator &other) { *this = other; }
 
-        operator AVLTreeIterator<const T, Compare, Alloc>() {
-            return AVLTreeIterator<const T, Compare, Alloc>(_nodePtr, _tree);
+        operator AVLTreeIterator<Node, const T, Compare, Alloc, Tree>() {
+            return AVLTreeIterator<Node, const T, Compare, Alloc, Tree>(_nodePtr, _tree);
         }
 
         AVLTreeIterator &operator=(const AVLTreeIterator &other) {
@@ -215,17 +203,27 @@ namespace ft {
         when the iterator value is end.
          */
         Node *_nodePtr;
-        AVLTree *_tree;
+        Tree *_tree;
         Compare _comp;
     };
 
 
     template<
             typename T,
-            typename Compare,
-            typename Alloc
+            typename Compare = std::less<typename T::first_type>,
+            typename Alloc = std::allocator<ft::pair<const typename T::first_type, typename T::second_type> >
     >
     class AVLTree {
+    private:
+    class Node {
+    public:
+        explicit Node(T const &value, Node *left = NULL, Node *right = NULL, Node *par = NULL)
+                : _value(value), _leftChild(left), _rightChild(right), _parent(par), _height(0) {}
+
+        T _value;
+        Node *_leftChild, *_rightChild, *_parent;
+        std::size_t _height;
+    };
 
     public:
         typedef T value_type;
@@ -233,17 +231,17 @@ namespace ft {
         typedef typename T::second_type second_type;
         typedef std::size_t size_type;
         typedef std::ptrdiff_t difference_type;
-        typedef Node<T> Node;
+        // typedef Node Node;
         typedef value_type &reference;
         typedef T *pointer;
 
-        typedef AVLTreeIterator<T, Compare, Alloc> iterator;
-        typedef AVLTreeIterator<const T, Compare, Alloc> const_iterator;
+        typedef AVLTreeIterator<Node, T, Compare, Alloc, AVLTree> iterator;
+        typedef AVLTreeIterator<Node, const T, Compare, Alloc, AVLTree> const_iterator;
 
         typedef ft::reverse_iterator<iterator> reverse_iterator;
         typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
 
-        friend class AVLTreeIterator<T, Compare, Alloc>;
+        friend class AVLTreeIterator<Node, T, Compare, Alloc, AVLTree>;
 
         /**
          * Constructor and Destructor.
@@ -620,24 +618,9 @@ namespace ft {
                         && _equals(root->_rightChild, other->_rightChild));
             return false;
         }
-
-        /*
-        void _getNodesAtDistance(Node *root, int k, ft::Vector<T> &nodes) {
-            if(k == 0) {
-                nodes.push_back(root->_value);
-                return;
-            }
-            _getNodesAtDistance(root->_leftChild, k - 1, nodes);
-            _getNodesAtDistance(root->_rightChild, k - 1, nodes);
-        }
-*/
     };
 
 }
 
 #endif // __AVL_HPP__
 
-
-
-// std::__1::pair<const int, std::__1::basic_string<char> > *
-// std::__1::pair<int, std::__1::basic_string<char> > *
