@@ -717,14 +717,13 @@ namespace ft {
 
     template<typename T, typename Alloc>
     typename Vector<T, Alloc>::iterator Vector<T, Alloc>::erase(Vector<T, Alloc>::iterator pos) {
-        int dst = pos - begin();
-        int otherDst = pos - begin();
+        difference_type dst = pos - begin();
+        iterator newPositon = begin() + dst;
         _alloc.destroy(&(*pos));
-        int last = _size - 1;
-        for (; dst < last; ++dst)
-            _arr[dst] = _arr[dst + 1];
+        for (; dst < _size - 1; ++dst)
+            std::swap(_arr[dst], _arr[dst + 1]);
         --_size;
-        return iterator(_arr + otherDst);
+        return newPositon;
     }
 
     template<typename T, typename Alloc>
