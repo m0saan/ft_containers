@@ -18,7 +18,7 @@ namespace ft {
             typename Key,
             typename T,
             typename Compare = std::less<Key>,
-            typename Allocator = std::allocator<std::pair<const Key, T> >
+            typename Alloc = std::allocator<std::pair<const Key, T> >
     >
     class map {
 
@@ -30,15 +30,13 @@ namespace ft {
         typedef std::size_t size_type;
         typedef std::ptrdiff_t difference_type;
         typedef Compare key_compare;
-        typedef Allocator allocator_type;
+        typedef Alloc allocator_type;
         typedef value_type &reference;
         typedef const value_type &const_reference;
-        typedef typename Allocator::pointer pointer;
-        typedef typename Allocator::const_pointer const_pointer;
-        typedef typename AVLTree<value_type, Compare>::AVLTreeIterator iterator;
-        typedef const iterator const_iterator;
+        typedef typename Alloc::pointer pointer;
+        typedef typename Alloc::const_pointer const_pointer;
+        typedef AVLTreeIterator<value_type, Compare, Alloc> iterator;
         typedef ft::reverse_iterator<iterator> reverse_iterator;
-        typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
 
 
         class value_compare {
@@ -57,13 +55,13 @@ namespace ft {
 
         map() : _tree(), _size(), _compare() {}
 
-        explicit map(const Compare &comp, const Allocator &alloc = Allocator())
+        explicit map(const Compare &comp, const Alloc &alloc = Alloc())
                 : _tree(), _alloc(alloc), _size(), _compare(comp) {}
 
         template<typename InputIt>
         map(InputIt first, InputIt last, const Compare &comp = Compare(),
-            const Allocator &alloc = Allocator()) : _alloc(alloc), _compare(comp) {
-            assert(value_type == ft::iterator_traits<InputIt>::value_type);
+            const Alloc &alloc = Alloc()) : _alloc(alloc), _compare(comp) {
+
             for (; first != last; ++first) {
                 _tree.insert(*first);
             }
@@ -109,11 +107,11 @@ namespace ft {
             return _alloc.max_size();
         }
 
-        iterator begin() const _NOEXCEPT {
+        iterator begin() {
             return iterator(_tree.begin());
         }
 
-        iterator end() const _NOEXCEPT {
+        iterator end() {
             return iterator(_tree.end());
         }
 

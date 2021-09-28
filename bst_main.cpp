@@ -65,14 +65,18 @@ int main() {
 #endif
 
 
-    ft::AVLTree<ft::pair<int, int>, std::greater<int> > avlTree;
+    ft::AVLTree<ft::pair<int, int> > avlTree;
 
     for (int i = 1; i < 4; ++i)
         avlTree.insert(ft::make_pair(i, i * 2));
 
-    avlTree.remove(ft::make_pair(3, 6));
+    // avlTree.remove(ft::make_pair(3, 6));
 
-    avlTree.inOrderTraversal();
-
+    // avlTree.inOrderTraversal();
+    
+    ft::AVLTree<ft::pair<int, int> >::iterator c_it = avlTree.begin();
+    (*c_it).first = 20;
+    std::cout << c_it->first << std::endl;
+    
     return 0;
 }

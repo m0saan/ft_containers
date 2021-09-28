@@ -11,281 +11,254 @@
 /* ************************************************************************************************ */
 
 #include <vector>
-#include <iostream>
-#include <iterator>
-#include "vector.hpp"
+# include <iostream>
+# include <iterator>
+# include <ctime>
+# include <iomanip>
+# include <unistd.h>
+# include <signal.h>
+# include <sys/time.h>
+# include "Vector.hpp"
 
+
+# define BLUE "\e[0;34m"
+# define RED "\e[0;31m"
+# define GREEN "\e[0;32m"
+# define YELLOW "\e[1;33m"
+# define RESET "\e[0m"
 
 # define EQUAL(x) ((x) ? (std::cout << "\033[1;32mAC\033[0m\n") : (std::cout << "\033[1;31mWA\033[0m\n"))
+# define TIME_FAC 3 // the ft::vector methods can be slower up to std::vector methods * TIME_FAC (MAX 20)
 
-void    iterator_tests()
-{
-	std::cout << "\033[1;37m<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Vector iterator tests >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\033[0m\n\n";
-	/*------------ std::vector ---------*/
-	std::vector<int> v(3,4);
-	std::vector<int>::iterator it,it1;
-	it = v.begin();
-	it1 = v.begin() + 1;
-	/*----------------------------------*/
-	/*------------ ft::Vector ---------*/
-	ft::vector<int>    my_v(3,4);
-	ft::vector<int>::iterator my_it, my_it1, tmp;
-	my_it = my_v.begin();
-	my_it1 = my_v.begin() + 1;
-	/*----------------------------------*/
-	std::cout << "\033[1;37m[------------------ [ copy constructor  ] ----------------]\t\t\t\t\033[0m";
-	{
-		ft::vector<int>::iterator ob(my_it);
-		EQUAL(&(*my_it) == &(*ob));
-	}
-	std::cout << "\033[1;37m[---------- [ iterator to const_iterator  ] --------------]\t\t\t\t\033[0m";
-	{
-		ft::vector<int>::const_iterator c_it, c_ob(my_it);
-		c_it = my_it;
-		EQUAL(&(*my_it) == &(*c_it) && (&(*my_it) == &(*c_ob)));
-	}
-	std::cout << "\033[1;37m[--------------------- [ == operator ] -------------------]\t\t\t\t\033[0m";
-	EQUAL((it == it1) == (my_it == my_it1));
-	std::cout << "\033[1;37m[--------------------- [ != operator ] -------------------]\t\t\t\t\033[0m";
-	EQUAL((it != it1) == (my_it != my_it1));
-	std::cout << "\033[1;37m[---------------------- [ > operator ] -------------------]\t\t\t\t\033[0m";
-	EQUAL((it > it1) == (my_it > my_it1));
-	std::cout << "\033[1;37m[--------------------- [ >= operator ] -------------------]\t\t\t\t\033[0m";
-	EQUAL((it >= it1) == (my_it >= my_it1));
-	std::cout << "\033[1;37m[---------------------- [ < operator ] -------------------]\t\t\t\t\033[0m";
-	EQUAL((it < it1) == (my_it < my_it1));
-	std::cout << "\033[1;37m[--------------------- [ <= operator ] -------------------]\t\t\t\t\033[0m";
-	EQUAL((it <= it1) == (my_it <= my_it1));
-	std::cout << "\033[1;37m[---------------------- [ * operator ] -------------------]\t\t\t\t\033[0m";
-	EQUAL(((*my_it = 6) == 6) && (*my_it == *(my_v.begin())));
-	std::cout << "\033[1;37m[--------------------- [ -> operator ] -------------------]\t\t\t\t\033[0m";
-	{
-		/*--------------- std::vector-------------------- */
-		std::vector<std::string>    v(3, "hello");
-		std::vector<std::string>::iterator it = v.begin();
-		/*---------------------------------------------- */
-		// std::cout << it->length() << std::endl;
-		// exit(0);
-		/*--------------- ft::vector-------------------- */
-		ft::vector<std::string>    my_v(3, "hello");
-		ft::vector<std::string>::iterator my_it = my_v.begin();
-		/*---------------------------------------------- */
-		EQUAL(it->length() == my_it->length());
-	}
-	std::cout << "\033[1;37m[---------------------- [ - operator ] -------------------]\t\t\t\t\033[0m";
-	EQUAL(&(*my_it) == &(*(my_it1 - 1)));
-	std::cout << "\033[1;37m[--------------------- [ += operator ] -------------------]\t\t\t\t\033[0m";
-	my_it += 1;
-	EQUAL(&(*my_it) == &(*my_it1));
-	std::cout << "\033[1;37m[--------------------- [ -= operator ] -------------------]\t\t\t\t\033[0m";
-	my_it -= 1;
-	EQUAL(&(*my_it) == &(*(my_it1 - 1)));
-	std::cout << "\033[1;37m[--------------------- [ [] operator ] -------------------]\t\t\t\t\033[0m";
-	EQUAL(((my_it[0] = 5) == 5) && (*my_it == 5));
-	std::cout << "\033[1;37m[------------------- [ ++it operator ] -------------------]\t\t\t\t\033[0m";
-	++my_it; // I incremented here to make sure that the object changes
-	EQUAL(&(*my_it) == &(*my_it1));
-	std::cout << "\033[1;37m[------------------- [ --it operator ] -------------------]\t\t\t\t\033[0m";
-	--my_it; // I decremented here to make sure that the object changes
-	EQUAL(&(*my_it) == &(*(my_it1 - 1)));
-	std::cout << "\033[1;37m[---------------- [ + operator (n + it) ] ----------------]\t\t\t\t\033[0m";
-	EQUAL(&(*(1 + my_it)) == &(*(my_it1)) && (&(*my_it) == &(*(my_v.begin()))));
-	std::cout << "\033[1;37m[--------------- [ - operator (it1 - it) ] ---------------]\t\t\t\t\033[0m";
-	EQUAL(((my_it1 - my_it == 1)) && ((my_it - my_it1) == -1));
-	std::cout << "\033[1;37m[------------------- [ it++ operator ] -------------------]\t\t\t\t\033[0m";
-	tmp = my_it++;
-	EQUAL(&(*my_it) != &(*tmp) && (&(*my_it) == &(*my_it1)));
-	std::cout << "\033[1;37m[------------------- [ it-- operator ] -------------------]\t\t\t\t\033[0m";
-	tmp = my_it--;
-	EQUAL(&(*my_it) != &(*tmp) && (&(*my_it) == &(*(my_v.begin()))));
-	std::cout << "\033[1;37m\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\033[0m\n\n";
+time_t get_time(void) {
+    struct timeval time_now;
+
+    gettimeofday(&time_now, NULL);
+    time_t msecs_time = (time_now.tv_sec * 1e3) + (time_now.tv_usec / 1e3);
+    return (msecs_time);
 }
 
-void    const_iterator_tests(void)
-{
-	std::cout << "\033[1;37m<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Vector const_iterator tests >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\033[0m\n\n";
-	/*------------ std::vector ---------*/
-	std::vector<int> v(3,4);
-	std::vector<int>::const_iterator it,it1;
-	it = v.begin();
-	it1 = v.begin() + 1;
-	/*----------------------------------*/
-	/*------------ ft::Vector ---------*/
-	ft::vector<int>    my_v(3,4);
-	ft::vector<int>::const_iterator my_it,my_it1, tmp;
-	my_it = my_v.begin();
-	my_it1 = my_v.begin() + 1;
-	/*----------------------------------*/
-	std::cout << "\033[1;37m[------------------ [ copy constructor  ] ----------------]\t\t\t\t\033[0m";
-	{
-		ft::vector<int>::const_iterator ob(my_it);
-		EQUAL(&(*my_it) == &(*ob));
-	}
-	std::cout << "\033[1;37m[--------------------- [ == operator ] -------------------]\t\t\t\t\033[0m";
-	EQUAL((it == it1) == (my_it == my_it1));
-	std::cout << "\033[1;37m[--------------------- [ != operator ] -------------------]\t\t\t\t\033[0m";
-	EQUAL((it != it1) == (my_it != my_it1));
-	std::cout << "\033[1;37m[---------------------- [ > operator ] -------------------]\t\t\t\t\033[0m";
-	EQUAL((it > it1) == (my_it > my_it1));
-	std::cout << "\033[1;37m[--------------------- [ >= operator ] -------------------]\t\t\t\t\033[0m";
-	EQUAL((it >= it1) == (my_it >= my_it1));
-	std::cout << "\033[1;37m[---------------------- [ < operator ] -------------------]\t\t\t\t\033[0m";
-	EQUAL((it < it1) == (my_it < my_it1));
-	std::cout << "\033[1;37m[--------------------- [ <= operator ] -------------------]\t\t\t\t\033[0m";
-	EQUAL((it <= it1) == (my_it <= my_it1));
-	std::cout << "\033[1;37m[---------------------- [ * operator ] -------------------]\t\t\t\t\033[0m";
-	EQUAL(*my_it == *(my_v.begin()) && (&(*my_it) == &(*(my_v.begin()))));
-	std::cout << "\033[1;37m[--------------------- [ -> operator ] -------------------]\t\t\t\t\033[0m";
-	{
-		/*--------------- std::vector-------------------- */
-		std::vector<std::string>    v(3, "hello");
-		std::vector<std::string>::const_iterator it = v.begin();
-		/*---------------------------------------------- */
-		/*--------------- ft::vector-------------------- */
-		ft::vector<std::string>    my_v(3, "hello");
-		ft::vector<std::string>::const_iterator my_it = my_v.begin();
-		/*---------------------------------------------- */
-		EQUAL(it->length() == my_it->length());
-	}
-	std::cout << "\033[1;37m[---------------------- [ - operator ] -------------------]\t\t\t\t\033[0m";
-	EQUAL(&(*my_it) == &(*(my_it1 - 1)));
-	std::cout << "\033[1;37m[--------------------- [ += operator ] -------------------]\t\t\t\t\033[0m";
-	my_it += 1;
-	EQUAL(&(*my_it) == &(*my_it1));
-	std::cout << "\033[1;37m[--------------------- [ -= operator ] -------------------]\t\t\t\t\033[0m";
-	my_it -= 1;
-	EQUAL(&(*my_it) == &(*(my_it1 - 1)));
-	std::cout << "\033[1;37m[--------------------- [ [] operator ] -------------------]\t\t\t\t\033[0m";
-	EQUAL((my_it[0] == *(my_v.begin())) && (&(my_it[0]) == &(*(my_v.begin()))));
-	std::cout << "\033[1;37m[------------------- [ ++it operator ] -------------------]\t\t\t\t\033[0m";
-	++my_it; // I incremented here to make sure that the object changes
-	EQUAL(&(*my_it) == &(*my_it1));
-	std::cout << "\033[1;37m[------------------- [ --it operator ] -------------------]\t\t\t\t\033[0m";
-	--my_it; // I decremented here to make sure that the object changes
-	EQUAL(&(*my_it) == &(*(my_it1 - 1)));
-	std::cout << "\033[1;37m[---------------- [ + operator (n + it) ] ----------------]\t\t\t\t\033[0m";
-	EQUAL(&(*(1 + my_it)) == &(*(my_it1)) && (&(*my_it) == &(*(my_v.begin()))));
-	std::cout << "\033[1;37m[--------------- [ - operator (it1 - it) ] ---------------]\t\t\t\t\033[0m";
-	EQUAL(((my_it1 - my_it == 1)) && ((my_it - my_it1) == -1));
-	std::cout << "\033[1;37m[------------------- [ it++ operator ] -------------------]\t\t\t\t\033[0m";
-	tmp = my_it++;
-	EQUAL(&(*my_it) != &(*tmp) && (&(*my_it) == &(*my_it1)));
-	std::cout << "\033[1;37m[------------------- [ it-- operator ] -------------------]\t\t\t\t\033[0m";
-	tmp = my_it--;
-	EQUAL(&(*my_it) != &(*tmp) && (&(*my_it) == &(*(my_v.begin()))));
-	std::cout << "\033[1;37m\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\033[0m\n\n";
-}
+void equalOperatorTests() {
+    std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " assign(fill) method "
+              << "] --------------------]\t\t\033[0m";
+    {
+        /*-------------------------------------- time limit test -----------------------------------*/
+        {
+            time_t start, end, diff;
+            /*------------------ std::vectors ---------------------*/
+            std::vector<std::string> v1(1e6, "string2");
+            start = get_time();
+            v1.assign(1e6 + 1, "assign");
+            end = get_time();
+            diff = end - start;
+            diff = (diff) ? (diff * TIME_FAC) : TIME_FAC;
+            /*------------------ ft::vectors ---------------------*/
+            ft::Vector<std::string> ft_v1(1e6, "string2");
+            ualarm(diff * 1e3, 0);
+            ft_v1.assign(1e6 + 1, "assign");
+            ualarm(0, 0);
+        }
+        /*------------------ std::vectors ---------------------*/
+        std::vector<std::string> v1(10, "string2");
+        std::vector<char> v2;
+        /*------------------ std::vectors ---------------------*/
+        ft::Vector<std::string> ft_v1(10, "string2");
+        ft::Vector<char> ft_v2;
+        /*
+         * Strings to store the results
+         */
+        std::string s1, s2, s3, ft_s1, ft_s2, ft_s3;
+        /*
+         * Var to store the size and the capacity
+         */
+        size_t z1, z2, z3, ft_z1, ft_z2, ft_z3;
+        size_t c1, c2, c3, ft_c1, ft_c2, ft_c3;
+        // test for n greater than the vector capactiy
+        v1.assign(20, "assign");
+        ft_v1.assign(20, "assign");
 
-#if 1
-void    reverse_iterator_tests(void)
-{
-	std::cout << "\033[1;37m<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< reverse_iterator tests >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\033[0m\n\n";
-	/*------------ std::reverse_iterator ---------*/
-	std::vector<int> v(3,4);
-	std::reverse_iterator<std::vector<int>::iterator> rit(v.end()), rit_1(v.end() - 1);
-	/*----------------------------------*/
-	/*------------ ft::reverse_iterator ---------*/
-	ft::reverse_iterator<std::vector<int>::iterator> my_rit(v.end()), my_rit1(v.end() - 1);
-	/*----------------------------------*/
-	std::cout << "\033[1;37m[------------------ [ copy constructor  ] ----------------]\t\t\t\t\033[0m";
-	{
-		ft::reverse_iterator<std::vector<int>::iterator> ob(my_rit);
-		EQUAL(&(*my_rit) == &(*ob));
-	}
-	std::cout << "\033[1;37m[------------------ [  base function  ] ----------------]\t\t\t\t\033[0m";
-	EQUAL((&(*rit) == &(*rit_1.base())) && (&(*my_rit) == &(*my_rit1.base())));
-	std::cout << "\033[1;37m[--------------------- [ == operator ] -------------------]\t\t\t\t\033[0m";
-	EQUAL((rit == rit_1) == (my_rit == my_rit1));
-	std::cout << "\033[1;37m[--------------------- [ != operator ] -------------------]\t\t\t\t\033[0m";
-	EQUAL((rit != rit_1) == (my_rit != my_rit1));
-	std::cout << "\033[1;37m[---------------------- [ > operator ] -------------------]\t\t\t\t\033[0m";
-	EQUAL((rit > rit_1) == (my_rit > my_rit1));
-	std::cout << "\033[1;37m[--------------------- [ >= operator ] -------------------]\t\t\t\t\033[0m";
-	EQUAL((rit >= rit_1) == (my_rit >= my_rit1));
-	std::cout << "\033[1;37m[---------------------- [ < operator ] -------------------]\t\t\t\t\033[0m";
-	EQUAL((rit < rit_1) == (my_rit < my_rit1));
-	std::cout << "\033[1;37m[--------------------- [ <= operator ] -------------------]\t\t\t\t\033[0m";
-	EQUAL((rit <= rit_1) == (my_rit <= my_rit1));
-	std::cout << "\033[1;37m[---------------------- [ * operator ] -------------------]\t\t\t\t\033[0m";
-	EQUAL(((*my_rit == *(v.end() - 1)) && (&(*my_rit) == &(*(v.end() - 1))))
-		  && ((*rit == *(v.end() - 1)) && (&(*rit) == &(*(v.end() - 1)))));
-	std::cout << "\033[1;37m[--------------------- [ -> operator ] -------------------]\t\t\t\t\033[0m";
-	{
-		std::vector<std::string> v(3, "hello");
-		std::reverse_iterator<std::vector<std::string>::iterator> rit(v.end());
-		ft::reverse_iterator<std::vector<std::string>::iterator> my_rit(v.end());
-		EQUAL(rit->length() == my_rit->length());
-	}
-	std::cout << "\033[1;37m[---------------------- [ - operator ] -------------------]\t\t\t\t\033[0m";
-	EQUAL((&(*my_rit) == &(*(my_rit1 - 1))) && (&(*rit) == &(*(rit_1 - 1))));
-	std::cout << "\033[1;37m[---------------------- [ + operator ] -------------------]\t\t\t\t\033[0m";
-	EQUAL((&(*(my_rit + 1)) == &(*my_rit1)) && (&(*(rit + 1)) == &(*rit_1)));
-	std::cout << "\033[1;37m[--------------------- [ += operator ] -------------------]\t\t\t\t\033[0m";
-	my_rit += 1;
-	rit += 1;
-	EQUAL((&(*my_rit) == &(*my_rit1)) && (&(*rit) == &(*rit_1)));
-	std::cout << "\033[1;37m[--------------------- [ -= operator ] -------------------]\t\t\t\t\033[0m";
-	my_rit -= 1;
-	rit -= 1;
-	EQUAL((&(*my_rit) == &(*(my_rit1 - 1))) && (&(*rit) == &(*(rit_1 - 1))));
-	std::cout << "\033[1;37m[--------------------- [ [] operator ] -------------------]\t\t\t\t\033[0m";
-	EQUAL(((my_rit[0] = 5) == 5) && (rit[0] == 5));
-	std::cout << "\033[1;37m[------------------- [ ++rit operator ] -------------------]\t\t\t\t\033[0m";
-	++my_rit; // I incremented here to make sure that the object changes
-	++rit;
-	EQUAL(&(*my_rit) == &(*my_rit1)) && (&(*rit) == &(*rit_1));
-	std::cout << "\033[1;37m[------------------- [ --rit operator ] -------------------]\t\t\t\t\033[0m";
-	--my_rit; // I incremented here to make sure that the object changes
-	--rit;
-	EQUAL((&(*my_rit) == &(*(my_rit1 - 1))) && (&(*rit) == &(*(rit_1 - 1))));
-	std::cout << "\033[1;37m[---------------- [ + operator (n + rit) ] ----------------]\t\t\t\t\033[0m";
-	EQUAL((&(*(2 + my_rit)) == &(*(1 + my_rit1))) && (&(*(2 + rit)) == &(*(1 + rit_1))));
-	std::cout << "\033[1;37m[--------------- [ - operator (rit1 - rit) ] ---------------]\t\t\t\t\033[0m";
-	EQUAL(((my_rit - my_rit1) == (rit - rit_1)) && ((my_rit1 - my_rit) == (rit_1 - rit)));
-	std::cout << "\033[1;37m[------------------- [ it++ operator ] -------------------]\t\t\t\t\033[0m";
-	{
-		std::reverse_iterator<std::vector<int>::iterator>   tmp(rit++);
-		ft::reverse_iterator<std::vector<int>::iterator>    my_tmp(my_rit++);
-		EQUAL((&(*tmp) == &(*(--rit))) && (&(*my_tmp) == &(*(--my_rit))));
-	}
-	std::cout << "\033[1;37m[------------------- [ it-- operator ] -------------------]\t\t\t\t\033[0m";
-	{
-		std::reverse_iterator<std::vector<int>::iterator>   tmp(rit--);
-		ft::reverse_iterator<std::vector<int>::iterator>    my_tmp(my_rit--);
-		EQUAL((&(*tmp) == &(*(++rit))) && (&(*my_tmp) == &(*(++my_rit))));
-	}
-	std::cout << "\033[1;37m[------------------- [ *it++ test ] -------------------]\t\t\t\t\033[0m";
-	{
-		std::vector<char> v(10);
-		std::string res, my_res;
-		std::reverse_iterator<std::vector<char>::iterator> start(v.end()), end(v.begin());
-		ft::reverse_iterator<std::vector<char>::iterator> my_start(v.end()), my_end(v.begin());
+        z1 = v1.size();
+        ft_z1 = ft_v1.size();
+        c1 = v1.capacity();
+        ft_c1 = ft_v1.capacity();
+        for (size_t i = 0; i < v1.size(); ++i)
+            s1 += v1.at(i);
 
-		for(size_t i = 0; i < 10; ++i)
-			v[i] = '0' + i;
-		while (start != end)
-			res.push_back(*start++);
-		while (my_start != my_end)
-			my_res.push_back(*my_start++);
-		EQUAL(res == my_res);
-	}
-	std::cout << "\033[1;37m\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\033[0m\n\n";
-}
+        for (size_t i = 0; i < ft_v1.size(); ++i)
+            ft_s1 += ft_v1.at(i);
+        // test for n lesser than the vector capactiy
+        v1.assign(10, "less");
+        ft_v1.assign(10, "less");
+
+        z2 = v1.size();
+        ft_z2 = ft_v1.size();
+        c2 = v1.capacity();
+        ft_c2 = ft_v1.capacity();
+        for (size_t i = 0; i < v1.size(); ++i)
+            s3 += v1.at(i);
+
+        for (size_t i = 0; i < ft_v1.size(); ++i)
+            ft_s3 += ft_v1.at(i);
+        // test for empty vectors
+        v2.assign(20, 'h');
+        ft_v2.assign(20, 'h');
+
+        z3 = v2.size();
+        ft_z3 = ft_v2.size();
+        c3 = v2.capacity();
+        ft_c3 = ft_v2.capacity();
+        for (size_t i = 0; i < v2.size(); ++i)
+            s2 += v2.at(i);
+
+        for (size_t i = 0; i < ft_v2.size(); ++i)
+            ft_s2 += ft_v2.at(i);
+
+        EQUAL((s1 == ft_s1 && z1 == ft_z1 && c1 == ft_c1) && (s2 == ft_s2 && z2 == ft_z2 && c2 == ft_c2)
+              && (s3 == ft_s3 && z3 == ft_z3 && c3 == ft_c3));
+    }
+#if 0
+    std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " assign(range) method "
+              << "] --------------------]\t\t\033[0m";
+    {
+        /*-------------------------------------- time limit test -----------------------------------*/
+        {
+            time_t start, end, diff;
+            /*------------------ std::vectors ---------------------*/
+            ft::Vector<std::string> ft_v1(1e6, "string2");
+            // std::vector<std::string>    v1(1e6, "string2");
+            std::vector<std::string> v2(1e4, "string2");
+            start = get_time();
+            v2.assign(ft_v1.begin(), ft_v1.end());
+            end = get_time();
+            diff = end - start;
+            diff = (diff) ? (diff * TIME_FAC) : TIME_FAC;
+            /*------------------ ft::vectors ---------------------*/
+            // ft::Vector<std::string>    ft_v1(1e6, "string2");
+            ft::Vector<std::string> ft_v2(1e4, "string2");
+            ualarm(diff * 1e3, 0);
+            ft_v2.assign(ft_v1.begin(), ft_v1.end());
+            ualarm(0, 0);
+        }
+        /*------------------ std::vectors ---------------------*/
+        std::vector<std::string> v1(20, "less");
+        std::vector<std::string> v2;
+        std::vector<std::string> v3(10, "string2");
+        /*------------------ std::vectors ---------------------*/
+        ft::Vector<std::string> ft_v1(20, "less");
+        ft::Vector<std::string> ft_v2;
+        ft::Vector<std::string> ft_v3(10, "string2");
+        /*
+         * Strings to store the results
+         */
+        std::string s1, s2, s3, ft_s1, ft_s2, ft_s3;
+        /*
+         * Var to store the size and the capacity
+         */
+        size_t z1, z2, z3, ft_z1, ft_z2, ft_z3;
+        size_t c1, c2, c3, ft_c1, ft_c2, ft_c3;
+        // test for n greater than the vector capactiy
+        v3.assign(v1.begin(), v1.end());
+        ft_v3.assign(v1.begin(), v1.end());
+
+        z1 = v3.size();
+        c1 = v3.capacity();
+        ft_z1 = ft_v3.size();
+        ft_c1 = ft_v3.capacity();
+        for (size_t i = 0; i < v3.size(); ++i)
+            s1 += v3.at(i);
+
+        for (size_t i = 0; i < ft_v3.size(); ++i)
+            ft_s1 += ft_v3.at(i);
+        // test for n lesser than the vector capactiy
+        v1.assign(v3.begin(), v3.end());
+        ft_v1.assign(ft_v3.begin(), ft_v3.end());
+
+        z2 = v1.size();
+        c2 = v1.capacity();
+        ft_z2 = ft_v1.size();
+        ft_c2 = ft_v1.capacity();
+        for (size_t i = 0; i < v1.size(); ++i)
+            s3 += v1.at(i);
+
+        for (size_t i = 0; i < ft_v1.size(); ++i)
+            ft_s3 += ft_v1.at(i);
+        // test for empty vectors
+        v2.assign(v1.begin(), v1.end());
+        ft_v2.assign(ft_v1.begin(), ft_v1.end());
+
+        z3 = v2.size();
+        c3 = v2.capacity();
+        ft_z3 = ft_v2.size();
+        ft_c3 = ft_v2.capacity();
+        for (size_t i = 0; i < v2.size(); ++i)
+            s2 += v2.at(i);
+
+        for (size_t i = 0; i < ft_v2.size(); ++i)
+            ft_s2 += ft_v2.at(i);
+
+        EQUAL((s1 == ft_s1 && z1 == ft_z1 && c1 == ft_c1) && (s2 == ft_s2 && z2 == ft_z2 && c2 == ft_c2)
+              && (s3 == ft_s3 && z3 == ft_z3 && c3 == ft_c3));
+    }
 #endif
-
-void vector_tests(void)
-{
-	std::cout << "\033[1;37m<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< vector tests >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\033[0m\n\n";
-	std::cout << "\033[1;37m[------------------- [ fill and range constructor ] -------------------]\t\t\t\t\033[0m";
-	// code
-	std::cout << "\033[1;37m\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\033[0m\n\n";
 }
 
-int main(void)
-{
-	iterator_tests();
-	const_iterator_tests();
-	reverse_iterator_tests();
-	vector_tests();
-	return 0;
+int main(void) {
+     equalOperatorTests();
+
+//    std::vector<std::string> v1(10, "string2");
+//    std::vector<char> v2;
+//    /*------------------ std::vectors ---------------------*/
+//    ft::Vector<std::string> ft_v1(10, "string2");
+//    ft::Vector<char> ft_v2;
+//
+//    // test for n greater than the vector capactiy
+//    v1.assign(20, "assign");
+//    ft_v1.assign(20, "assign");
+//
+//    std::cout << v1.size() << std::endl;
+//    std::cout << ft_v1.size() << std::endl;
+//    std::cout << v1.capacity() << std::endl;
+//    std::cout << ft_v1.capacity() << std::endl;
+//
+//    std::cout << "v = { ";
+//    for (std::string n: v1) {
+//        std::cout << n << ", ";
+//    }
+//    std::cout << "}; \n";
+//
+//    std::cout << "v = { ";
+//    for (std::string n: ft_v1) {
+//        std::cout << n << ", ";
+//    }
+//    std::cout << "}; \n";
+//    std::cout << v1.size() << std::endl;
+//    std::cout << ft_v1.size() << std::endl;
+//    std::cout << v1.capacity() << std::endl;
+//    std::cout << ft_v1.capacity() << std::endl;
+//
+//    std::cout << "---------------------- testing reducing the vector----------------------" << std::endl;
+//
+//    std::cout << v1.size() << std::endl;
+//    std::cout << ft_v1.size() << std::endl;
+//    std::cout << v1.capacity() << std::endl;
+//    std::cout << ft_v1.capacity() << std::endl;
+//    v1.assign(15, "mam");
+//    ft_v1.assign(15, "mam");
+//
+//    std::cout << "v = { ";
+//    for (std::string n: v1) {
+//        std::cout << n << ", ";
+//    }
+//    std::cout << "}; \n";
+//
+//    std::cout << "v = { ";
+//    for (std::string n: ft_v1) {
+//        std::cout << n << ", ";
+//    }
+//    std::cout << "}; \n";
+//    std::cout << v1.size() << std::endl;
+//    std::cout << ft_v1.size() << std::endl;
+//    std::cout << v1.capacity() << std::endl;
+//    std::cout << ft_v1.capacity() << std::endl;
+    return 0;
 }
