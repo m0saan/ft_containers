@@ -9,6 +9,12 @@
 
 #define TestPair 0
 
+template<typename T1, class T2>
+std::ostream &operator<<(std::ostream &os, ft::pair<T1, T2> const &p) {
+    os << '(' << p.first << ", " << p.second << ')' << std::endl;
+    return os;
+}
+
 int main() {
 
 
@@ -64,19 +70,22 @@ int main() {
 
 #endif
 
+    typedef ft::AVLTree<ft::pair<int, int> > AVL_INT_INT;
 
     ft::AVLTree<ft::pair<int, int> > avlTree;
 
-    for (int i = 1; i < 4; ++i)
+    for (int i = 1; i <= 10; ++i)
         avlTree.insert(ft::make_pair(i, i * 2));
 
-    // avlTree.remove(ft::make_pair(3, 6));
+    avlTree.remove(*avlTree.begin());
+    avlTree.remove(*avlTree.begin());
+    avlTree.remove(*avlTree.begin());
+
+    for (AVL_INT_INT::iterator it = avlTree.begin(); it != avlTree.end(); ++it) {
+        std::cout << *it;
+    }
 
     // avlTree.inOrderTraversal();
-    
-    ft::AVLTree<ft::pair<int, int> >::iterator c_it = avlTree.begin();
-    (*c_it).first = 20;
-    std::cout << c_it->first << std::endl;
-    
+
     return 0;
 }
