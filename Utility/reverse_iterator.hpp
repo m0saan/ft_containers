@@ -12,8 +12,6 @@
 
 namespace ft {
 
-    template<typename T>
-    class VectorIterator;
 
     template<typename Iterator>
     class reverse_iterator {
@@ -21,12 +19,11 @@ namespace ft {
     public:
 
         typedef Iterator iterator_type;
-        typedef typename iterator_traits<Iterator>::iterator_category iterator_category;
-        typedef typename iterator_traits<Iterator>::value_type value_type;
-        typedef typename iterator_traits<Iterator>::difference_type difference_type;
-
-        typedef typename ft::choose<is_const<value_type>::value, const value_type &, value_type &>::type reference;
-        typedef typename ft::choose<is_const<value_type>::value, const value_type *, value_type *>::type pointer;
+        typedef typename ft::iterator_traits<Iterator>::iterator_category iterator_category;
+        typedef typename ft::iterator_traits<Iterator>::value_type value_type;
+        typedef typename ft::iterator_traits<Iterator>::difference_type difference_type;
+        typedef typename ft::iterator_traits<Iterator>::pointer pointer;
+        typedef typename ft::iterator_traits<Iterator>::reference reference;
 
         // Constructors.
         reverse_iterator() : _baseIter() {}
@@ -39,9 +36,9 @@ namespace ft {
         iterator_type base() const;
 
         // Conversion operator
-        operator reverse_iterator<VectorIterator<const value_type> >() {
-            return reverse_iterator<VectorIterator<const value_type> >(_baseIter);
-        }
+        // operator reverse_iterator<const_iterator>() {
+        //     return reverse_iterator<const_iterator>(_baseIter);
+        // }
 
         // Overloaded operators.
         reverse_iterator &operator=(const reverse_iterator &revIter) {
@@ -99,8 +96,8 @@ namespace ft {
 
     template<typename Iterator>
     typename reverse_iterator<Iterator>::reference reverse_iterator<Iterator>::operator*() {
-        Iterator tmp = _baseIter;
-        return *--tmp;
+        Iterator tmp(_baseIter);
+        return *tmp;
     }
 
     // int parameter means this is postfix operator++;
