@@ -35,15 +35,16 @@ namespace ft {
     public:
 
         typedef T value_type;
+        typedef std::bidirectional_iterator_tag iterator_type;
         typedef typename T::first_type key_type;
         typedef typename T::second_type mapped_type;
         typedef std::size_t size_type;
         typedef std::ptrdiff_t difference_type;
-        // typedef Node<T> Node;
-        // typedef AVLTree<T, Compare, Alloc> AVLTree;
 
         typedef T &reference;
         typedef T *pointer;
+
+        Iterator() : _nodePtr(), _tree() {}
 
         Iterator(Node *p, Tree *t) : _nodePtr(p), _tree(t) {}
 
@@ -142,7 +143,7 @@ namespace ft {
                      *	right subtree
                      */
                     _nodePtr = _nodePtr->_leftChild;
-                    while (!_nodePtr)
+                    while (_nodePtr->_rightChild != NULL)
                         _nodePtr = _nodePtr->_rightChild;
                 } else {
                     // have already processed the left subtree, and
@@ -375,14 +376,14 @@ namespace ft {
          * return an iterator pointing to the last item (in-order-traversal)
          * 
          */
-       
-       reverse_iterator rbegin() {
-           return reverse_iterator(max(), this);
-       }
 
-       const_reverse_iterator rbegin() const {
-           return const_reverse_iterator(max(), this);
-       }
+        reverse_iterator rbegin() {
+            return reverse_iterator(iterator(max(), this));
+        }
+
+        const_reverse_iterator rbegin() const {
+            return const_reverse_iterator(const_iterator(max(), this));
+        }
 
         /**
          * 
@@ -398,13 +399,13 @@ namespace ft {
             return const_iterator(NULL, this);
         }
 
-       reverse_iterator rend() {
-           return reverse_iterator(NULL, this);
-       }
+        reverse_iterator rend() {
+            return reverse_iterator(iterator(NULL, this));
+        }
 
-       const_reverse_iterator rend() const {
-           return const_reverse_iterator(NULL, this);
-       }
+        const_reverse_iterator rend() const {
+            return const_reverse_iterator(const_iterator(NULL, this));
+        }
 
 
         /**
@@ -547,14 +548,22 @@ namespace ft {
             return newRoot;
         }
 
-        void _resetParent(Node *root, Node *newRoot) const {
-            if (!root->_parent) {
+        void _resetParent(Node *oldRoot, Node *newRoot) const {
+            if (!oldRoot->_parent) {
                 newRoot->_parent = NULL;
-                root->_parent = newRoot;
+                if (oldRoot->_leftChild)
+                    oldRoot->_leftChild->_parent = oldRoot;
+                if (oldRoot->_rightChild)
+                    oldRoot->_rightChild->_parent = oldRoot;
+                oldRoot->_parent = newRoot;
                 return;
             }
-            newRoot->_parent = root->_parent;
-            root->_parent = newRoot;
+            newRoot->_parent = oldRoot->_parent;
+            oldRoot->_parent = newRoot;
+            if (oldRoot->_leftChild)
+                oldRoot->_leftChild->_parent = oldRoot;
+            if (oldRoot->_rightChild)
+                oldRoot->_rightChild->_parent = oldRoot;
         }
 
         void _resetHeight(Node *root, Node *newRoot) {
