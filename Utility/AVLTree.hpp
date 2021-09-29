@@ -24,13 +24,13 @@ namespace ft {
 
     template
             <
-                    typename Node, 
+                    typename Node,
                     typename T,
                     typename Compare,
                     typename Alloc,
                     typename Tree
             >
-    class AVLTreeIterator : public ft::iterator<std::bidirectional_iterator_tag, T> {
+    class Iterator : public ft::iterator<std::bidirectional_iterator_tag, T> {
 
     public:
 
@@ -45,15 +45,15 @@ namespace ft {
         typedef T &reference;
         typedef T *pointer;
 
-        AVLTreeIterator(Node *p, Tree *t) : _nodePtr(p), _tree(t) {}
+        Iterator(Node *p, Tree *t) : _nodePtr(p), _tree(t) {}
 
-        AVLTreeIterator(const AVLTreeIterator &other) { *this = other; }
+        Iterator(const Iterator &other) { *this = other; }
 
-        operator AVLTreeIterator<Node, const T, Compare, Alloc, Tree>() {
-            return AVLTreeIterator<Node, const T, Compare, Alloc, Tree>(_nodePtr, _tree);
+        operator Iterator<Node, const T, Compare, Alloc, Tree>() {
+            return Iterator<Node, const T, Compare, Alloc, Tree>(_nodePtr, _tree);
         }
 
-        AVLTreeIterator &operator=(const AVLTreeIterator &other) {
+        Iterator &operator=(const Iterator &other) {
             if (this != &other) {
                 _nodePtr = other._nodePtr;
                 _tree = other._tree;
@@ -69,7 +69,7 @@ namespace ft {
             return (&this->_nodePtr->_value);
         }
 
-        AVLTreeIterator &operator++() {
+        Iterator &operator++() {
 
             Node *p;
 
@@ -119,7 +119,7 @@ namespace ft {
             return *this;
         }
 
-        AVLTreeIterator &operator--() {
+        Iterator &operator--() {
             Node *p;
             if (_nodePtr == NULL) {
 
@@ -168,27 +168,27 @@ namespace ft {
         }
 
         // postincrement
-        AVLTreeIterator operator++(int) {
-            AVLTreeIterator tmp(*this);
+        Iterator operator++(int) {
+            Iterator tmp(*this);
             ++(*this);
             return tmp;
         }
 
 
         // postdecrement
-        AVLTreeIterator operator--(int) {
-            AVLTreeIterator tmp(*this);
+        Iterator operator--(int) {
+            Iterator tmp(*this);
             --(*this);
             return tmp;
         }
 
-        friend bool operator==(const AVLTreeIterator &lhs, const AVLTreeIterator &rhs) {
+        friend bool operator==(const Iterator &lhs, const Iterator &rhs) {
             if (!lhs._nodePtr && !rhs._nodePtr)
                 return true;
             return (!lhs._nodePtr && !rhs._nodePtr) && (lhs._nodePtr->_value == rhs._nodePtr->_value);
         }
 
-        friend bool operator!=(const AVLTreeIterator &lhs, const AVLTreeIterator &rhs) {
+        friend bool operator!=(const Iterator &lhs, const Iterator &rhs) {
             return !(lhs == rhs);
         }
 
@@ -215,15 +215,15 @@ namespace ft {
     >
     class AVLTree {
     private:
-    class Node {
-    public:
-        explicit Node(T const &value, Node *left = NULL, Node *right = NULL, Node *par = NULL)
-                : _value(value), _leftChild(left), _rightChild(right), _parent(par), _height(0) {}
+        class Node {
+        public:
+            explicit Node(T const &value, Node *left = NULL, Node *right = NULL, Node *par = NULL)
+                    : _value(value), _leftChild(left), _rightChild(right), _parent(par), _height(0) {}
 
-        T _value;
-        Node *_leftChild, *_rightChild, *_parent;
-        std::size_t _height;
-    };
+            T _value;
+            Node *_leftChild, *_rightChild, *_parent;
+            std::size_t _height;
+        };
 
     public:
         typedef T value_type;
@@ -231,17 +231,15 @@ namespace ft {
         typedef typename T::second_type second_type;
         typedef std::size_t size_type;
         typedef std::ptrdiff_t difference_type;
-        // typedef Node Node;
         typedef value_type &reference;
         typedef T *pointer;
 
-        typedef AVLTreeIterator<Node, T, Compare, Alloc, AVLTree> iterator;
-        typedef AVLTreeIterator<Node, const T, Compare, Alloc, AVLTree> const_iterator;
-
+        typedef Iterator<Node, T, Compare, Alloc, AVLTree> iterator;
+        typedef Iterator<Node, const T, Compare, Alloc, AVLTree> const_iterator;
         typedef ft::reverse_iterator<iterator> reverse_iterator;
         typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
 
-        friend class AVLTreeIterator<Node, T, Compare, Alloc, AVLTree>;
+        friend class Iterator<Node, T, Compare, Alloc, AVLTree>;
 
         /**
          * Constructor and Destructor.
@@ -249,6 +247,8 @@ namespace ft {
         AVLTree() : _root(NULL), _size(0) {}
 
         ~AVLTree() {}
+
+        AVLTree getRoot() const { return _root; }
 
 
         /**
@@ -357,8 +357,11 @@ namespace ft {
 
 
         /**
-         * return an iterator pointing to the first item (inorder)
+         * 
+         * return an iterator pointing to the first item (in-order-traversal).
+         * 
          */
+
         iterator begin() {
             return iterator(min(), this);
         }
@@ -367,10 +370,24 @@ namespace ft {
             return const_iterator(min(), this);
         }
 
+        /**
+         * 
+         * return an iterator pointing to the last item (in-order-traversal)
+         * 
+         */
+       
+       reverse_iterator rbegin() {
+           return reverse_iterator(max(), this);
+       }
+
+       const_reverse_iterator rbegin() const {
+           return const_reverse_iterator(max(), this);
+       }
 
         /**
-         * return an iterator pointing just past the end of
-         * the tree data
+         * 
+         * return an iterator pointing just past the end of the tree data
+         * 
          */
 
         iterator end() {
@@ -380,6 +397,14 @@ namespace ft {
         const_iterator end() const {
             return const_iterator(NULL, this);
         }
+
+       reverse_iterator rend() {
+           return reverse_iterator(NULL, this);
+       }
+
+       const_reverse_iterator rend() const {
+           return const_reverse_iterator(NULL, this);
+       }
 
 
         /**
@@ -406,6 +431,7 @@ namespace ft {
             std::cout << std::endl;
         }
 
+        Node *_root;
     private:
 
         Node *_insert(Node *cur_node, Node *newNode, const T &value, bool &isInserted, Node *parent = NULL) {
@@ -478,7 +504,6 @@ namespace ft {
          */
 
     private:
-        Node *_root;
         std::size_t _size;
         Compare _comp;
 
