@@ -374,10 +374,10 @@ namespace ft
         {
             bool isRemoved(false);
             _root = _remove(_root, x, isRemoved);
-            if (isRemoved)
-                std::cout << "removed" << std::endl;
-            else
-                std::cout << "not in the tree (not removed)" << std::endl;
+            // if (isRemoved)
+            //     std::cout << "removed" << std::endl;
+            // else
+            //     std::cout << "not in the tree (not removed)" << std::endl;
         }
 
         Node* _remove(Node *currNode, const value_type &x, bool &isDeleted)
@@ -401,6 +401,11 @@ namespace ft
                 base condition. 
             *
             */
+
+            if (!currNode)
+                return currNode;
+
+
 
             if (!_comp(x.first, currNode->_value->first) && !_comp(currNode->_value->first, x.first))
                 {
@@ -862,3 +867,9 @@ namespace ft
 }
 
 #endif // __AVL_HPP__
+
+
+/*
+
+    MAP <k,v> -> 
+*/
