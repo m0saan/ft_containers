@@ -6,6 +6,9 @@
 #include "Utility/pair.hpp"
 #include <string>
 #include <map>
+#include <random>
+
+#include <set>
 
 #define RESET "\033[0m"
 #define BLACK "\033[30m"              /* Black */
@@ -24,6 +27,8 @@
 #define BOLDMAGENTA "\033[1m\033[35m" /* Bold Magenta */
 #define BOLDCYAN "\033[1m\033[36m"    /* Bold Cyan */
 #define BOLDWHITE "\033[1m\033[37m"   /* Bold White */
+
+typedef ft::avltree<ft::pair<int, int> > AVL_INT_INT;
 
 #define TestPair 0
 
@@ -45,6 +50,26 @@ void put(Iter begin, Iter end)
 {
     for (; begin != end; begin++)
         std::cout << '\t' << *begin << std::endl;
+}
+
+void testAvlTreeRemoveLogic(std::string const &testName, int *input, int input_size, int to_remove)
+{
+    AVL_INT_INT avl1;
+    std::cout << GREEN << testName << RESET << std::endl;
+
+    insert(avl1, input, input_size);
+
+    avl1.remove(ft::make_pair(to_remove, -1));
+
+    std::cout << BLUE << "in-order-traversal -> smallest to largest" << RESET << std::endl;
+    put(avl1.begin(), avl1.end());
+
+    std::cout << "\t------------------------------------------" << std::endl;
+
+    std::cout << BLUE << "in-order-traversal -> largest to smallest" << RESET << std::endl;
+    put(avl1.rbegin(), avl1.rend());
+
+    std::cout << std::endl;
 }
 
 int main()
@@ -139,43 +164,78 @@ int main()
   3   5      3   5        3
 
 */
-        typedef ft::avltree<ft::pair<int, int> > AVL_INT_INT;
+
+#if 0
+        std::cout << BOLDYELLOW << "**-------------------------------- Delete ------------------------------------**" << RESET << std::endl;
+
+        std::cout << BOLDGREEN << "\tCase 1: Deleting from the right subtree that causes a re-balance." << RESET << std::endl;
+
+        int case1[] = {30, 20, 40, 10};
+        int case2[] = {30, 10, 40, 20};
+        int case3[] = {30, 10, 40, 5, 20};
+
+        testAvlTreeRemoveLogic("\tCase1A: Out -> [10, 20, 30]", case1, 4, 40);
+        testAvlTreeRemoveLogic("\tCase1B: Out -> [10, 20, 30]", case2, 4, 40);
+        testAvlTreeRemoveLogic("\tCase1C: Out -> [5, 10, 20, 30]", case3, 5, 40);
+        std::cout << std::endl
+                  << std::endl;
+
+        std::cout << BOLDGREEN << "\tCase 2: Deleting from left subtree that causes a re-balance." << RESET << std::endl;
+
+        int case2A[] = {20, 10, 30, 40};
+        int case2B[] = {20, 10, 40, 30};
+        int case2C[] = {20, 10, 30, 40, 25};
+
+        testAvlTreeRemoveLogic("\tCase2A: Out -> [20, 30, 40]", case2A, 4, 10);
+        testAvlTreeRemoveLogic("\tCase2B: Out -> [20, 30, 40]", case2B, 4, 10);
+        testAvlTreeRemoveLogic("\tCase2C: Out -> [20, 25, 30, 40]", case2C, 5, 10);
+
+        std::cout << BOLDGREEN << "\tCase 3: Removing a leaf node." << RESET << std::endl;
+
+        int case3A[] = {1, 2, 3, 4, 5};
+        testAvlTreeRemoveLogic("\tCase3A: [1, 2, 3, 4]", case3A, 5, 5);
+
+        int case4A[] = {6, 2, 9, 1, 4, 8, 11, 3, 5, 10, 15, 7};
+        testAvlTreeRemoveLogic("\tCase4A: [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 15]", case4A, 12, 1);
+
+        int case5A[] = {5, 2, 8, 1, 3, 7, 15, 4, 9, 20, 6, 25};
+        testAvlTreeRemoveLogic("\tCase5A: [2, 3, 4, 5, 6, 7, 8, 9, 15 20, 25]", case5A, 12, 1);
+
+        std::cout << BOLDRED << "Insert 1e6 element and remove random values" << RESET << std::endl;
+#endif
+
+        AVL_INT_INT avlRandomRemove;
+        for (size_t i = 0; i <= 1e6; i++)
+            avlRandomRemove.insert(ft::make_pair(i, i / 2));
+
+        // for (AVL_INT_INT::iterator it = avlRandomRemove.begin(); it != avlRandomRemove.end(); it++)
+        //     std::cout << *it << std::endl;
+
+        // for (AVL_INT_INT::reverse_iterator r_it = avlRandomRemove.rbegin(); r_it != avlRandomRemove.rend(); r_it++)
+        //     std::cout << *r_it << std::endl;
+
+        std::random_device dev;
+        std::mt19937 rng(dev());
+        std::uniform_int_distribution<std::mt19937::result_type> dist(0, 1e6); // distribution in range [1, 1e6]
+    
+
+        std::set<int> p;
+        for (size_t i = 0; i < 1e3; i++)
         {
-            std::cout << BOLDYELLOW << "**------------------------ Delete ------------------------**" << RESET << std::endl;
-            std::cout << GREEN << "Case1: Removing a leaf node that causes a re-balance." << RESET << std::endl;
-            AVL_INT_INT avl1;
-            int case1[] = {1, 2, 3, 4, 5};
-
-            insert(avl1, case1, 5);
-
-            avl1.remove(ft::make_pair(1, 2));
-
-            std::cout << BLUE << "in-order-traversal -> smallest to largest" << RESET << std::endl;
-            put(avl1.begin(), avl1.end());
-
-            std::cout << "\t------------------------------------------" << std::endl;
-
-            std::cout << BLUE << "in-order-traversal -> largest to smallest" << RESET << std::endl;
-            put(avl1.rbegin(), avl1.rend());
+            int rand = dist(rng);
+            p.insert(rand);
+            avlRandomRemove.remove(ft::make_pair(dist(rng), -1));
         }
 
-        {
-            std::cout << GREEN << "Case2: Removing a node that has a left subtree only and causes a re-balance." << RESET << std::endl;
-            AVL_INT_INT avl1;
-            int case1[] = {1, 2, 3, 4, 5,6,7,8,9,10,11,12,13};
+        // AVL_INT_INT avl;
+        // for (int i = 0; i < 10; ++i)
+        //     avl.insert(ft::make_pair(i, i * 2));
 
-            insert(avl1, case1, 13);
+        // avl.remove(ft::make_pair(25, 50));
+        // avl.inOrderTraversal();
 
-            avl1.remove(ft::make_pair(10, 20));
-
-            std::cout << BLUE << "in-order-traversal -> smallest to largest" << RESET << std::endl;
-            put(avl1.begin(), avl1.end());
-
-            std::cout << "\t------------------------------------------" << std::endl;
-
-            std::cout << BLUE << "in-order-traversal -> largest to smallest" << RESET << std::endl;
-            put(avl1.rbegin(), avl1.rend());
-        }
+        for (AVL_INT_INT::iterator it = avlRandomRemove.begin(); it != avlRandomRemove.end(); it++)
+            std::cout << *it << std::endl;
 
         return 0;
     }
