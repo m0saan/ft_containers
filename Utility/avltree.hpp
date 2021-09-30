@@ -235,7 +235,7 @@ namespace ft
         typename T,
         typename Compare = std::less<typename T::first_type>,
         typename Alloc = std::allocator<T> >
-    class AVLTree
+    class avltree
     {
 
     private:
@@ -256,12 +256,12 @@ namespace ft
         typedef value_type &reference;
         typedef T *pointer;
 
-        typedef Iterator<Node, T, Compare, Alloc, AVLTree> iterator;
-        typedef Iterator<Node, const T, Compare, Alloc, AVLTree> const_iterator;
+        typedef Iterator<Node, T, Compare, Alloc, avltree> iterator;
+        typedef Iterator<Node, const T, Compare, Alloc, avltree> const_iterator;
         typedef ft::reverse_iterator<iterator> reverse_iterator;
         typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
 
-        friend class Iterator<Node, T, Compare, Alloc, AVLTree>;
+        friend class Iterator<Node, T, Compare, Alloc, avltree>;
 
         Node *_createNode(value_type value)
         {
@@ -285,11 +285,11 @@ namespace ft
         /**
          * Constructor and Destructor.
          */
-        AVLTree() : _root(NULL), _size(0), _comp(), _alloc() {}
+        avltree() : _root(NULL), _size(0), _comp(), _alloc() {}
 
-        ~AVLTree() {}
+        ~avltree() {}
 
-        AVLTree getRoot() const { return _root; }
+        avltree getRoot() const { return _root; }
 
         /**
          * Insert x into the tree; duplicates are ignored.
@@ -373,7 +373,7 @@ namespace ft
         void remove(value_type const &x)
         {
             bool isRemoved(false);
-            _remove(_root, x, isRemoved);
+            _root = _remove(_root, x, isRemoved);
             if (isRemoved)
                 std::cout << "removed" << std::endl;
             else
@@ -575,7 +575,7 @@ namespace ft
          *
          */
 
-        friend bool operator==(const AVLTree &lhs, const AVLTree &rhs)
+        friend bool operator==(const avltree &lhs, const avltree &rhs)
         {
             return lhs.equals(rhs);
         }
@@ -663,7 +663,7 @@ namespace ft
             return _max(_root);
         }
 
-        bool equals(const AVLTree &other) const
+        bool equals(const avltree &other) const
         {
             return _equals(_root, other._root);
         }
