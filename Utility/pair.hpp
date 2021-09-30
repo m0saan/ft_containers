@@ -71,5 +71,10 @@ namespace ft {
         return pair<T1, T2>(x, y);
     }
 
+    template <typename T1, typename T2>
+    std::ostream& operator<<(std::ostream& os, pair<T1, T2> const & p) {
+        os << '(' << p.first << ", " << p.second << ")";
+        return os;
+    }
 }
 #endif // __PAIR_HPP__
