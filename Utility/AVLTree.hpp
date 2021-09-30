@@ -411,6 +411,13 @@ namespace ft
                     // Case 1
                     if (_isLeaf(currNode))
                     {
+
+                        /* has no left or right subtree.
+
+                        **
+                     //    \\
+                     
+                        */
                         if (currNode->_parent)
                         {
                             if (currNode->_parent->_leftChild && *currNode->_parent->_leftChild->_value == x)
@@ -422,10 +429,11 @@ namespace ft
                         _deleteNode(currNode);
                         return NULL;
                     }
+                    // Case 2
                     else if (_hasLeftOnly(currNode))
                     {
 
-                        /*
+                        /* has only a left subtree.
 
                      **
                    //   \\
@@ -440,10 +448,11 @@ namespace ft
                         successorRef->_parent = currNodeParent;
                         return successorRef;
                     }
+
+                    // Case 3
                     else if (_hasRightOnly(currNode))
                     {
-                        /*
-
+                        /* has only a right subtree.
                      **
                    //   \\
                          **
@@ -455,8 +464,33 @@ namespace ft
                         _deleteNode(currNode);
                         currNodeParent->_rightChild = successorRef;
                         successorRef->_parent = currNodeParent;
-                        return successorRef;
+                        return successorRef;    
                     }
+                    
+                    // Case 4
+                    else {
+                        
+                        // -> Algorithm: 
+                        // the successor can either be the largest value
+                        // in the left subtree OR the smallest value
+                        // in the right subtree.
+
+                        // Once the successor  node has been found,
+                        // replace the value of the node to remove with
+                        // the value in the successor node.
+
+                        // and remove the duplicate value of the successor node
+                        // that still exists in the tree.
+
+                        successorRef = _max(currNode->_rightChild);
+                        std::swap(successorRef->_value->first, currNode->_value->first);
+                        std::swap(successorRef->_value->second, currNode->_value->second);
+
+                        currNode->_rightChild = _remove(currNode->_rightChild, *successorRef->_value, isDeleted);
+                        return successorRef;
+
+                    }
+
                     // RETTTT
                 }
 
