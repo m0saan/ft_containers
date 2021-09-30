@@ -205,8 +205,8 @@ int main()
 #endif
 
         AVL_INT_INT avlRandomRemove;
-        for (size_t i = 0; i <= 1e6; i++)
-            avlRandomRemove.insert(ft::make_pair(i, i / 2));
+        for (size_t i = 1; i <= 10; i++)
+            avlRandomRemove.insert(ft::make_pair(i, i*2));
 
         // for (AVL_INT_INT::iterator it = avlRandomRemove.begin(); it != avlRandomRemove.end(); it++)
         //     std::cout << *it << std::endl;
@@ -217,15 +217,19 @@ int main()
         std::random_device dev;
         std::mt19937 rng(dev());
         std::uniform_int_distribution<std::mt19937::result_type> dist(0, 1e6); // distribution in range [1, 1e6]
-    
 
-        std::set<int> p;
-        for (size_t i = 0; i < 1e3; i++)
-        {
-            int rand = dist(rng);
-            p.insert(rand);
-            avlRandomRemove.remove(ft::make_pair(dist(rng), -1));
-        }
+        avlRandomRemove.remove(ft::make_pair(1, 2));
+        avlRandomRemove.remove(ft::make_pair(2, 4));
+        // avlRandomRemove.remove(ft::make_pair(4, 8));
+        // avlRandomRemove.remove(ft::make_pair(3, 6));
+
+        // for (size_t i = 1; i <= 10; i++)
+        // {
+        //     // int rand = dist(rng);
+        //     // if (p.count(rand)) continue;
+        //     avlRandomRemove.remove(ft::make_pair(i, -1));
+        //     // p.insert(rand);
+        // }
 
         // AVL_INT_INT avl;
         // for (int i = 0; i < 10; ++i)
@@ -236,6 +240,9 @@ int main()
 
         for (AVL_INT_INT::iterator it = avlRandomRemove.begin(); it != avlRandomRemove.end(); it++)
             std::cout << *it << std::endl;
+
+        // for (auto const &i : p)
+        //     std::cout << i << std::endl;
 
         return 0;
     }
