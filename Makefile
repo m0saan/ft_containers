@@ -2,7 +2,7 @@ NAME=a.out
 CC=clang++
 CFLAGS=-Wall
 CPP_VERSION=-std=c++98
-SRCS = Vector_test.cpp
+SRCS = bst_main.cpp
 
 
 all: $(NAME)
