@@ -278,6 +278,7 @@ namespace ft
         {
             _alloc.destroy(node->_value);
             _alloc.deallocate(node->_value, 1);
+            node->_value = NULL;
             _node_alloc.deallocate(node, 1);
             node = NULL;
         }
@@ -435,7 +436,7 @@ namespace ft
                         return NULL;
                     }
                     // Case 2
-                    else if (_hasLeftOnly(currNode))
+                    else if (_hasLeftOnly(currNode) && _size > 2)
                     {
 
                         /* has only a left subtree.
@@ -455,7 +456,7 @@ namespace ft
                     }
 
                     // Case 3
-                    else if (_hasRightOnly(currNode))
+                    else if (_hasRightOnly(currNode) && _size > 2)
                     {
                         /* has only a right subtree.
                      **
@@ -466,8 +467,11 @@ namespace ft
 
                         successorRef = currNode->_rightChild;
                         Node *currNodeParent = currNode->_parent;
+                         if (_comp(currNode->_value->first, currNodeParent->_value->first))
+                            currNodeParent->_leftChild = successorRef;
+                        else
+                            currNodeParent->_rightChild = successorRef;
                         _deleteNode(currNode);
-                        currNodeParent->_rightChild = successorRef;
                         successorRef->_parent = currNodeParent;
                         return successorRef;    
                     }
@@ -486,13 +490,16 @@ namespace ft
 
                         // and remove the duplicate value of the successor node
                         // that still exists in the tree.
-
+                        if (currNode->_rightChild) {
                         successorRef = _max(currNode->_rightChild);
                         std::swap(successorRef->_value->first, currNode->_value->first);
                         std::swap(successorRef->_value->second, currNode->_value->second);
 
                         currNode->_rightChild = _remove(currNode->_rightChild, *successorRef->_value, isDeleted);
-                        return successorRef;
+                        return currNode;
+                        } else if (currNode->_leftChild){
+                            std::cout << "implement me!!" << std::endl;
+                        }
 
                     }
 
