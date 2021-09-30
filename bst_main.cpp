@@ -2,7 +2,7 @@
 // Created by Mohammad  Boustta on 9/25/21.
 //
 
-#include "Utility/AVLTree.hpp"
+#include "Utility/avltree.hpp"
 #include "Utility/pair.hpp"
 #include <string>
 #include <map>
@@ -105,7 +105,7 @@ int main()
     std::cout << "fooo: " << fooo.first << ", " << fooo.second << '\n';
     std::cout << "barr: " << barr.first << ", " << barr.second << '\n';
 
-    ft::AVLTree<ft::pair<int, int> > avlTree;
+    ft::avltree<ft::pair<int, int> > avlTree;
 
     for (int i = 1; i <= 10; ++i)
         avlTree.insert(ft::make_pair(i, i * 2));
@@ -139,10 +139,10 @@ int main()
   3   5      3   5        3
 
 */
-        typedef ft::AVLTree<ft::pair<int, int> > AVL_INT_INT;
+        typedef ft::avltree<ft::pair<int, int> > AVL_INT_INT;
         {
             std::cout << BOLDYELLOW << "**------------------------ Delete ------------------------**" << RESET << std::endl;
-            std::cout << GREEN << "Case1: " << RESET << std::endl;
+            std::cout << GREEN << "Case1: Removing a leaf node that causes a re-balance." << RESET << std::endl;
             AVL_INT_INT avl1;
             int case1[] = {1, 2, 3, 4, 5};
 
@@ -150,10 +150,30 @@ int main()
 
             avl1.remove(ft::make_pair(1, 2));
 
+            std::cout << BLUE << "in-order-traversal -> smallest to largest" << RESET << std::endl;
             put(avl1.begin(), avl1.end());
 
             std::cout << "\t------------------------------------------" << std::endl;
 
+            std::cout << BLUE << "in-order-traversal -> largest to smallest" << RESET << std::endl;
+            put(avl1.rbegin(), avl1.rend());
+        }
+
+        {
+            std::cout << GREEN << "Case2: Removing a node that has a left subtree only and causes a re-balance." << RESET << std::endl;
+            AVL_INT_INT avl1;
+            int case1[] = {1, 2, 3, 4, 5,6,7,8,9,10,11,12,13};
+
+            insert(avl1, case1, 13);
+
+            avl1.remove(ft::make_pair(10, 20));
+
+            std::cout << BLUE << "in-order-traversal -> smallest to largest" << RESET << std::endl;
+            put(avl1.begin(), avl1.end());
+
+            std::cout << "\t------------------------------------------" << std::endl;
+
+            std::cout << BLUE << "in-order-traversal -> largest to smallest" << RESET << std::endl;
             put(avl1.rbegin(), avl1.rend());
         }
 
