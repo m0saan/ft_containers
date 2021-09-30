@@ -215,16 +215,15 @@ namespace ft {
             typename Alloc = std::allocator<ft::pair<const typename T::first_type, typename T::second_type> >
     >
     class AVLTree {
+
     private:
         class Node {
         public:
-            explicit Node(T const &value, Node *left = NULL, Node *right = NULL, Node *par = NULL)
-                    : _value(value), _leftChild(left), _rightChild(right), _parent(par), _height(0) {}
-
-            T _value;
+            T *_value;
             Node *_leftChild, *_rightChild, *_parent;
             std::size_t _height;
         };
+
 
     public:
         typedef T value_type;
@@ -242,10 +241,20 @@ namespace ft {
 
         friend class Iterator<Node, T, Compare, Alloc, AVLTree>;
 
+        Node *_createNode(value_type value) {
+            Node* newNode;
+            newNode = _node_alloc.allocate(1);
+            newNode->_value = _alloc.allocate(1);
+            newNode->_leftChild = newNode->_rightChild = newNode->_parent = NULL;
+            newNode->_height = 0;
+            _alloc.construct(newNode->_value, value);
+            return newNode;
+        }
+
         /**
          * Constructor and Destructor.
          */
-        AVLTree() : _root(NULL), _size(0) {}
+        AVLTree() : _root(NULL), _size(0), _alloc(), _comp() {}
 
         ~AVLTree() {}
 
@@ -257,7 +266,7 @@ namespace ft {
          */
 
         ft::pair<iterator, bool> insert(const T &value) {
-            Node *newNode = new Node(value);
+            Node *newNode(_createNode(value));
             bool isInserted(false);
             Node *out = _insert(this->_root, newNode, value, isInserted);
             if (isInserted) {
@@ -275,9 +284,9 @@ namespace ft {
         bool findByKey(const value_type &value) const {
             Node *current = _root;
             while (current != NULL) {
-                if (value.first > current->_value.first)
+                if (value.first > current->_value->first)
                     current = current->_rightChild;
-                else if (value.first < current->_value.first)
+                else if (value.first < current->_value->first)
                     current = current->_leftChild;
                 else
                     return true;
@@ -288,9 +297,9 @@ namespace ft {
         Node *find(const value_type &value) const {
             Node *current = _root;
             while (current != NULL) {
-                if (!_comp(value.first, current->_value.first) && !_comp(current->_value.first, value.first))
+                if (!_comp(value.first, current->_value->first) && !_comp(current->_value->first, value.first))
                     return current;
-                if (!_comp(value.first, current->_value.first))
+                if (!_comp(value.first, current->_value->first))
                     current = current->_rightChild;
                 else
                     current = current->_leftChild;
@@ -352,7 +361,44 @@ namespace ft {
                     nodeToRemove->_parent = NULL;
                     delete nodeToRemove;
                     nodeToRemove = NULL;
+                } else if (_hasLeftOnly(nodeToRemove)) {
+
+                    /*
+
+                     **
+                   //   \\
+                  **     
+                  
+                    */
+
+                   Node *tmp = nodeToRemove->_leftChild;
+                   _alloc.destroy(nodeToRemove->_parent->_leftChild);
+                   nodeToRemove->_parent->_leftChild = NULL;
+                   nodeToRemove->_parent->_leftChild = tmp;
+
+                } else if (_hasRightOnly(nodeToRemove)) {
+                    /*
+
+                     **
+                   //   \\
+                         **
+                  
+                    */
+
                 }
+
+                /*
+                *
+                * Update Balance Factor.
+                *
+                */
+
+               /*
+               * 
+               * Rebalance tree.
+               * 
+               */ 
+            
             }
         }
 
@@ -435,6 +481,14 @@ namespace ft {
         Node *_root;
     private:
 
+    bool _hasLeftOnly(Node *node) {
+        return node->_rightChild == NULL;
+    }
+
+
+    bool _hasRightOnly(Node *node) {
+        return node->_leftChild == NULL;
+    }
         Node *_insert(Node *cur_node, Node *newNode, const T &value, bool &isInserted, Node *parent = NULL) {
             if (!cur_node) {
                 newNode->_parent = parent;
@@ -443,9 +497,9 @@ namespace ft {
             }
 
             //
-            if (!_comp(value.first, cur_node->_value.first) && !_comp(cur_node->_value.first, value.first))
+            if (!_comp(value.first, cur_node->_value->first) && !_comp(cur_node->_value->first, value.first))
                 return cur_node;
-            if (!_comp(value.first, cur_node->_value.first))
+            if (!_comp(value.first, cur_node->_value->first))
                 cur_node->_rightChild = _insert(cur_node->_rightChild, newNode, value, isInserted, cur_node);
             else
                 cur_node->_leftChild = _insert(cur_node->_leftChild, newNode, value, isInserted, cur_node);
@@ -507,6 +561,8 @@ namespace ft {
     private:
         std::size_t _size;
         Compare _comp;
+        std::allocator<Node> _node_alloc;
+        Alloc _alloc;
 
         /*
          * Private Member Functions
