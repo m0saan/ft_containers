@@ -5,7 +5,6 @@
 #ifndef __AVL_HPP__
 #define __AVL_HPP__
 
-
 /**
  * 
  * Utility includes 
@@ -20,20 +19,19 @@
 #include <memory>
 #include <map>
 
-namespace ft {
+namespace ft
+{
 
-    template
-            <
-                    typename Node,
-                    typename T,
-                    typename Compare,
-                    typename Alloc,
-                    typename Tree
-            >
-    class Iterator : public ft::iterator<std::bidirectional_iterator_tag, T> {
+    template <
+        typename Node,
+        typename T,
+        typename Compare,
+        typename Alloc,
+        typename Tree>
+    class Iterator : public ft::iterator<std::bidirectional_iterator_tag, T>
+    {
 
     public:
-
         typedef T value_type;
         typedef std::bidirectional_iterator_tag iterator_type;
         typedef typename T::first_type key_type;
@@ -50,31 +48,38 @@ namespace ft {
 
         Iterator(const Iterator &other) { *this = other; }
 
-        operator Iterator<Node, const T, Compare, Alloc, Tree>() {
+        operator Iterator<Node, const T, Compare, Alloc, Tree>()
+        {
             return Iterator<Node, const T, Compare, Alloc, Tree>(_nodePtr, _tree);
         }
 
-        Iterator &operator=(const Iterator &other) {
-            if (this != &other) {
+        Iterator &operator=(const Iterator &other)
+        {
+            if (this != &other)
+            {
                 _nodePtr = other._nodePtr;
                 _tree = other._tree;
             }
             return *this;
         }
 
-        reference operator*() const {
-            return _nodePtr->_value;
+        reference operator*() const
+        {
+            return *_nodePtr->_value;
         }
 
-        pointer operator->() const {
+        pointer operator->() const
+        {
             return (&this->_nodePtr->_value);
         }
 
-        Iterator &operator++() {
+        Iterator &operator++()
+        {
 
             Node *p;
 
-            if (_nodePtr == NULL) {
+            if (_nodePtr == NULL)
+            {
 
                 // ++ from end(). get the root of the tree
                 _nodePtr = _tree->_root;
@@ -85,11 +90,15 @@ namespace ft {
 
                 // move to the smallest value in the tree,
                 // which is the first node inorder
-                while (_nodePtr->_leftChild != NULL) {
+                while (_nodePtr->_leftChild != NULL)
+                {
                     _nodePtr = _nodePtr->_leftChild;
                 }
-            } else {
-                if (_nodePtr->_rightChild) {
+            }
+            else
+            {
+                if (_nodePtr->_rightChild)
+                {
 
                     /*	next Node is the farthest left node of
                      *	right subtree
@@ -97,7 +106,9 @@ namespace ft {
                     _nodePtr = _nodePtr->_rightChild;
                     while (_nodePtr->_leftChild != NULL)
                         _nodePtr = _nodePtr->_leftChild;
-                } else {
+                }
+                else
+                {
                     // have already processed the left subtree, and
                     // there is no right subtree. move up the tree,
                     // looking for a parent for which nodePtr is a left child,
@@ -106,7 +117,8 @@ namespace ft {
                     // was the last node inorder, and its successor
                     // is the end of the list
                     p = _nodePtr->_parent;
-                    while (p != NULL && _nodePtr == p->_rightChild) {
+                    while (p != NULL && _nodePtr == p->_rightChild)
+                    {
                         _nodePtr = p;
                         p = p->_parent;
                     }
@@ -120,9 +132,11 @@ namespace ft {
             return *this;
         }
 
-        Iterator &operator--() {
+        Iterator &operator--()
+        {
             Node *p;
-            if (_nodePtr == NULL) {
+            if (_nodePtr == NULL)
+            {
 
                 // -- from end(). get the root of the tree
                 _nodePtr = _tree->max()->_parent;
@@ -133,11 +147,15 @@ namespace ft {
 
                 // move to the farthest value in the tree,
                 // which is the last node inorder
-                while (_nodePtr->_rightChild != NULL) {
+                while (_nodePtr->_rightChild != NULL)
+                {
                     _nodePtr = _nodePtr->_rightChild;
                 }
-            } else {
-                if (_nodePtr->_leftChild) {
+            }
+            else
+            {
+                if (_nodePtr->_leftChild)
+                {
 
                     /*	next Node is the farthest left node of
                      *	right subtree
@@ -145,7 +163,9 @@ namespace ft {
                     _nodePtr = _nodePtr->_leftChild;
                     while (_nodePtr->_rightChild != NULL)
                         _nodePtr = _nodePtr->_rightChild;
-                } else {
+                }
+                else
+                {
                     // have already processed the left subtree, and
                     // there is no right subtree. move up the tree,
                     // looking for a parent for which nodePtr is a left child,
@@ -154,7 +174,8 @@ namespace ft {
                     // was the last node inorder, and its successor
                     // is the end of the list
                     p = _nodePtr->_parent;
-                    while (p != NULL && _nodePtr == p->_leftChild) {
+                    while (p != NULL && _nodePtr == p->_leftChild)
+                    {
                         _nodePtr = p;
                         p = p->_parent;
                     }
@@ -169,32 +190,34 @@ namespace ft {
         }
 
         // postincrement
-        Iterator operator++(int) {
+        Iterator operator++(int)
+        {
             Iterator tmp(*this);
             ++(*this);
             return tmp;
         }
 
-
         // postdecrement
-        Iterator operator--(int) {
+        Iterator operator--(int)
+        {
             Iterator tmp(*this);
             --(*this);
             return tmp;
         }
 
-        friend bool operator==(const Iterator &lhs, const Iterator &rhs) {
+        friend bool operator==(const Iterator &lhs, const Iterator &rhs)
+        {
             if (!lhs._nodePtr && !rhs._nodePtr)
                 return true;
             return (!lhs._nodePtr && !rhs._nodePtr) && (lhs._nodePtr->_value == rhs._nodePtr->_value);
         }
 
-        friend bool operator!=(const Iterator &lhs, const Iterator &rhs) {
+        friend bool operator!=(const Iterator &lhs, const Iterator &rhs)
+        {
             return !(lhs == rhs);
         }
 
     private:
-
         /*
             -> nodePtr is the current location in the tree. we can move
         freely about the tree using left, right, and parent.
@@ -208,22 +231,21 @@ namespace ft {
         Compare _comp;
     };
 
-
-    template<
-            typename T,
-            typename Compare = std::less<typename T::first_type>,
-            typename Alloc = std::allocator<ft::pair<const typename T::first_type, typename T::second_type> >
-    >
-    class AVLTree {
+    template <
+        typename T,
+        typename Compare = std::less<typename T::first_type>,
+        typename Alloc = std::allocator<T> >
+    class AVLTree
+    {
 
     private:
-        class Node {
+        class Node
+        {
         public:
             T *_value;
             Node *_leftChild, *_rightChild, *_parent;
             std::size_t _height;
         };
-
 
     public:
         typedef T value_type;
@@ -241,8 +263,9 @@ namespace ft {
 
         friend class Iterator<Node, T, Compare, Alloc, AVLTree>;
 
-        Node *_createNode(value_type value) {
-            Node* newNode;
+        Node *_createNode(value_type value)
+        {
+            Node *newNode;
             newNode = _node_alloc.allocate(1);
             newNode->_value = _alloc.allocate(1);
             newNode->_leftChild = newNode->_rightChild = newNode->_parent = NULL;
@@ -251,25 +274,34 @@ namespace ft {
             return newNode;
         }
 
+        void _deleteNode(Node *node)
+        {
+            _alloc.destroy(node->_value);
+            _alloc.deallocate(node->_value, 1);
+            _node_alloc.deallocate(node, 1);
+            node = NULL;
+        }
+
         /**
          * Constructor and Destructor.
          */
-        AVLTree() : _root(NULL), _size(0), _alloc(), _comp() {}
+        AVLTree() : _root(NULL), _size(0), _comp(), _alloc() {}
 
         ~AVLTree() {}
 
         AVLTree getRoot() const { return _root; }
 
-
         /**
          * Insert x into the tree; duplicates are ignored.
          */
 
-        ft::pair<iterator, bool> insert(const T &value) {
+        ft::pair<iterator, bool> insert(const T &value)
+        {
             Node *newNode(_createNode(value));
             bool isInserted(false);
             Node *out = _insert(this->_root, newNode, value, isInserted);
-            if (isInserted) {
+            if (isInserted)
+            {
                 _root = out;
                 ++_size;
                 return ft::make_pair(iterator(newNode, this), true);
@@ -281,9 +313,11 @@ namespace ft {
            *	search for item. if found, return an iterator pointing
             *	at it in the tree; otherwise, return end()
         */
-        bool findByKey(const value_type &value) const {
+        bool findByKey(const value_type &value) const
+        {
             Node *current = _root;
-            while (current != NULL) {
+            while (current != NULL)
+            {
                 if (value.first > current->_value->first)
                     current = current->_rightChild;
                 else if (value.first < current->_value->first)
@@ -294,9 +328,11 @@ namespace ft {
             return false;
         }
 
-        Node *find(const value_type &value) const {
+        Node *find(const value_type &value) const
+        {
             Node *current = _root;
-            while (current != NULL) {
+            while (current != NULL)
+            {
                 if (!_comp(value.first, current->_value->first) && !_comp(current->_value->first, value.first))
                     return current;
                 if (!_comp(value.first, current->_value->first))
@@ -311,11 +347,12 @@ namespace ft {
          * returns true if found otherwise false
          */
 
-        bool contains(const value_type &x) const _NOEXCEPT {
-
+        bool contains(const value_type &x) const _NOEXCEPT
+        {
         }
 
-        std::size_t size() const _NOEXCEPT {
+        std::size_t size() const _NOEXCEPT
+        {
             return _size;
         }
 
@@ -332,7 +369,19 @@ namespace ft {
         /**
          * Remove x from the tree. Nothing is done if x is not found.
          */
-        void remove(const value_type &x) {
+
+        void remove(value_type const &x)
+        {
+            bool isRemoved(false);
+            _remove(_root, x, isRemoved);
+            if (isRemoved)
+                std::cout << "removed" << std::endl;
+            else
+                std::cout << "not in the tree (not removed)" << std::endl;
+        }
+
+        Node* _remove(Node *currNode, const value_type &x, bool &isDeleted)
+        {
             /*
              * 1. Find the element we wish to remove
              * 2. Replace the node we want to remove with its successor if any
@@ -347,23 +396,36 @@ namespace ft {
              *  -> Case 4: Node to remove has both left and right subtree.
              */
 
-            // Case 1
-            Node *nodeToRemove = find(x);
-            if (nodeToRemove != NULL) {
-                --_size;
-                if (_isLeaf(nodeToRemove)) {
-                    if (nodeToRemove->_parent) {
-                        if (nodeToRemove->_parent->_leftChild->_value == x)
-                            nodeToRemove->_parent->_leftChild = NULL;
-                        else
-                            nodeToRemove->_parent->_leftChild = NULL;
-                    }
-                    nodeToRemove->_parent = NULL;
-                    delete nodeToRemove;
-                    nodeToRemove = NULL;
-                } else if (_hasLeftOnly(nodeToRemove)) {
+            /*
+            *
+                base condition. 
+            *
+            */
 
-                    /*
+            if (!_comp(x.first, currNode->_value->first) && !_comp(currNode->_value->first, x.first))
+                {
+                    --_size;
+                    isDeleted = true;
+                    Node *successorRef;
+
+                    // Case 1
+                    if (_isLeaf(currNode))
+                    {
+                        if (currNode->_parent)
+                        {
+                            if (currNode->_parent->_leftChild && *currNode->_parent->_leftChild->_value == x)
+                                currNode->_parent->_leftChild = NULL;
+                            else if (currNode->_parent->_rightChild && *currNode->_parent->_rightChild->_value == x)
+                                currNode->_parent->_rightChild = NULL;
+                        }
+                        currNode->_parent = NULL;
+                        _deleteNode(currNode);
+                        return NULL;
+                    }
+                    else if (_hasLeftOnly(currNode))
+                    {
+
+                        /*
 
                      **
                    //   \\
@@ -371,13 +433,16 @@ namespace ft {
                   
                     */
 
-                   Node *tmp = nodeToRemove->_leftChild;
-                   _alloc.destroy(nodeToRemove->_parent->_leftChild);
-                   nodeToRemove->_parent->_leftChild = NULL;
-                   nodeToRemove->_parent->_leftChild = tmp;
-
-                } else if (_hasRightOnly(nodeToRemove)) {
-                    /*
+                        successorRef = currNode->_leftChild;
+                        Node *currNodeParent = currNode->_parent;
+                        _deleteNode(currNode);
+                        currNodeParent->_leftChild = successorRef;
+                        successorRef->_parent = currNodeParent;
+                        return successorRef;
+                    }
+                    else if (_hasRightOnly(currNode))
+                    {
+                        /*
 
                      **
                    //   \\
@@ -385,23 +450,33 @@ namespace ft {
                   
                     */
 
+                        successorRef = currNode->_rightChild;
+                        Node *currNodeParent = currNode->_parent;
+                        _deleteNode(currNode);
+                        currNodeParent->_rightChild = successorRef;
+                        successorRef->_parent = currNodeParent;
+                        return successorRef;
+                    }
+                    // RETTTT
                 }
 
-                /*
-                *
+            // Finding the __x__ node which we want to remove;
+            if (!_comp(x.first, currNode->_value->first))
+                currNode->_rightChild = _remove(currNode->_rightChild, x, isDeleted);
+            else
+                currNode->_leftChild = _remove(currNode->_leftChild, x, isDeleted);
+
+            /*
                 * Update Balance Factor.
-                *
                 */
 
-               /*
-               * 
-               * Rebalance tree.
-               * 
-               */ 
-            
-            }
-        }
+            currNode->_height = 1 + std::max(_getHeight(currNode->_leftChild), _getHeight(currNode->_rightChild));
 
+            /*
+            * Rebalance tree.
+            */
+            return _balanceTree(currNode);
+        }
 
         /**
          * 
@@ -409,11 +484,13 @@ namespace ft {
          * 
          */
 
-        iterator begin() {
+        iterator begin()
+        {
             return iterator(min(), this);
         }
 
-        const_iterator begin() const {
+        const_iterator begin() const
+        {
             return const_iterator(min(), this);
         }
 
@@ -423,11 +500,13 @@ namespace ft {
          * 
          */
 
-        reverse_iterator rbegin() {
+        reverse_iterator rbegin()
+        {
             return reverse_iterator(iterator(max(), this));
         }
 
-        const_reverse_iterator rbegin() const {
+        const_reverse_iterator rbegin() const
+        {
             return const_reverse_iterator(const_iterator(max(), this));
         }
 
@@ -437,60 +516,70 @@ namespace ft {
          * 
          */
 
-        iterator end() {
+        iterator end()
+        {
             return iterator(NULL, this);
         }
 
-        const_iterator end() const {
+        const_iterator end() const
+        {
             return const_iterator(NULL, this);
         }
 
-        reverse_iterator rend() {
+        reverse_iterator rend()
+        {
             return reverse_iterator(iterator(NULL, this));
         }
 
-        const_reverse_iterator rend() const {
+        const_reverse_iterator rend() const
+        {
             return const_reverse_iterator(const_iterator(NULL, this));
         }
-
 
         /**
          * Relational Operators
          *
          */
 
-        friend bool operator==(const AVLTree &lhs, const AVLTree &rhs) {
+        friend bool operator==(const AVLTree &lhs, const AVLTree &rhs)
+        {
             return lhs.equals(rhs);
         }
 
-        void preOrderTraversal() const _NOEXCEPT {
+        void preOrderTraversal() const _NOEXCEPT
+        {
             _preOrderTraversal(_root);
             std::cout << std::endl;
         }
 
-        void inOrderTraversal() const _NOEXCEPT {
+        void inOrderTraversal() const _NOEXCEPT
+        {
             _inOrderTraversal(_root);
             std::cout << std::endl;
         }
 
-        void postOrderTraversal() const _NOEXCEPT {
+        void postOrderTraversal() const _NOEXCEPT
+        {
             _postOrderTraversal(_root);
             std::cout << std::endl;
         }
 
         Node *_root;
+
     private:
+        bool _hasLeftOnly(Node *node)
+        {
+            return node->_rightChild == NULL;
+        }
 
-    bool _hasLeftOnly(Node *node) {
-        return node->_rightChild == NULL;
-    }
-
-
-    bool _hasRightOnly(Node *node) {
-        return node->_leftChild == NULL;
-    }
-        Node *_insert(Node *cur_node, Node *newNode, const T &value, bool &isInserted, Node *parent = NULL) {
-            if (!cur_node) {
+        bool _hasRightOnly(Node *node)
+        {
+            return node->_leftChild == NULL;
+        }
+        Node *_insert(Node *cur_node, Node *newNode, const T &value, bool &isInserted, Node *parent = NULL)
+        {
+            if (!cur_node)
+            {
                 newNode->_parent = parent;
                 isInserted = true;
                 return newNode;
@@ -523,21 +612,25 @@ namespace ft {
         /* BST Depth and Height */
         /**************************/
 
-        int height() const _NOEXCEPT {
+        int height() const _NOEXCEPT
+        {
             if (_root == NULL)
                 return -1;
             return _height(_root);
         }
 
-        Node *min() {
+        Node *min()
+        {
             return _min(_root);
         }
 
-        Node *max() {
+        Node *max()
+        {
             return _max(_root);
         }
 
-        bool equals(const AVLTree &other) const {
+        bool equals(const AVLTree &other) const
+        {
             return _equals(_root, other._root);
         }
 
@@ -569,15 +662,18 @@ namespace ft {
          */
 
     private:
-
-        Node *_balanceTree(Node *root) {
+        Node *_balanceTree(Node *root)
+        {
             int balanceFactor = _getBalanceFactor(root);
 
-            if (_isLeftHeavy(balanceFactor)) {
+            if (_isLeftHeavy(balanceFactor))
+            {
                 if (_getBalanceFactor(root->_leftChild) < 0)
                     root->_leftChild = _leftRotate(root->_leftChild);
                 return _rightRotate(root);
-            } else if (_isRightHeavy(balanceFactor)) {
+            }
+            else if (_isRightHeavy(balanceFactor))
+            {
                 if (_getBalanceFactor(root->_rightChild) > 0)
                     root->_rightChild = _rightRotate(root->_rightChild);
                 return _leftRotate(root);
@@ -585,7 +681,8 @@ namespace ft {
             return root;
         }
 
-        Node *_leftRotate(Node *root) {
+        Node *_leftRotate(Node *root)
+        {
             Node *newRoot = root->_rightChild;
             root->_rightChild = newRoot->_leftChild;
             newRoot->_leftChild = root;
@@ -594,8 +691,8 @@ namespace ft {
             return newRoot;
         }
 
-
-        Node *_rightRotate(Node *root) {
+        Node *_rightRotate(Node *root)
+        {
             Node *newRoot = root->_leftChild;
             root->_leftChild = newRoot->_rightChild;
             newRoot->_rightChild = root;
@@ -604,8 +701,10 @@ namespace ft {
             return newRoot;
         }
 
-        void _resetParent(Node *oldRoot, Node *newRoot) const {
-            if (!oldRoot->_parent) {
+        void _resetParent(Node *oldRoot, Node *newRoot) const
+        {
+            if (!oldRoot->_parent)
+            {
                 newRoot->_parent = NULL;
                 if (oldRoot->_leftChild)
                     oldRoot->_leftChild->_parent = oldRoot;
@@ -622,7 +721,8 @@ namespace ft {
                 oldRoot->_rightChild->_parent = oldRoot;
         }
 
-        void _resetHeight(Node *root, Node *newRoot) {
+        void _resetHeight(Node *root, Node *newRoot)
+        {
             root->_height = 1 + std::max(_getHeight(root->_leftChild), _getHeight(root->_rightChild));
             newRoot->_height = 1 + std::max(_getHeight(newRoot->_leftChild), _getHeight(newRoot->_rightChild));
         }
@@ -633,12 +733,15 @@ namespace ft {
 
         int _getBalanceFactor(Node *root) { return _getHeight(root->_leftChild) - _getHeight(root->_rightChild); }
 
-        int _getHeight(Node *node) {
-            if (!node) return -1;
+        int _getHeight(Node *node)
+        {
+            if (!node)
+                return -1;
             return node->_height;
         }
 
-        void _preOrderTraversal(Node *root) const _NOEXCEPT {
+        void _preOrderTraversal(Node *root) const _NOEXCEPT
+        {
             if (root == NULL)
                 return;
 
@@ -647,16 +750,24 @@ namespace ft {
             _preOrderTraversal(root->_rightChild);
         }
 
-        void _inOrderTraversal(Node *root) const _NOEXCEPT {
+        void _inOrderTraversal(Node *root) const _NOEXCEPT
+        {
             if (root == NULL)
                 return;
 
             _inOrderTraversal(root->_leftChild);
-            std::cout << root->_value.first << ' ' << root->_value.second << std::endl;
+            std::cout << *root->_value;
+            if (root->_parent)
+                std::cout << " Parent"
+                          << "[" << *root->_parent->_value << "]" << std::endl;
+            else
+                std::cout << " Parent"
+                          << "[(null)]" << std::endl;
             _inOrderTraversal(root->_rightChild);
         }
 
-        void _postOrderTraversal(Node *root) const _NOEXCEPT {
+        void _postOrderTraversal(Node *root) const _NOEXCEPT
+        {
             if (root == NULL)
                 return;
 
@@ -665,7 +776,8 @@ namespace ft {
             std::cout << root->_value << ' ';
         }
 
-        std::size_t _height(Node *root) const _NOEXCEPT {
+        std::size_t _height(Node *root) const _NOEXCEPT
+        {
             if (_isLeaf(root))
                 return 0;
 
@@ -674,38 +786,41 @@ namespace ft {
 
         bool _isLeaf(const Node *root) const { return root->_leftChild == NULL && root->_rightChild == NULL; }
 
-        Node *_min(Node *root) { // O(Log(n)) time complexity.
+        Node *_min(Node *root)
+        { // O(Log(n)) time complexity.
             if (!_root)
                 throw std::logic_error("root node is null");
             Node *current = _root;
             Node *minNode = _root;
-            while (current != NULL) {
+            while (current != NULL)
+            {
                 minNode = current;
                 current = current->_leftChild;
             }
             return minNode;
         }
 
-        Node *_max(Node *root) { // O(Log(n)) time complexity.
+        Node *_max(Node *root)
+        { // O(Log(n)) time complexity.
             if (!_root)
                 throw std::logic_error("root node is null");
             Node *current = _root;
             Node *maxNode = _root;
-            while (current != NULL) {
+            while (current != NULL)
+            {
                 maxNode = current;
                 current = current->_rightChild;
             }
             return maxNode;
         }
 
-        bool _equals(Node *root, Node *other) const {
+        bool _equals(Node *root, Node *other) const
+        {
             if (root == NULL && other == NULL)
                 return true;
 
             if (root != NULL && other != NULL)
-                return (root->_value == other->_value
-                        && _equals(root->_leftChild, other->_leftChild)
-                        && _equals(root->_rightChild, other->_rightChild));
+                return (root->_value == other->_value && _equals(root->_leftChild, other->_leftChild) && _equals(root->_rightChild, other->_rightChild));
             return false;
         }
     };
@@ -713,4 +828,3 @@ namespace ft {
 }
 
 #endif // __AVL_HPP__
-
