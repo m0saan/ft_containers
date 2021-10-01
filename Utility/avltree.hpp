@@ -365,7 +365,9 @@ namespace ft
         /*
          * Make the tree logically empty.
          */
-        void makeEmpty() {}
+        void makeEmpty() {
+            _inOrderTraversal(_root, _deleteNode);
+        }
 
         /**
          * Remove x from the tree. Nothing is done if x is not found.
@@ -374,12 +376,12 @@ namespace ft
         void remove(value_type const &x)
         {
             bool isRemoved(false);
-            if (empty())
+            if (isEmpty())
                 return;
             _root = _remove(_root, x, isRemoved);
         }
 
-        Node* _remove(Node *currNode, const value_type &x, bool &isDeleted)
+        Node *_remove(Node *currNode, const value_type &x, bool &isDeleted)
         {
             /*
              * 1. Find the element we wish to remove
@@ -404,140 +406,149 @@ namespace ft
             if (!currNode)
                 return currNode;
 
-
-
             if (!_comp(x.first, currNode->_value->first) && !_comp(currNode->_value->first, x.first))
+            {
+                --_size;
+                isDeleted = true;
+                Node *successorRef;
+
+                // Case 1
+                if (_isLeaf(currNode))
                 {
-                    --_size;
-                    isDeleted = true;
-                    Node *successorRef;
 
-                    // Case 1
-                    if (_isLeaf(currNode))
-                    {
-
-                        /* has no left or right subtree.
+                    /* has no left or right subtree.
 
                         **
                      //    \\
                      
                         */
-                        if (currNode->_parent)
-                        {
-                            if (currNode->_parent->_leftChild && *currNode->_parent->_leftChild->_value == x)
-                                currNode->_parent->_leftChild = NULL;
-                            else if (currNode->_parent->_rightChild && *currNode->_parent->_rightChild->_value == x)
-                                currNode->_parent->_rightChild = NULL;
-                        }
-                        currNode->_parent = NULL;
-                        _deleteNode(currNode);
-                        return NULL;
-                    }
-                    // Case 2
-                    else if (_hasLeftOnly(currNode) && _size > 2)
-                    {
 
-                        /* has only a left subtree.
+                    // Algorithm
+                    // if the current node is leaf node we just cut the egde
+                    // that links it to its parent and destroy the node.
+
+                    if (currNode->_parent)
+                    {
+                        if (currNode->_parent->_leftChild && *currNode->_parent->_leftChild->_value == x)
+                            currNode->_parent->_leftChild = NULL;
+                        else if (currNode->_parent->_rightChild && *currNode->_parent->_rightChild->_value == x)
+                            currNode->_parent->_rightChild = NULL;
+                    }
+                    currNode->_parent = NULL;
+                    _deleteNode(currNode);
+                    return NULL;
+                }
+                // Case 2
+                else if (_hasLeftOnly(currNode) && _size > 2)
+                {
+
+                    /* has only a left subtree.
 
                      **
                    //   \\
                   **     
                   
                     */
+                    // Algorithm
+                    // if the current node has a left subtree only
+                    // we put a ref to its successor (its left child)
+                    // cut the edge if the current node from its parent
+                    // then choose which side to put it in i.e left or right of
+                    // parent of the node we want to remove.
 
-                        successorRef = currNode->_leftChild;
-                        Node *currNodeParent = currNode->_parent;
-                        
-                        if (!_comp(currNode->_value->first, currNodeParent->_value->first))
-                            currNodeParent->_rightChild = successorRef;
-                        else
-                            currNodeParent->_leftChild = successorRef;
+                    successorRef = currNode->_leftChild;
+                    Node *currNodeParent = currNode->_parent;
 
-                        _deleteNode(currNode);
-                        successorRef->_parent = currNodeParent;
-                        return successorRef;
-                    }
+                    if (!_comp(currNode->_value->first, currNodeParent->_value->first))
+                        currNodeParent->_rightChild = successorRef;
+                    else
+                        currNodeParent->_leftChild = successorRef;
 
-                    // Case 3
-                    else if (_hasRightOnly(currNode) && _size > 2)
-                    {
-                        /* has only a right subtree.
+                    _deleteNode(currNode);
+                    successorRef->_parent = currNodeParent;
+                    return successorRef;
+                }
+
+                // Case 3
+                else if (_hasRightOnly(currNode) && _size > 2)
+                {
+                    /* has only a right subtree.
                      **
                    //   \\
                          **
                   
                     */
 
-                        successorRef = currNode->_rightChild;
-                        Node *currNodeParent = currNode->_parent;
-                         if (_comp(currNode->_value->first, currNodeParent->_value->first))
-                            currNodeParent->_leftChild = successorRef;
-                        else
-                            currNodeParent->_rightChild = successorRef;
-                        _deleteNode(currNode);
-                        successorRef->_parent = currNodeParent;
-                        return successorRef;    
-                    }
-                    
-                    // Case 4
-                    else {
-                        
-                        // -> Algorithm: 
-                        // the successor can either be the largest value
-                        // in the left subtree OR the smallest value
-                        // in the right subtree.
+                    // Algorithm
+                    // same as if the node has a left subtree only.
 
-                        // Once the successor  node has been found,
-                        // replace the value of the node to remove with
-                        // the value in the successor node.
+                    successorRef = currNode->_rightChild;
+                    Node *currNodeParent = currNode->_parent;
+                    if (_comp(currNode->_value->first, currNodeParent->_value->first))
+                        currNodeParent->_leftChild = successorRef;
+                    else
+                        currNodeParent->_rightChild = successorRef;
+                    _deleteNode(currNode);
+                    successorRef->_parent = currNodeParent;
+                    return successorRef;
+                }
 
-                        // and remove the duplicate value of the successor node
-                        // that still exists in the tree.
+                // Case 4
+                else
+                {
 
-                        if (_size == 1) {
-                            if (currNode->_rightChild) {
+                    // -> Algorithm:
+                    // the successor can either be the largest value
+                    // in the left subtree OR the smallest value
+                    // in the right subtree.
+
+                    // Once the successor  node has been found,
+                    // replace the value of the node to remove with
+                    // the value in the successor node.
+
+                    // and remove the duplicate value of the successor node
+                    // that still exists in the tree.
+
+                    if (_size == 1)
+                    {
+                        if (currNode->_rightChild)
+                        {
                             successorRef = currNode->_rightChild;
-                            std::swap(successorRef->_value->first, currNode->_value->first);
-                            std::swap(successorRef->_value->second, currNode->_value->second);
+                            _swapNodes(successorRef, currNode);
 
                             _deleteNode(currNode->_rightChild);
                             currNode->_rightChild = NULL;
-                            return currNode; 
-                            } else {
-                                successorRef = currNode->_leftChild;
-                            std::swap(successorRef->_value->first, currNode->_value->first);
-                            std::swap(successorRef->_value->second, currNode->_value->second);
+                            return currNode;
+                        }
+                        else
+                        {
+                            successorRef = currNode->_leftChild;
+                            _swapNodes(successorRef, currNode);
 
                             _deleteNode(currNode->_leftChild);
                             currNode->_leftChild = NULL;
                             return currNode;
-
-                            }
-
                         }
+                    }
 
-
-
-                        if (currNode->_rightChild) {
+                    if (currNode->_rightChild)
+                    {
                         successorRef = _min(currNode->_rightChild);
-                        std::swap(successorRef->_value->first, currNode->_value->first);
-                        std::swap(successorRef->_value->second, currNode->_value->second);
+                        _swapNodes(successorRef, currNode);
 
                         currNode->_rightChild = _remove(currNode->_rightChild, *successorRef->_value, isDeleted);
                         return currNode;
-                        } else if (currNode->_leftChild) {
+                    }
+                    else if (currNode->_leftChild)
+                    {
                         successorRef = _max(currNode->_leftChild);
-                        std::swap(successorRef->_value->first, currNode->_value->first);
-                        std::swap(successorRef->_value->second, currNode->_value->second);
+                        _swapNodes(successorRef, currNode);
 
                         currNode->_leftChild = _remove(currNode->_leftChild, *successorRef->_value, isDeleted);
                         return currNode;
-                        }
-
                     }
-
-                    // RETTTT
                 }
+            }
 
             // Finding the __x__ node which we want to remove;
             if (!_comp(x.first, currNode->_value->first))
@@ -546,8 +557,8 @@ namespace ft
                 currNode->_leftChild = _remove(currNode->_leftChild, x, isDeleted);
 
             /*
-                * Update Balance Factor.
-                */
+            * Update Balance Factor.
+            */
 
             currNode->_height = 1 + std::max(_getHeight(currNode->_leftChild), _getHeight(currNode->_rightChild));
 
@@ -741,6 +752,12 @@ namespace ft
          */
 
     private:
+        void _swapNodes(Node *successorRef, Node *currNode)
+        {
+            std::swap(successorRef->_value->first, currNode->_value->first);
+            std::swap(successorRef->_value->second, currNode->_value->second);
+        }
+
         Node *_balanceTree(Node *root)
         {
             int balanceFactor = _getBalanceFactor(root);
@@ -829,19 +846,21 @@ namespace ft
             _preOrderTraversal(root->_rightChild);
         }
 
-        void _inOrderTraversal(Node *root) const _NOEXCEPT
+        void _inOrderTraversal(Node *root, void (*fn)(Node *))
         {
             if (root == NULL)
                 return;
 
             _inOrderTraversal(root->_leftChild);
-            std::cout << *root->_value;
-            if (root->_parent)
-                std::cout << " Parent"
-                          << "[" << *root->_parent->_value << "]" << std::endl;
-            else
-                std::cout << " Parent"
-                          << "[(null)]" << std::endl;
+            // std::cout << *root->_value;
+            // if (root->_parent)
+            //     std::cout << " Parent"
+            //               << "[" << *root->_parent->_value << "]" << std::endl;
+            // else
+            //     std::cout << " Parent"
+            //               << "[(null)]" << std::endl;
+
+            fn(root);
             _inOrderTraversal(root->_rightChild);
         }
 
