@@ -204,41 +204,17 @@ int main()
         std::cout << BOLDRED << "Insert 1e6 element and remove random values" << RESET << std::endl;
 #endif
 
-        AVL_INT_INT avlRandomRemove;
+        AVL_INT_INT avl;
         for (size_t i = 1; i <= 10; i++)
-            avlRandomRemove.insert(ft::make_pair(i, i*2));
+            avl.insert(ft::make_pair(i, i*2));
 
-        // for (AVL_INT_INT::iterator it = avlRandomRemove.begin(); it != avlRandomRemove.end(); it++)
-        //     std::cout << *it << std::endl;
-
-        // for (AVL_INT_INT::reverse_iterator r_it = avlRandomRemove.rbegin(); r_it != avlRandomRemove.rend(); r_it++)
-        //     std::cout << *r_it << std::endl;
+        avl.makeEmpty();
 
         std::random_device dev;
         std::mt19937 rng(dev());
         std::uniform_int_distribution<std::mt19937::result_type> dist(0, 1e6); // distribution in range [1, 1e6]
 
-        avlRandomRemove.remove(ft::make_pair(1, 2));
-        avlRandomRemove.remove(ft::make_pair(2, 4));
-        // avlRandomRemove.remove(ft::make_pair(4, 8));
-        // avlRandomRemove.remove(ft::make_pair(3, 6));
-
-        // for (size_t i = 1; i <= 10; i++)
-        // {
-        //     // int rand = dist(rng);
-        //     // if (p.count(rand)) continue;
-        //     avlRandomRemove.remove(ft::make_pair(i, -1));
-        //     // p.insert(rand);
-        // }
-
-        // AVL_INT_INT avl;
-        // for (int i = 0; i < 10; ++i)
-        //     avl.insert(ft::make_pair(i, i * 2));
-
-        // avl.remove(ft::make_pair(25, 50));
-        // avl.inOrderTraversal();
-
-        for (AVL_INT_INT::iterator it = avlRandomRemove.begin(); it != avlRandomRemove.end(); it++)
+       for (AVL_INT_INT::const_reverse_iterator it = avl.rbegin(); it != avl.rend(); it++)
             std::cout << *it << std::endl;
 
         // for (auto const &i : p)
