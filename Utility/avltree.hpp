@@ -374,11 +374,9 @@ namespace ft
         void remove(value_type const &x)
         {
             bool isRemoved(false);
+            if (empty())
+                return;
             _root = _remove(_root, x, isRemoved);
-            // if (isRemoved)
-            //     std::cout << "removed" << std::endl;
-            // else
-            //     std::cout << "not in the tree (not removed)" << std::endl;
         }
 
         Node* _remove(Node *currNode, const value_type &x, bool &isDeleted)
@@ -449,8 +447,13 @@ namespace ft
 
                         successorRef = currNode->_leftChild;
                         Node *currNodeParent = currNode->_parent;
+                        
+                        if (!_comp(currNode->_value->first, currNodeParent->_value->first))
+                            currNodeParent->_rightChild = successorRef;
+                        else
+                            currNodeParent->_leftChild = successorRef;
+
                         _deleteNode(currNode);
-                        currNodeParent->_leftChild = successorRef;
                         successorRef->_parent = currNodeParent;
                         return successorRef;
                     }
@@ -490,15 +493,45 @@ namespace ft
 
                         // and remove the duplicate value of the successor node
                         // that still exists in the tree.
+
+                        if (_size == 1) {
+                            if (currNode->_rightChild) {
+                            successorRef = currNode->_rightChild;
+                            std::swap(successorRef->_value->first, currNode->_value->first);
+                            std::swap(successorRef->_value->second, currNode->_value->second);
+
+                            _deleteNode(currNode->_rightChild);
+                            currNode->_rightChild = NULL;
+                            return currNode; 
+                            } else {
+                                successorRef = currNode->_leftChild;
+                            std::swap(successorRef->_value->first, currNode->_value->first);
+                            std::swap(successorRef->_value->second, currNode->_value->second);
+
+                            _deleteNode(currNode->_leftChild);
+                            currNode->_leftChild = NULL;
+                            return currNode;
+
+                            }
+
+                        }
+
+
+
                         if (currNode->_rightChild) {
-                        successorRef = _max(currNode->_rightChild);
+                        successorRef = _min(currNode->_rightChild);
                         std::swap(successorRef->_value->first, currNode->_value->first);
                         std::swap(successorRef->_value->second, currNode->_value->second);
 
                         currNode->_rightChild = _remove(currNode->_rightChild, *successorRef->_value, isDeleted);
                         return currNode;
-                        } else if (currNode->_leftChild){
-                            std::cout << "implement me!!" << std::endl;
+                        } else if (currNode->_leftChild) {
+                        successorRef = _max(currNode->_leftChild);
+                        std::swap(successorRef->_value->first, currNode->_value->first);
+                        std::swap(successorRef->_value->second, currNode->_value->second);
+
+                        currNode->_leftChild = _remove(currNode->_leftChild, *successorRef->_value, isDeleted);
+                        return currNode;
                         }
 
                     }
@@ -874,9 +907,3 @@ namespace ft
 }
 
 #endif // __AVL_HPP__
-
-
-/*
-
-    MAP <k,v> -> 
-*/
