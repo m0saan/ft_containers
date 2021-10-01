@@ -262,6 +262,9 @@ namespace ft
         typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
 
         friend class Iterator<Node, T, Compare, Alloc, avltree>;
+        friend class Iterator<Node, const T, Compare, Alloc, avltree>;
+
+        typedef void (avltree::*fnType(Node *)) ();
 
         Node *_createNode(value_type value)
         {
@@ -272,15 +275,6 @@ namespace ft
             newNode->_height = 0;
             _alloc.construct(newNode->_value, value);
             return newNode;
-        }
-
-        void _deleteNode(Node *node)
-        {
-            _alloc.destroy(node->_value);
-            _alloc.deallocate(node->_value, 1);
-            node->_value = NULL;
-            _node_alloc.deallocate(node, 1);
-            node = NULL;
         }
 
         /**
@@ -362,11 +356,20 @@ namespace ft
         */
         bool isEmpty() const { return this->_root == NULL; }
 
+        void _deleteNode(Node *node)
+        {
+            _alloc.destroy(node->_value);
+            _alloc.deallocate(node->_value, 1);
+            node->_value = NULL;
+            _node_alloc.deallocate(node, 1);
+            node = NULL;
+        }
+
         /*
          * Make the tree logically empty.
          */
         void makeEmpty() {
-            _inOrderTraversal(_root, _deleteNode);
+            _makeEmpty(_root);
         }
 
         /**
@@ -752,6 +755,24 @@ namespace ft
          */
 
     private:
+
+        void _makeEmpty(Node *currNode) {
+            if (currNode == NULL)
+                return;
+
+            _makeEmpty(currNode->_leftChild);
+            // std::cout << *root->_value;
+            // if (root->_parent)
+            //     std::cout << " Parent"
+            //               << "[" << *root->_parent->_value << "]" << std::endl;
+            // else
+            //     std::cout << " Parent"
+            //               << "[(null)]" << std::endl;
+
+            _deleteNode(currNode);
+            _inOrderTraversal(currNode->_rightChild, fn);
+ 
+        }
         void _swapNodes(Node *successorRef, Node *currNode)
         {
             std::swap(successorRef->_value->first, currNode->_value->first);
@@ -846,21 +867,20 @@ namespace ft
             _preOrderTraversal(root->_rightChild);
         }
 
-        void _inOrderTraversal(Node *root, void (*fn)(Node *))
+        void _inOrderTraversal(Node *root)
         {
             if (root == NULL)
                 return;
 
-            _inOrderTraversal(root->_leftChild);
-            // std::cout << *root->_value;
-            // if (root->_parent)
-            //     std::cout << " Parent"
-            //               << "[" << *root->_parent->_value << "]" << std::endl;
-            // else
-            //     std::cout << " Parent"
-            //               << "[(null)]" << std::endl;
+            _inOrderTraversal(root->_leftChil);
+            std::cout << *root->_value;
+            if (root->_parent)
+                std::cout << " Parent"
+                          << "[" << *root->_parent->_value << "]" << std::endl;
+            else
+                std::cout << " Parent"
+                          << "[(null)]" << std::endl;
 
-            fn(root);
             _inOrderTraversal(root->_rightChild);
         }
 
