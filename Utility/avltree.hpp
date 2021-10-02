@@ -237,8 +237,7 @@ namespace ft
         typename Alloc = std::allocator<T> >
     class avltree
     {
-
-    private:
+    public:
         class Node
         {
         public:
@@ -247,7 +246,6 @@ namespace ft
             std::size_t _height;
         };
 
-    public:
         typedef T value_type;
         typedef typename T::first_type first_type;
         typedef typename T::second_type second_type;
@@ -277,11 +275,12 @@ namespace ft
             return newNode;
         }
 
-        void _init(Compare p_comp, Alloc p_allocator) {
+        void init(const Compare &p_comp, const Alloc &p_allocator)
+        {
             _comp = p_comp;
             _alloc = p_allocator;
         }
- 
+
         /**
          * Constructor and Destructor.
          */
@@ -762,9 +761,10 @@ namespace ft
          */
 
     private:
-        Node* _makeEmpty(Node* &currNode)
+        Node *_makeEmpty(Node *&currNode)
         {
-            if (currNode != NULL) {
+            if (currNode != NULL)
+            {
                 _makeEmpty(currNode->_leftChild);
                 _makeEmpty(currNode->_rightChild);
                 _deleteNode(currNode);
@@ -916,7 +916,7 @@ namespace ft
             return minNode;
         }
 
-        Node *(Node *root)
+        Node *_max(Node *root)
         { // O(Log(n)) time complexity.
             if (!_root)
                 return NULL;
