@@ -60,23 +60,31 @@ namespace ft
             Compare comp;
         };
 
+
+
+        // Member functions ************************************************************************** //
+
+        // Constructor, Destructor , copy assignment operator.
         map() : _tree(), _size(), _compare()
         {
             _tree.init(_compare, _alloc);
         }
 
         explicit map(const Compare &comp, const Alloc &alloc = Alloc())
-            : _tree(), _alloc(alloc), _size(), _compare(comp) {}
+            : _tree(), _alloc(alloc), _size(), _compare(comp) {
+            _tree.init(_compare, _alloc);    
+            }
 
         template <typename InputIt>
-        map(InputIt first, InputIt last, const Compare &comp = Compare(),
+        map(InputIt first, InputIt last,const Compare &comp = Compare(),
             const Alloc &alloc = Alloc()) : _alloc(alloc), _compare(comp)
         {
+            _tree.init(_compare, _alloc);
             for (; first != last; ++first)
                 _tree.insert(*first);
             _size = _tree.size();
         }
-#if 0
+
         map(const map &other) {
             *this = other;
         }
@@ -85,11 +93,33 @@ namespace ft
             if (this != &other) {
                 _tree = other._tree;
                 _size = other._size;
-                _compare = other._compare;
-            }
+           }
             return *this;
         }
-#endif
+
+
+        //  Iterators: ************************************************************************** //
+
+        iterator begin() { return _tree.begin(); }
+
+        iterator end() { return _tree.end(); }
+        
+        reverse_iterator rbegin() { return _tree.rbegin(); }
+
+        reverse_iterator rend() { return _tree.rend(); }
+
+
+        const_iterator begin() const { return _tree.begin(); }
+
+        const_iterator end() const { return _tree.end(); }
+        
+        const_reverse_iterator rbegin() const { return _tree.rbegin(); }
+
+        const_reverse_iterator rend() const { return _tree.rend(); }
+ 
+
+
+        
         mapped_type &operator[](const Key &key)
         {
             return insert(ft::make_pair(key, T())).first->second;
@@ -104,6 +134,16 @@ namespace ft
             _size++;
         }
 
+        iterator insert( iterator hint, const value_type& value ) {
+            _tree.insert(hint, value);
+        }
+	
+        template< class InputIt >
+        void insert( InputIt first, InputIt last ) {
+            for (; first != last; first++)
+                insert(*first);
+        }
+
         /*
          * -> Capacity
          */
@@ -113,14 +153,6 @@ namespace ft
         bool empty() const _NOEXCEPT { return !_size; }
 
         size_type max_size() const _NOEXCEPT { return _alloc.max_size(); }
-        
-        iterator begin() { return _tree.begin(); }
-
-        iterator end() { return _tree.end(); }
-        
-        reverse_iterator rbegin() { return _tree.rbegin(); }
-
-        reverse_iterator rend() { return _tree.rend(); }
         
         const avltree &getTree() const { return _tree; }
 
