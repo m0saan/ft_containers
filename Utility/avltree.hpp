@@ -264,7 +264,7 @@ namespace ft
         friend class Iterator<Node, T, Compare, Alloc, avltree>;
         friend class Iterator<Node, const T, Compare, Alloc, avltree>;
 
-        typedef void (avltree::*fnType(Node *)) ();
+        typedef void (avltree::*fnType(Node *))();
 
         Node *_createNode(value_type value)
         {
@@ -277,6 +277,11 @@ namespace ft
             return newNode;
         }
 
+        void _init(Compare p_comp, Alloc p_allocator) {
+            _comp = p_comp;
+            _alloc = p_allocator;
+        }
+ 
         /**
          * Constructor and Destructor.
          */
@@ -285,7 +290,6 @@ namespace ft
         ~avltree() {}
 
         avltree getRoot() const { return _root; }
-
         /**
          * Insert x into the tree; duplicates are ignored.
          */
@@ -358,6 +362,7 @@ namespace ft
 
         void _deleteNode(Node *node)
         {
+            std::cout << *node->_value << "is destroyed!" << std::endl;
             _alloc.destroy(node->_value);
             _alloc.deallocate(node->_value, 1);
             node->_value = NULL;
@@ -368,8 +373,10 @@ namespace ft
         /*
          * Make the tree logically empty.
          */
-        void makeEmpty() {
-            _makeEmpty(_root);
+        void makeEmpty()
+        {
+            _root = _makeEmpty(_root);
+            _size = 0;
         }
 
         /**
@@ -755,23 +762,14 @@ namespace ft
          */
 
     private:
-
-        void _makeEmpty(Node *currNode) {
-            if (currNode == NULL)
-                return;
-
-            _makeEmpty(currNode->_leftChild);
-            // std::cout << *root->_value;
-            // if (root->_parent)
-            //     std::cout << " Parent"
-            //               << "[" << *root->_parent->_value << "]" << std::endl;
-            // else
-            //     std::cout << " Parent"
-            //               << "[(null)]" << std::endl;
-
-            _deleteNode(currNode);
-            _inOrderTraversal(currNode->_rightChild, fn);
- 
+        Node* _makeEmpty(Node* &currNode)
+        {
+            if (currNode != NULL) {
+                _makeEmpty(currNode->_leftChild);
+                _makeEmpty(currNode->_rightChild);
+                _deleteNode(currNode);
+            }
+            return NULL;
         }
         void _swapNodes(Node *successorRef, Node *currNode)
         {
@@ -872,14 +870,14 @@ namespace ft
             if (root == NULL)
                 return;
 
-            _inOrderTraversal(root->_leftChil);
-            std::cout << *root->_value;
-            if (root->_parent)
-                std::cout << " Parent"
-                          << "[" << *root->_parent->_value << "]" << std::endl;
-            else
-                std::cout << " Parent"
-                          << "[(null)]" << std::endl;
+            _inOrderTraversal(root->_leftChild);
+            // std::cout << *root->_value;
+            // if (root->_parent)
+            //     std::cout << " Parent"
+            //               << "[" << *root->_parent->_value << "]" << std::endl;
+            // else
+            //     std::cout << " Parent"
+            //               << "[(null)]" << std::endl;
 
             _inOrderTraversal(root->_rightChild);
         }
@@ -907,7 +905,7 @@ namespace ft
         Node *_min(Node *root)
         { // O(Log(n)) time complexity.
             if (!_root)
-                throw std::logic_error("root node is null");
+                return NULL;
             Node *current = _root;
             Node *minNode = _root;
             while (current != NULL)
@@ -918,10 +916,10 @@ namespace ft
             return minNode;
         }
 
-        Node *_max(Node *root)
+        Node *(Node *root)
         { // O(Log(n)) time complexity.
             if (!_root)
-                throw std::logic_error("root node is null");
+                return NULL;
             Node *current = _root;
             Node *maxNode = _root;
             while (current != NULL)
