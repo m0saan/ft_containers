@@ -118,20 +118,29 @@ namespace ft
         const_reverse_iterator rend() const { return _tree.rend(); }
  
 
+        // Capacity: ************************************************************************** // 
 
+        size_type size() const _NOEXCEPT { return _size; }
+
+        bool empty() const _NOEXCEPT { return !_size; }
+
+        size_type max_size() const _NOEXCEPT { return _alloc.max_size(); }
+
+
+        // Element access: ************************************************************************** // 
         
         mapped_type &operator[](const Key &key)
         {
-            return insert(ft::make_pair(key, T())).first->second;
+            // std::cout << insert(ft::make_pair(key, T())).first->second << std::endl;
+            return (*((this->insert(ft::make_pair(key,mapped_type()))).first)).second;
         }
 
-        void insert(const value_type &value)
+        ft::pair<iterator, bool> insert(const value_type &value)
         {
-            //std::pair<iterator, bool> res = _tree.find(value);
-            //if (res.second)
-            //	return res;
-            _tree.insert(value);
-            _size++;
+            ft::pair<iterator, bool> out = _tree.insert(value);
+            if (out.second)
+                _size++;
+            return out;
         }
 
         iterator insert( iterator hint, const value_type& value ) {
@@ -143,16 +152,6 @@ namespace ft
             for (; first != last; first++)
                 insert(*first);
         }
-
-        /*
-         * -> Capacity
-         */
-
-        size_type size() const _NOEXCEPT { return _size; }
-
-        bool empty() const _NOEXCEPT { return !_size; }
-
-        size_type max_size() const _NOEXCEPT { return _alloc.max_size(); }
         
         const avltree &getTree() const { return _tree; }
 
