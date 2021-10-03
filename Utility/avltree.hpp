@@ -382,12 +382,13 @@ namespace ft
          * Remove x from the tree. Nothing is done if x is not found.
          */
 
-        void remove(value_type const &x)
+        bool remove(value_type const &x)
         {
             bool isRemoved(false);
             if (isEmpty())
                 return;
             _root = _remove(_root, x, isRemoved);
+            return isRemoved;
         }
 
         Node *_remove(Node *currNode, const value_type &x, bool &isDeleted)
