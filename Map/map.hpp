@@ -146,26 +146,16 @@ namespace ft
         /**
          * inserts elements
          */
-        ft::pair<iterator, bool> insert(const value_type &value)
-        {
-            ft::pair<iterator, bool> out = _tree.insert(value);
-            if (out.second)
-                _size++;
-            return out;
-        }
+        ft::pair<iterator, bool> insert(const value_type &value) { return _tree.insert(value); }
 
-        iterator insert( iterator hint, const value_type& value ) {
-            _tree.insert(hint, value);
-            if (out.second)
-                _size++;
-            return out;
-
-        }
+        iterator insert( iterator hint, const value_type& value ) { return _tree.insert(hint, value).first; }
 	
         template< class InputIt >
         void insert( InputIt first, InputIt last) {
-            for (; first != last; first++)
+            for (; first != last; first++){
+                std::cout << *first << " is inserted!" << std::endl;
                 insert(*first);
+            }
             _size += std::distance(first, last);
         }
 
@@ -177,8 +167,7 @@ namespace ft
         }
  
         void erase( iterator first, iterator last ) {
-            for (; first != last; first++)
-                _tree.remove(*first);
+                _tree.remove(first, last);
         }
 	
         size_type erase( const key_type& key ){
@@ -192,31 +181,75 @@ namespace ft
         void swap( map& other ) {
             std::swap(_alloc, other._alloc);
             std::swap(_size, other._size);
-            std::swap(_tree, other._tree);
+            avltree tmp = other._tree;
+            other._tree = _tree;
+            _tree = tmp;
+
             std::swap(_compare, other._compare);
         }
 
         // Lookup: ************************************************************************** //
 
-        size_type count( const Key& key ) const { return _tree.findByKey(ft::make_pair(key, mapped_type())); }
+        /**
+         * Count elements with a specific key.
+         */
+        
+        size_type count( const Key& key ) const { return _tree.findByKey(key); }
 
+        /**
+         *  Get an iterator to element with key.
+         */
         iterator find( const Key& key ) {
             return _tree.find(key);
         }
         
-        const_iterator find( const Key& key ) const;
+        /**
+         * Get a const_iterator to element with key
+         */
+        const_iterator find( const Key& key ) const {
+            return _tree.find(key);
+        }
 		
-        
+        /**
+         * Returns an iterator pointing to the first element that is not less than
+         * (i.e. greater or equal to) key.
+         */
+        iterator lower_bound (const key_type& k) {
+            iterator it = _tree.find(k);
+            if (it->first == k) return it;
+            else return ++it;
+        }
+
+        /**
+         *  Returns a const_iterator pointing to the first element that is greater than key
+         */
+        const_iterator lower_bound (const key_type& k) const {
+            const_iterator c_it = _tree.find(k);
+            if (c_it->first == k) return c_it;
+            else return ++c_it;
+        }
+
+        /**
+         *  Returns an iterator pointing to the first element that is greater than key
+         */
+
+        iterator upper_bound( const Key& key ) {
+            return ++(_tree.find(key));
+        }
+
+       /**
+         *  Returns a const_iterator pointing to the first element that is greater than key
+         */ 
+        const_iterator upper_bound( const Key& key ) const {
+            return ++(_tree.find(key));
+        }
+
         const avltree &getTree() const { return _tree; }
 
         /*
          * Rational Operators (==,!=,<,<=,>,>=,<=>)
          */
 
-        friend bool operator==(const map &lhs, const map &rhs) { return (lhs.size() == rhs.size() && lhs._tree == rhs._tree); }
-        friend bool operator==(const map &lhs, const map &rhs) { return (lhs.size() == rhs.size() && lhs._tree == rhs._tree); }
-        friend bool operator==(const map &lhs, const map &rhs) { return (lhs.size() == rhs.size() && lhs._tree == rhs._tree); }
-        friend bool operator==(const map &lhs, const map &rhs) { return (lhs.size() == rhs.size() && lhs._tree == rhs._tree); }
         friend bool operator==(const map &lhs, const map &rhs) { return (lhs.size() == rhs.size() && lhs._tree == rhs._tree); }
 
     private:
