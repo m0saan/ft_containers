@@ -131,8 +131,7 @@ namespace ft
         
         mapped_type &operator[](const Key &key)
         {
-            // std::cout << insert(ft::make_pair(key, T())).first->second << std::endl;
-            return (*((this->insert(ft::make_pair(key,mapped_type()))).first)).second;
+            return insert(ft::make_pair(key, mapped_type())).first->second;
         }
 
         ft::pair<iterator, bool> insert(const value_type &value)
