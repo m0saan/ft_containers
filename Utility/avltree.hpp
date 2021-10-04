@@ -48,6 +48,8 @@ namespace ft
 
         Iterator(const Iterator &other) { *this = other; }
 
+        Node* getNodePtr() const { return _nodePtr; }
+
         operator Iterator<Node, const T, Compare, Alloc, Tree>()
         {
             return Iterator<Node, const T, Compare, Alloc, Tree>(_nodePtr, _tree);
@@ -194,7 +196,7 @@ namespace ft
             --(*this);
             return tmp;
         }
-        
+
         reference operator*() const { return *_nodePtr->_value; }
 
         pointer operator->() const { return &(*_nodePtr->_value); }
@@ -231,6 +233,7 @@ namespace ft
         typename Alloc = std::allocator<T> >
     class avltree
     {
+
     public:
         class Node
         {
@@ -258,6 +261,7 @@ namespace ft
 
         typedef void (avltree::*fnType(Node *))();
 
+    private:
         Node *_createNode(value_type value)
         {
             Node *newNode;
@@ -269,26 +273,28 @@ namespace ft
             return newNode;
         }
 
-        void copyavltree(Node *rootNode, avltree& other) {
-
-        }
-
-        void init(const Compare &p_comp, const Alloc &p_allocator)
+        void _deleteNode(Node *node)
         {
-            _comp = p_comp;
-            _alloc = p_allocator;
+            _alloc.destroy(node->_value);
+            _alloc.deallocate(node->_value, 1);
+            node->_value = NULL;
+            _node_alloc.deallocate(node, 1);
+            node = NULL;
         }
 
+    public:
         /**
          * Constructor and Destructor.
          */
         avltree() : _root(NULL), _size(0), _comp(), _alloc() {}
 
-        avltree(const avltree& other) {
+        avltree(const avltree &other)
+        {
             *this = other;
         }
 
-        avltree& operator=(avltree const & other) {
+        avltree &operator=(avltree const &other)
+        {
             makeEmpty();
             _alloc = other._alloc;
             _node_alloc = other._node_alloc;
@@ -296,14 +302,21 @@ namespace ft
 
             for (const_iterator it = other.begin(); it != other.end(); it++)
                 this->insert(*it);
-            
+
             _size = other._size;
             return *this;
         }
 
         ~avltree() { makeEmpty(); }
 
+        void init(const Compare &p_comp, const Alloc &p_allocator)
+        {
+            _comp = p_comp;
+            _alloc = p_allocator;
+        }
+
         avltree getRoot() const { return _root; }
+
         /**
          * Insert x into the tree; duplicates are ignored.
          */
@@ -322,15 +335,15 @@ namespace ft
             return ft::make_pair(iterator(out, this), false);
         }
 
-
-        ft::pair<iterator, bool> insert(iterator hint,  const T &value)
+        ft::pair<iterator, bool> insert(iterator hint, const T &value)
         {
             Node *newNode(_createNode(value));
             bool isInserted(false);
-            Node *out = _insert(hint._nodePtr, newNode, value, isInserted);
+
+            
+            Node *out = _insert(hint.getNodePtr(), newNode, value, isInserted);
             if (isInserted)
             {
-                _root = out;
                 ++_size;
                 return ft::make_pair(iterator(newNode, this), true);
             }
@@ -338,38 +351,55 @@ namespace ft
         }
 
         /*
-           *	search for item. if found, return an iterator pointing
-            *	at it in the tree; otherwise, return end()
+        *	search for item. if found, return an iterator pointing
+        *	at it in the tree; otherwise, return end()
         */
-        bool findByKey(const value_type &value) const
+        bool findByKey(const first_type &key) const
         {
             Node *current = _root;
             while (current != NULL)
             {
-                if (value.first > current->_value->first)
-                    current = current->_rightChild;
-                else if (value.first < current->_value->first)
-                    current = current->_leftChild;
-                else
+                if (!_comp(key, current->_value->first) && !_comp(current->_value->first, key)) 
                     return true;
+                else if (!_comp(key, current->_value->first))
+                    current = current->_rightChild;
+                else
+                    current = current->_leftChild;
             }
             return false;
         }
 
-        Node *find(const value_type &value) const
+        iterator find(const first_type &key)
         {
             Node *current = _root;
             while (current != NULL)
             {
-                if (!_comp(value.first, current->_value->first) && !_comp(current->_value->first, value.first))
-                    return current;
-                if (!_comp(value.first, current->_value->first))
+                if (!_comp(key, current->_value->first) && !_comp(current->_value->first, key))
+                    return iterator(current, this);
+                if (!_comp(key, current->_value->first))
                     current = current->_rightChild;
                 else
                     current = current->_leftChild;
             }
-            return NULL;
+            return iterator(NULL, this);
         }
+
+        const_iterator find(const first_type &key) const 
+        {
+            Node *current = _root;
+            while (current != NULL)
+            {
+                if (!_comp(key, current->_value->first) && !_comp(current->_value->first, key))
+                    return const_iterator(current, this);
+                if (!_comp(key, current->_value->first))
+                    current = current->_rightChild;
+                else
+                    current = current->_leftChild;
+            }
+            return const_iterator(NULL, this);
+        }
+
+
 
         /*
          * returns true if found otherwise false
@@ -389,15 +419,6 @@ namespace ft
         */
         bool isEmpty() const { return this->_root == NULL; }
 
-        void _deleteNode(Node *node)
-        {
-            _alloc.destroy(node->_value);
-            _alloc.deallocate(node->_value, 1);
-            node->_value = NULL;
-            _node_alloc.deallocate(node, 1);
-            node = NULL;
-        }
-
         /*
          * Make the tree logically empty.
          */
@@ -415,10 +436,21 @@ namespace ft
         {
             bool isRemoved(false);
             if (isEmpty())
-                return;
+                return false;
             _root = _remove(_root, x, isRemoved);
+            // if (isRemoved)
+            //     std::cout << x << "is removed!" << std::endl;
             return isRemoved;
         }
+
+        void remove(iterator first, iterator last)
+        {
+            if (isEmpty()) return;
+            bool isRemoved(false);
+            for (; first != last; ++first)
+                _root = _remove(_root, *first, isRemoved);
+        }
+
 
         Node *_remove(Node *currNode, const value_type &x, bool &isDeleted)
         {
@@ -478,7 +510,7 @@ namespace ft
                     return NULL;
                 }
                 // Case 2
-                else if (_hasLeftOnly(currNode) && _size > 2)
+                else if (_hasLeftOnly(currNode) && _size > 1)
                 {
 
                     /* has only a left subtree.
@@ -509,7 +541,7 @@ namespace ft
                 }
 
                 // Case 3
-                else if (_hasRightOnly(currNode) && _size > 2)
+                else if (_hasRightOnly(currNode) && _size > 1)
                 {
                     /* has only a right subtree.
                      **
@@ -523,6 +555,7 @@ namespace ft
 
                     successorRef = currNode->_rightChild;
                     Node *currNodeParent = currNode->_parent;
+                    
                     if (_comp(currNode->_value->first, currNodeParent->_value->first))
                         currNodeParent->_leftChild = successorRef;
                     else
@@ -575,7 +608,7 @@ namespace ft
                         successorRef = _min(currNode->_rightChild);
                         _swapNodes(successorRef, currNode);
 
-                        currNode->_rightChild = _remove(currNode->_rightChild, *successorRef->_value, isDeleted);
+                        currNode->_rightChild = _remove(currNode->_rightChild, *(successorRef->_value), isDeleted);
                         return currNode;
                     }
                     else if (currNode->_leftChild)
@@ -696,13 +729,17 @@ namespace ft
         Node *_root;
 
     private:
+
+    /*
+    * Private Member Functions
+    */
         bool _hasLeftOnly(Node *node)
         {
             return node->_rightChild == NULL;
         }
 
         bool _hasRightOnly(Node *node) { return node->_leftChild == NULL; }
-        
+
         Node *_insert(Node *cur_node, Node *newNode, const T &value, bool &isInserted, Node *parent = NULL)
         {
             if (!cur_node)
@@ -712,7 +749,6 @@ namespace ft
                 return newNode;
             }
 
-            //
             if (!_comp(value.first, cur_node->_value->first) && !_comp(cur_node->_value->first, value.first))
                 return cur_node;
             if (!_comp(value.first, cur_node->_value->first))
@@ -746,7 +782,7 @@ namespace ft
             return _height(_root);
         }
 
-        Node *min() const 
+        Node *min() const
         {
             return _min(_root);
         }
@@ -774,21 +810,6 @@ namespace ft
         }
 */
 
-        /*
-         * Private Member Variables
-         */
-
-    private:
-        std::size_t _size;
-        Compare _comp;
-        std::allocator<Node> _node_alloc;
-        Alloc _alloc;
-
-        /*
-         * Private Member Functions
-         */
-
-    private:
         Node *_makeEmpty(Node *&currNode)
         {
             if (currNode != NULL)
@@ -799,11 +820,11 @@ namespace ft
             }
             return NULL;
         }
-        void _swapNodes(Node *successorRef, Node *currNode)
-        {
-            std::swap(successorRef->_value->first, currNode->_value->first);
-            std::swap(successorRef->_value->second, currNode->_value->second);
-        }
+
+        /**
+         *  swapes the value of the parent and successor nodes.
+         */
+        void _swapNodes(Node *successorRef, Node *currNode) { std::swap(successorRef->_value, currNode->_value); }
 
         Node *_balanceTree(Node *root)
         {
@@ -930,12 +951,12 @@ namespace ft
 
         bool _isLeaf(const Node *root) const { return root->_leftChild == NULL && root->_rightChild == NULL; }
 
-        Node *_min(Node *root) const 
+        Node *_min(Node *root) const
         { // O(Log(n)) time complexity.
-            if (!_root)
+            if (!root)
                 return NULL;
-            Node *current = _root;
-            Node *minNode = _root;
+            Node *current = root;
+            Node *minNode = root;
             while (current != NULL)
             {
                 minNode = current;
@@ -948,8 +969,8 @@ namespace ft
         { // O(Log(n)) time complexity.
             if (!_root)
                 return NULL;
-            Node *current = _root;
-            Node *maxNode = _root;
+            Node *current = root;
+            Node *maxNode = root;
             while (current != NULL)
             {
                 maxNode = current;
@@ -967,6 +988,17 @@ namespace ft
                 return (root->_value == other->_value && _equals(root->_leftChild, other->_leftChild) && _equals(root->_rightChild, other->_rightChild));
             return false;
         }
+
+        /*
+        * Private Member Variables
+        */
+
+    private:
+        std::size_t _size;
+        Compare _comp;
+        std::allocator<Node> _node_alloc;
+        Alloc _alloc;
+
     };
 
 }
