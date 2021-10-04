@@ -97,6 +97,8 @@ namespace ft
             return *this;
         }
 
+        allocator_type get_allocator() const { return _alloc; }
+
 
         //  Iterators: ************************************************************************** //
 
@@ -127,13 +129,23 @@ namespace ft
         size_type max_size() const _NOEXCEPT { return _alloc.max_size(); }
 
 
-        // Element access: ************************************************************************** // 
+        // Element access: ************************************************************************** //
         
         mapped_type &operator[](const Key &key)
         {
             return insert(ft::make_pair(key, mapped_type())).first->second;
         }
 
+        // Modifiers: ************************************************************************** //
+
+        /**
+         * clears the contents  
+         */
+        void clear() { _tree.makeEmpty(); }
+
+        /**
+         * inserts elements
+         */
         ft::pair<iterator, bool> insert(const value_type &value)
         {
             ft::pair<iterator, bool> out = _tree.insert(value);
@@ -144,13 +156,56 @@ namespace ft
 
         iterator insert( iterator hint, const value_type& value ) {
             _tree.insert(hint, value);
+            if (out.second)
+                _size++;
+            return out;
+
         }
 	
         template< class InputIt >
-        void insert( InputIt first, InputIt last ) {
+        void insert( InputIt first, InputIt last) {
             for (; first != last; first++)
                 insert(*first);
+            _size += std::distance(first, last);
         }
+
+        /**
+         * erases elements 
+         */
+        void erase( iterator pos ) {
+            _tree.remove(*pos);
+        }
+ 
+        void erase( iterator first, iterator last ) {
+            for (; first != last; first++)
+                _tree.remove(*first);
+        }
+	
+        size_type erase( const key_type& key ){
+            return _tree.remove(ft::make_pair(key, mapped_type())) ? 1 : 0;
+        }
+
+
+        /**
+         * swaps the contents 
+         */
+        void swap( map& other ) {
+            std::swap(_alloc, other._alloc);
+            std::swap(_size, other._size);
+            std::swap(_tree, other._tree);
+            std::swap(_compare, other._compare);
+        }
+
+        // Lookup: ************************************************************************** //
+
+        size_type count( const Key& key ) const { return _tree.findByKey(ft::make_pair(key, mapped_type())); }
+
+        iterator find( const Key& key ) {
+            return _tree.find(key);
+        }
+        
+        const_iterator find( const Key& key ) const;
+		
         
         const avltree &getTree() const { return _tree; }
 
@@ -158,6 +213,10 @@ namespace ft
          * Rational Operators (==,!=,<,<=,>,>=,<=>)
          */
 
+        friend bool operator==(const map &lhs, const map &rhs) { return (lhs.size() == rhs.size() && lhs._tree == rhs._tree); }
+        friend bool operator==(const map &lhs, const map &rhs) { return (lhs.size() == rhs.size() && lhs._tree == rhs._tree); }
+        friend bool operator==(const map &lhs, const map &rhs) { return (lhs.size() == rhs.size() && lhs._tree == rhs._tree); }
+        friend bool operator==(const map &lhs, const map &rhs) { return (lhs.size() == rhs.size() && lhs._tree == rhs._tree); }
         friend bool operator==(const map &lhs, const map &rhs) { return (lhs.size() == rhs.size() && lhs._tree == rhs._tree); }
 
     private:
