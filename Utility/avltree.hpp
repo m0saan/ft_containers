@@ -44,7 +44,7 @@ namespace ft
 
         Iterator() : _nodePtr(), _tree() {}
 
-        Iterator(Node *p, Tree *t) : _nodePtr(p), _tree(t) {}
+        Iterator(Node *p, const Tree *t) : _nodePtr(p), _tree(t) {}
 
         Iterator(const Iterator &other) { *this = other; }
 
@@ -61,16 +61,6 @@ namespace ft
                 _tree = other._tree;
             }
             return *this;
-        }
-
-        reference operator*() const
-        {
-            return *_nodePtr->_value;
-        }
-
-        pointer operator->() const
-        {
-            return (&this->_nodePtr->_value);
         }
 
         Iterator &operator++()
@@ -204,6 +194,10 @@ namespace ft
             --(*this);
             return tmp;
         }
+        
+        reference operator*() const { return *_nodePtr->_value; }
+
+        pointer operator->() const { return &(*_nodePtr->_value); }
 
         friend bool operator==(const Iterator &lhs, const Iterator &rhs)
         {
@@ -227,7 +221,7 @@ namespace ft
         when the iterator value is end.
          */
         Node *_nodePtr;
-        Tree *_tree;
+        const Tree *_tree;
         Compare _comp;
     };
 
@@ -275,6 +269,10 @@ namespace ft
             return newNode;
         }
 
+        void copyavltree(Node *rootNode, avltree& other) {
+
+        }
+
         void init(const Compare &p_comp, const Alloc &p_allocator)
         {
             _comp = p_comp;
@@ -286,7 +284,24 @@ namespace ft
          */
         avltree() : _root(NULL), _size(0), _comp(), _alloc() {}
 
-        ~avltree() {}
+        avltree(const avltree& other) {
+            *this = other;
+        }
+
+        avltree& operator=(avltree const & other) {
+            makeEmpty();
+            _alloc = other._alloc;
+            _node_alloc = other._node_alloc;
+            _comp = other._comp;
+
+            for (const_iterator it = other.begin(); it != other.end(); it++)
+                this->insert(*it);
+            
+            _size = other._size;
+            return *this;
+        }
+
+        ~avltree() { makeEmpty(); }
 
         avltree getRoot() const { return _root; }
         /**
@@ -304,7 +319,22 @@ namespace ft
                 ++_size;
                 return ft::make_pair(iterator(newNode, this), true);
             }
-            return ft::make_pair(iterator(NULL, this), false);
+            return ft::make_pair(iterator(out, this), false);
+        }
+
+
+        ft::pair<iterator, bool> insert(iterator hint,  const T &value)
+        {
+            Node *newNode(_createNode(value));
+            bool isInserted(false);
+            Node *out = _insert(hint._nodePtr, newNode, value, isInserted);
+            if (isInserted)
+            {
+                _root = out;
+                ++_size;
+                return ft::make_pair(iterator(newNode, this), true);
+            }
+            return ft::make_pair(iterator(out, this), false);
         }
 
         /*
@@ -361,7 +391,6 @@ namespace ft
 
         void _deleteNode(Node *node)
         {
-            std::cout << *node->_value << "is destroyed!" << std::endl;
             _alloc.destroy(node->_value);
             _alloc.deallocate(node->_value, 1);
             node->_value = NULL;
@@ -671,10 +700,8 @@ namespace ft
             return node->_rightChild == NULL;
         }
 
-        bool _hasRightOnly(Node *node)
-        {
-            return node->_leftChild == NULL;
-        }
+        bool _hasRightOnly(Node *node) { return node->_leftChild == NULL; }
+        
         Node *_insert(Node *cur_node, Node *newNode, const T &value, bool &isInserted, Node *parent = NULL)
         {
             if (!cur_node)
@@ -718,7 +745,7 @@ namespace ft
             return _height(_root);
         }
 
-        Node *min()
+        Node *min() const 
         {
             return _min(_root);
         }
@@ -902,7 +929,7 @@ namespace ft
 
         bool _isLeaf(const Node *root) const { return root->_leftChild == NULL && root->_rightChild == NULL; }
 
-        Node *_min(Node *root)
+        Node *_min(Node *root) const 
         { // O(Log(n)) time complexity.
             if (!_root)
                 return NULL;
