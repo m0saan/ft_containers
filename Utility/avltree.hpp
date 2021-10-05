@@ -466,9 +466,10 @@ namespace ft
             if (isEmpty())
                 return;
             bool isRemoved(false);
-            for (; first != last; ++first)
+            for (; first != last; ++first) {
+                // std::cout << *first << std::endl;
                 first = remove(*first).second;
-            remove(*first);
+            }
         }
 
         Node *_remove(Node *currNode, const value_type &x, bool &isDeleted, Node **ret)
@@ -524,6 +525,7 @@ namespace ft
                         else if (currNode->_parent->_rightChild && *currNode->_parent->_rightChild->_value == x)
                             currNode->_parent->_rightChild = NULL;
                     }
+                    *ret = currNode->_parent;
                     currNode->_parent = NULL;
                     _deleteNode(currNode);
                     return NULL;
@@ -553,7 +555,7 @@ namespace ft
 
                     _deleteNode(currNode);
                     successorRef->_parent = currNodeParent;
-                    *ret = successorRef;
+                    *ret = successorRef->_parent;
                     return successorRef;
                 }
 
@@ -577,6 +579,7 @@ namespace ft
 
                     _deleteNode(currNode);
                     successorRef->_parent = currNodeParent;
+                    *ret = successorRef->_parent;
                     return successorRef;
                 }
 
@@ -812,6 +815,13 @@ namespace ft
         {
             return _max(_root);
         }
+        
+        Node *max() const 
+        {
+            return _max(_root);
+        }
+
+
 
         bool equals(const avltree &other) const
         {
@@ -986,7 +996,7 @@ namespace ft
             return minNode;
         }
 
-        Node *_max(Node *root)
+        Node *_max(Node *root) const 
         { // O(Log(n)) time complexity.
             if (!_root)
                 return NULL;
