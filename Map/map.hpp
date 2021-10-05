@@ -176,7 +176,7 @@ namespace ft
 
         size_type erase(const key_type &key)
         {
-            return _tree.remove(ft::make_pair(key, mapped_type())) ? 1 : 0;
+            return _tree.remove(ft::make_pair(key, mapped_type())).first ? 1 : 0;
         }
 
         /**
