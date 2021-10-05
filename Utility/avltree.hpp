@@ -57,12 +57,24 @@ namespace ft
 
         Iterator &operator=(const Iterator &other)
         {
-            if (this != &other)
+           if (this != &other)
             {
-                _nodePtr = other._nodePtr;
                 _tree = other._tree;
+                _nodePtr = other._nodePtr;
+                // _nodePtr = other._nodePtr; 
             }
             return *this;
+        }
+
+        Node *_createNode(value_type value)
+        {
+            Node *newNode;
+            newNode = _node_alloc.allocate(1);
+            newNode->_value = _alloc.allocate(1);
+            newNode->_leftChild = newNode->_rightChild = newNode->_parent = NULL;
+            newNode->_height = 0;
+            _alloc.construct(newNode->_value, value);
+            return newNode;
         }
 
         Iterator &operator++()
@@ -205,7 +217,10 @@ namespace ft
         {
             if (!lhs._nodePtr && !rhs._nodePtr)
                 return true;
-            return (!lhs._nodePtr && !rhs._nodePtr) && (lhs._nodePtr->_value == rhs._nodePtr->_value);
+
+            if (lhs._nodePtr && !rhs._nodePtr)
+                return false;
+            return (lhs._nodePtr->_value->first == rhs._nodePtr->_value->first);
         }
 
         friend bool operator!=(const Iterator &lhs, const Iterator &rhs)
@@ -225,6 +240,8 @@ namespace ft
         Node *_nodePtr;
         const Tree *_tree;
         Compare _comp;
+        Alloc _alloc;
+        std::allocator<Node> _node_alloc;
     };
 
     template <
@@ -241,7 +258,7 @@ namespace ft
             T *_value;
             Node *_leftChild, *_rightChild, *_parent;
             std::size_t _height;
-        };
+       };
 
         typedef T value_type;
         typedef typename T::first_type first_type;
@@ -295,6 +312,7 @@ namespace ft
 
         avltree &operator=(avltree const &other)
         {
+            std::cout << "tree copy" << std::endl;
             makeEmpty();
             _alloc = other._alloc;
             _node_alloc = other._node_alloc;
@@ -324,31 +342,32 @@ namespace ft
         ft::pair<iterator, bool> insert(const T &value)
         {
             Node *newNode(_createNode(value));
+            Node *ret = NULL;
             bool isInserted(false);
-            Node *out = _insert(this->_root, newNode, value, isInserted);
+            Node *out = _insert(this->_root, newNode, value, isInserted, &ret);
             if (isInserted)
             {
                 _root = out;
                 ++_size;
                 return ft::make_pair(iterator(newNode, this), true);
             }
-            return ft::make_pair(iterator(out, this), false);
+            return ft::make_pair(iterator(ret, this), false);
         }
 
-        ft::pair<iterator, bool> insert(iterator hint, const T &value)
-        {
-            Node *newNode(_createNode(value));
-            bool isInserted(false);
+        // ft::pair<iterator, bool> insert(iterator hint, const T &value)
+        // {
+        //     Node *newNode(_createNode(value));
+        //     bool isInserted(false);
 
             
-            Node *out = _insert(hint.getNodePtr(), newNode, value, isInserted);
-            if (isInserted)
-            {
-                ++_size;
-                return ft::make_pair(iterator(newNode, this), true);
-            }
-            return ft::make_pair(iterator(out, this), false);
-        }
+        //     Node *out = _insert(hint.getNodePtr(), newNode, value, isInserted);
+        //     if (isInserted)
+        //     {
+        //         ++_size;
+        //         return ft::make_pair(iterator(newNode, this), true);
+        //     }
+        //     return ft::make_pair(iterator(out, this), false);
+        // }
 
         /*
         *	search for item. if found, return an iterator pointing
@@ -529,11 +548,8 @@ namespace ft
 
                     successorRef = currNode->_leftChild;
                     Node *currNodeParent = currNode->_parent;
-
-                    if (!_comp(currNode->_value->first, currNodeParent->_value->first))
-                        currNodeParent->_rightChild = successorRef;
-                    else
-                        currNodeParent->_leftChild = successorRef;
+                    
+                    currNodeParent->_leftChild = successorRef;
 
                     _deleteNode(currNode);
                     successorRef->_parent = currNodeParent;
@@ -556,10 +572,8 @@ namespace ft
                     successorRef = currNode->_rightChild;
                     Node *currNodeParent = currNode->_parent;
                     
-                    if (_comp(currNode->_value->first, currNodeParent->_value->first))
-                        currNodeParent->_leftChild = successorRef;
-                    else
-                        currNodeParent->_rightChild = successorRef;
+                    currNodeParent->_rightChild = successorRef;
+
                     _deleteNode(currNode);
                     successorRef->_parent = currNodeParent;
                     return successorRef;
@@ -740,7 +754,7 @@ namespace ft
 
         bool _hasRightOnly(Node *node) { return node->_leftChild == NULL; }
 
-        Node *_insert(Node *cur_node, Node *newNode, const T &value, bool &isInserted, Node *parent = NULL)
+        Node *_insert(Node *cur_node, Node *newNode, const T &value, bool &isInserted, Node** ret, Node *parent = NULL)
         {
             if (!cur_node)
             {
@@ -749,12 +763,14 @@ namespace ft
                 return newNode;
             }
 
-            if (!_comp(value.first, cur_node->_value->first) && !_comp(cur_node->_value->first, value.first))
+            if (!_comp(value.first, cur_node->_value->first) && !_comp(cur_node->_value->first, value.first)) {
+                *ret = cur_node;
                 return cur_node;
+            }
             if (!_comp(value.first, cur_node->_value->first))
-                cur_node->_rightChild = _insert(cur_node->_rightChild, newNode, value, isInserted, cur_node);
+                cur_node->_rightChild = _insert(cur_node->_rightChild, newNode, value, isInserted, ret, cur_node);
             else
-                cur_node->_leftChild = _insert(cur_node->_leftChild, newNode, value, isInserted, cur_node);
+                cur_node->_leftChild = _insert(cur_node->_leftChild, newNode, value, isInserted, ret, cur_node);
             cur_node->_height = 1 + std::max(_getHeight(cur_node->_leftChild), _getHeight(cur_node->_rightChild));
 
             return _balanceTree(cur_node);

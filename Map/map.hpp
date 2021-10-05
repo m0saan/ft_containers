@@ -148,14 +148,14 @@ namespace ft
          */
         ft::pair<iterator, bool> insert(const value_type &value) { return _tree.insert(value); }
 
-        iterator insert(iterator hint, const value_type &value) { return _tree.insert(hint, value).first; }
+        iterator insert(iterator hint, const value_type &value) { (void) hint; return _tree.insert(value).first; }
 
         template <class InputIt>
         void insert(InputIt first, InputIt last)
         {
-            for (; first != last; first++)
+            for (; first != last; ++first)
             {
-                std::cout << *first << " is inserted!" << std::endl;
+                // std::cout << *first << " is inserted!" << std::endl;
                 insert(*first);
             }
             _size += std::distance(first, last);
