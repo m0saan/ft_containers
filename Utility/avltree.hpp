@@ -48,7 +48,7 @@ namespace ft
 
         Iterator(const Iterator &other) { *this = other; }
 
-        Node* getNodePtr() const { return _nodePtr; }
+        Node *getNodePtr() const { return _nodePtr; }
 
         operator Iterator<Node, const T, Compare, Alloc, Tree>()
         {
@@ -57,11 +57,11 @@ namespace ft
 
         Iterator &operator=(const Iterator &other)
         {
-           if (this != &other)
+            if (this != &other)
             {
                 _tree = other._tree;
                 _nodePtr = other._nodePtr;
-                // _nodePtr = other._nodePtr; 
+                // _nodePtr = other._nodePtr;
             }
             return *this;
         }
@@ -258,7 +258,7 @@ namespace ft
             T *_value;
             Node *_leftChild, *_rightChild, *_parent;
             std::size_t _height;
-       };
+        };
 
         typedef T value_type;
         typedef typename T::first_type first_type;
@@ -359,7 +359,6 @@ namespace ft
         //     Node *newNode(_createNode(value));
         //     bool isInserted(false);
 
-            
         //     Node *out = _insert(hint.getNodePtr(), newNode, value, isInserted);
         //     if (isInserted)
         //     {
@@ -378,7 +377,7 @@ namespace ft
             Node *current = _root;
             while (current != NULL)
             {
-                if (!_comp(key, current->_value->first) && !_comp(current->_value->first, key)) 
+                if (!_comp(key, current->_value->first) && !_comp(current->_value->first, key))
                     return true;
                 else if (!_comp(key, current->_value->first))
                     current = current->_rightChild;
@@ -403,7 +402,7 @@ namespace ft
             return iterator(NULL, this);
         }
 
-        const_iterator find(const first_type &key) const 
+        const_iterator find(const first_type &key) const
         {
             Node *current = _root;
             while (current != NULL)
@@ -417,8 +416,6 @@ namespace ft
             }
             return const_iterator(NULL, this);
         }
-
-
 
         /*
          * returns true if found otherwise false
@@ -451,27 +448,30 @@ namespace ft
          * Remove x from the tree. Nothing is done if x is not found.
          */
 
-        bool remove(value_type const &x)
+        ft::pair<bool, iterator> remove(value_type const &x)
         {
             bool isRemoved(false);
             if (isEmpty())
-                return false;
-            _root = _remove(_root, x, isRemoved);
+                return ft::make_pair(isRemoved, iterator(NULL, this));
+            ;
+            Node *ret;
+            _root = _remove(_root, x, isRemoved, &ret);
             // if (isRemoved)
             //     std::cout << x << "is removed!" << std::endl;
-            return isRemoved;
+            return ft::make_pair(isRemoved, iterator(ret, this));
         }
 
         void remove(iterator first, iterator last)
         {
-            if (isEmpty()) return;
+            if (isEmpty())
+                return;
             bool isRemoved(false);
             for (; first != last; ++first)
-                _root = _remove(_root, *first, isRemoved);
+                first = remove(*first).second;
+            remove(*first);
         }
 
-
-        Node *_remove(Node *currNode, const value_type &x, bool &isDeleted)
+        Node *_remove(Node *currNode, const value_type &x, bool &isDeleted, Node **ret)
         {
             /*
              * 1. Find the element we wish to remove
@@ -548,11 +548,12 @@ namespace ft
 
                     successorRef = currNode->_leftChild;
                     Node *currNodeParent = currNode->_parent;
-                    
+
                     currNodeParent->_leftChild = successorRef;
 
                     _deleteNode(currNode);
                     successorRef->_parent = currNodeParent;
+                    *ret = successorRef;
                     return successorRef;
                 }
 
@@ -571,7 +572,7 @@ namespace ft
 
                     successorRef = currNode->_rightChild;
                     Node *currNodeParent = currNode->_parent;
-                    
+
                     currNodeParent->_rightChild = successorRef;
 
                     _deleteNode(currNode);
@@ -604,6 +605,7 @@ namespace ft
 
                             _deleteNode(currNode->_rightChild);
                             currNode->_rightChild = NULL;
+                            *ret = currNode;
                             return currNode;
                         }
                         else
@@ -613,6 +615,7 @@ namespace ft
 
                             _deleteNode(currNode->_leftChild);
                             currNode->_leftChild = NULL;
+                            *ret = currNode;
                             return currNode;
                         }
                     }
@@ -622,7 +625,8 @@ namespace ft
                         successorRef = _min(currNode->_rightChild);
                         _swapNodes(successorRef, currNode);
 
-                        currNode->_rightChild = _remove(currNode->_rightChild, *(successorRef->_value), isDeleted);
+                        currNode->_rightChild = _remove(currNode->_rightChild, *(successorRef->_value), isDeleted, ret);
+                        *ret = currNode;
                         return currNode;
                     }
                     else if (currNode->_leftChild)
@@ -630,7 +634,8 @@ namespace ft
                         successorRef = _max(currNode->_leftChild);
                         _swapNodes(successorRef, currNode);
 
-                        currNode->_leftChild = _remove(currNode->_leftChild, *successorRef->_value, isDeleted);
+                        currNode->_leftChild = _remove(currNode->_leftChild, *successorRef->_value, isDeleted, ret);
+                        *ret = currNode;
                         return currNode;
                     }
                 }
@@ -638,9 +643,9 @@ namespace ft
 
             // Finding the __x__ node which we want to remove;
             if (!_comp(x.first, currNode->_value->first))
-                currNode->_rightChild = _remove(currNode->_rightChild, x, isDeleted);
+                currNode->_rightChild = _remove(currNode->_rightChild, x, isDeleted, ret);
             else
-                currNode->_leftChild = _remove(currNode->_leftChild, x, isDeleted);
+                currNode->_leftChild = _remove(currNode->_leftChild, x, isDeleted, ret);
 
             /*
             * Update Balance Factor.
@@ -743,8 +748,7 @@ namespace ft
         Node *_root;
 
     private:
-
-    /*
+        /*
     * Private Member Functions
     */
         bool _hasLeftOnly(Node *node)
@@ -754,7 +758,7 @@ namespace ft
 
         bool _hasRightOnly(Node *node) { return node->_leftChild == NULL; }
 
-        Node *_insert(Node *cur_node, Node *newNode, const T &value, bool &isInserted, Node** ret, Node *parent = NULL)
+        Node *_insert(Node *cur_node, Node *newNode, const T &value, bool &isInserted, Node **ret, Node *parent = NULL)
         {
             if (!cur_node)
             {
@@ -763,7 +767,8 @@ namespace ft
                 return newNode;
             }
 
-            if (!_comp(value.first, cur_node->_value->first) && !_comp(cur_node->_value->first, value.first)) {
+            if (!_comp(value.first, cur_node->_value->first) && !_comp(cur_node->_value->first, value.first))
+            {
                 *ret = cur_node;
                 return cur_node;
             }
@@ -1014,7 +1019,6 @@ namespace ft
         Compare _comp;
         std::allocator<Node> _node_alloc;
         Alloc _alloc;
-
     };
 
 }
