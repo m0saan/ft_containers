@@ -11,6 +11,7 @@
 #include "../Utility/enable_if.hpp"
 #include "../Utility/iterator_traits.hpp"
 #include "../Utility/pair.hpp"
+#include "../Vector/Vector.hpp"
 
 namespace ft
 {
@@ -171,12 +172,16 @@ namespace ft
 
         void erase(iterator first, iterator last)
         {
-            _tree.remove(first, last);
+            ft::Vector<ft::pair<Key, mapped_type> > pairs;
+            for (; last != first; first++)   pairs.push_back(*first);
+            
+            for (size_t i = 0; i < pairs.size(); i++) erase(pairs[i].first);
+            
         }
 
         size_type erase(const key_type &key)
         {
-            return _tree.remove(ft::make_pair(key, mapped_type())).first ? 1 : 0;
+            return _tree.remove(ft::make_pair(key, mapped_type())) ? 1 : 0;
         }
 
         /**
@@ -259,6 +264,20 @@ namespace ft
             return ++(_tree.find(key));
         }
 
+
+        /**
+         * Returns a range containing all elements with the given key in the container.
+         */
+
+        ft::pair<iterator,iterator> equal_range( const Key& key ) {
+            return ft::make_pair(lower_bound(key), upper_bound(key));
+        }
+
+
+        ft::pair<const_iterator,const_iterator> equal_range( const Key& key ) const {
+            return ft::make_pair(lower_bound(key), upper_bound(key));
+        }
+
         // Observers: ************************************************************************** //
 
         /**
@@ -286,6 +305,12 @@ namespace ft
          */
 
         friend bool operator==(const map &lhs, const map &rhs) { return (lhs.size() == rhs.size() && lhs._tree == rhs._tree); }
+        friend bool operator!=( const map& lhs, const map& rhs ) { return !(lhs == rhs); }
+        friend bool operator<( const map& lhs, const map& rhs ) { if (lhs._size < rhs._size) return true; return lhs._tree < rhs._tree; }
+        friend bool operator<=( const map& lhs,const map& rhs ) { if (lhs._size <= rhs._size) return true; return lhs._tree <= rhs._tree; }
+        friend bool operator>( const map& lhs, const map& rhs ) { return !(lhs < rhs); }
+        friend bool operator>=( const map& lhs,const map& rhs ) { return !(lhs <= rhs); }
+
 
     private:
         avltree _tree;
@@ -293,12 +318,6 @@ namespace ft
         std::size_t _size;
         key_compare _compare;
     };
-
-    //    template<class Key, class T, class Compare, class Alloc>
-    //    bool operator==(const map<Key, T, Compare, Alloc> &lhs,
-    //                    const map<Key, T, Compare, Alloc> &rhs) {
-    //        return (lhs.size() == rhs.size() && lhs._tree == rhs._tree);
-    //    }
 }
 
 #endif // __MAP_HPP__
