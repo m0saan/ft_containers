@@ -1,4 +1,9 @@
-ft_containers
+# ft_containers
+
+In this project, I am implementing the various container types of the C++ standard template library.  
+The namespace will always be ft.  
+As a reminder, all of the containers are coded in C++98, so any new feature of the containers ARE NOT
+implemented, but every old feature (even deprecated) is present.
 
 
 ### - Observations : 
