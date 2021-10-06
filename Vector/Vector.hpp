@@ -13,6 +13,7 @@
 #include "../Utility/is_integral.hpp"
 #include "../Utility/iterator_traits.hpp"
 #include "../Utility/choose.hpp"
+#include "../Utility/Algorithms.hpp"
 #include <iterator>
 #include <algorithm>
 
@@ -346,22 +347,22 @@ namespace ft {
 
         friend bool operator<(const Vector &lhs,
                               const Vector &rhs) {
-            return std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
+            return ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
         }
 
         friend bool operator<=(const Vector &lhs,
                                const Vector &rhs) {
-            return !std::lexicographical_compare(rhs.begin(), rhs.end(), lhs.begin(), lhs.end());
+            return !ft::lexicographical_compare(rhs.begin(), rhs.end(), lhs.begin(), lhs.end());
         }
 
         friend bool operator>(const Vector &lhs,
                               const Vector &rhs) {
-            return std::lexicographical_compare(rhs.begin(), rhs.end(), lhs.begin(), lhs.end());
+            return ft::lexicographical_compare(rhs.begin(), rhs.end(), lhs.begin(), lhs.end());
         }
 
         friend bool operator>=(const Vector &lhs,
                                const Vector &rhs) {
-            return !std::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
+            return !ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
         }
 
     private:
