@@ -9,7 +9,7 @@ namespace ft
         {
             if (*first1 < *first2)
                 return true;
-            if (!(*first1 < *first2))
+            if (*first2 < *first1)
                 return false;
         }
 
