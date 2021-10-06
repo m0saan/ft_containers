@@ -6,6 +6,12 @@ As a reminder, all of the containers are coded in C++98, so any new feature of t
 implemented, but every old feature (even deprecated) is present.
 
 
+### NOTES:
+  - implemented containers: vector, stack, map.
+  - iterators_traits, reverse_iterator, enable_if, is_integral, equal/lexicographical com-
+pare, std::pair, std::make_pair, are reimplemented.
+
+
 ### - Observations : 
 
 [![forthebadge](https://forthebadge.com/images/badges/made-with-c-plus-plus.svg)](https://forthebadge.com)
