@@ -573,23 +573,22 @@ namespace ft {
 
     template<typename T, typename Alloc>
     typename Vector<T, Alloc>::reverse_iterator Vector<T, Alloc>::rbegin() {
-
-        return reverse_iterator(iterator(end() - 1));
+        return reverse_iterator(end());
     }
 
     template<typename T, typename Alloc>
     typename Vector<T, Alloc>::reverse_iterator Vector<T, Alloc>::rend() {
-        return reverse_iterator(iterator(begin() - 1));
+        return reverse_iterator(begin());
     }
 
     template<typename T, typename Alloc>
     typename Vector<T, Alloc>::const_reverse_iterator Vector<T, Alloc>::rbegin() const {
-        return const_reverse_iterator(const_iterator(end() - 1));;
+        return const_reverse_iterator(end());
     }
 
     template<typename T, typename Alloc>
     typename Vector<T, Alloc>::const_reverse_iterator Vector<T, Alloc>::rend() const {
-        return const_reverse_iterator(const_iterator(begin() - 1));
+        return const_reverse_iterator(begin());
     }
 
     template<typename T, typename Alloc>
