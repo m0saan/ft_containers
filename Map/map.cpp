@@ -3,233 +3,170 @@
 //
 
 #include "map.hpp"
+#include "map.hpp"
+#include "../Utility/Algorithms.hpp"
+#include "map-test-helper.hpp"
 #include <vector>
 #include <map>
 
-bool fncomp(char lhs, char rhs) { return lhs < rhs; }
+#define BLUE "\e[0;34m"
+#define RED "\e[0;31m"
+#define GREEN "\e[0;32m"
+#define YELLOW "\e[1;33m"
+#define RESET "\e[0m"
 
-struct classcomp
+using namespace std;
+
+void showResult(bool cond)
 {
-    bool operator()(const char &lhs, const char &rhs) const
-    {
-        return lhs < rhs;
-    }
-};
-
-class Foo
-{
-public:
-    Foo() { std::cout << "Foo is born!" << std::endl; }
-    ~Foo() { std::cout << "Foo is gone!" << std::endl; }
-
-    int i;
-};
-
-#if 0
-
-
-
-int main(int argc, const char **argv)
-{
-
-    // std::vector<ft::pair<char, int> > v;
-    // v.push_back(ft::make_pair('a', 10));
-    // v.push_back(ft::make_pair('a', 10));
-    // v.push_back(ft::make_pair('a', 10));
-    // v.push_back(ft::make_pair('b', 20));
-    // v.push_back(ft::make_pair('b', 20));
-    // v.push_back(ft::make_pair('b', 20));
-    // v.push_back(ft::make_pair('c', 30));
-    // v.push_back(ft::make_pair('d', 40));
-
-
-    std::chrono::steady_clock::time_point _start = std::chrono::steady_clock::now();
-    
-    ft::map<char, int> first;
-    for (int i = 0; i < 1e7; i++)
-        first.insert(ft::make_pair(i, i));
-
-    // std::cout << "first size == " << first.size() << std::endl;
-    // std::cout << "first: -------------------------------------------" << std::endl;
-    // for (ft::map<char, int>::reverse_iterator it = first.rbegin(); it != first.rend(); ++it)
-    //     std::cout << *it << std::endl;
-
-    std::chrono::steady_clock::time_point _end = std::chrono::steady_clock::now();
-    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::milliseconds>(_end - _start).count()
-              << "[ms]" << std::endl;
-
-
-
-    _start = std::chrono::steady_clock::now();
-    
-    std::map<char, int> _first;
-    for (int i = 0; i < 1e7; i++)
-        _first.insert(std::make_pair(i, i));
-
-    // std::cout << "first size == " << first.size() << std::endl;
-    // std::cout << "first: -------------------------------------------" << std::endl;
-    // for (ft::map<char, int>::reverse_iterator it = first.rbegin(); it != first.rend(); ++it)
-    //     std::cout << *it << std::endl;
-
-    _end = std::chrono::steady_clock::now();
-    std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::milliseconds>(_end - _start).count()
-              << "[ms]" << std::endl;
-
-
-    // std::cout << "second: -------------------------------------------" << std::endl;
-    // ft::map<char, int> second(first.begin(), first.end());
-
-    // for (ft::map<char, int>::reverse_iterator it = second.begin(); it != second.end(); ++it)
-    //     std::cout << *it << std::endl;
-
-    // std::cout << "third: -------------------------------------------" << std::endl;
-    // ft::map<char, int> third(second);
-    // for (ft::map<char, int>::reverse_iterator it = third.begin(); it != third.end(); ++it)
-    //     std::cout << *it << std::endl;
-
-    // ft::map<char, int, classcomp> fourth; // class as Compare
-    // std::cout << "fourth: -------------------------------------------" << std::endl;
-    // for (ft::map<char, int, classcomp>::reverse_iterator it = fourth.begin(); it != fourth.end(); ++it)
-    //     std::cout << *it << std::endl;
-
-    // bool (*fn_pt)(char, char) = fncomp;
-    // ft::map<char, int, bool (*)(char, char)> fifth(fn_pt); // function pointer as Compare
-
-    // std::cout << "fifth: -------------------------------------------" << std::endl;
-    // for (ft::map<char, int, bool (*)(char, char)>::reverse_iterator it = fifth.begin(); it != fifth.end(); ++it)
-    //     std::cout << *it << std::endl;
-
-    // return 0;
+    if (cond)
+        std::cout << GREEN << "ok" << RESET << std::endl;
+    else
+        std::cout << RED << "ko" << RESET << std::endl;
 }
 
-#endif
+template <typename Iter1, typename Iter2>
+bool compareMaps(Iter1 first1, Iter1 last1, Iter2 first2, Iter2 last2)
+{
+    for (; (first1 != last1) && (first2 != last2); ++first1, ++first2)
+        if (first1->first != first2->first || first1->second != first2->second)
+            return false;
+    return true;
+}
+
+bool testOperatorEqual()
+{
+    bool cond;
+    ft::map<char, int> m_first;
+    ft::map<char, int> m_second;
+
+    std::map<char, int> first;
+    std::map<char, int> second;
+
+    m_first['x'] = 8;
+    m_first['y'] = 16;
+    m_first['z'] = 32;
+
+    first['x'] = 8;
+    first['y'] = 16;
+    first['z'] = 32;
+
+    second = first;                 // second now contains 3 ints
+    m_second = m_first;             // second now contains 3 ints
+    first = std::map<char, int>();  // and first is now empty
+    m_first = ft::map<char, int>(); // and first is now empty
+
+    cond = first.size() == m_first.size() && m_second.size() == second.size();
+    return cond;
+}
+
+bool testMapConstructors()
+{
+    bool cond;
+    std::map<char, int> first;
+    ft::map<char, int> m_first;
+
+    for (size_t i = 97; i < 110; i++)
+    {
+        first[i - 97] = i;
+        m_first[i - 97] = i;
+    }
+
+    std::map<char, int> copy(first);
+    ft::map<char, int> m_copy(m_first);
+
+    cond = first.size() == m_first.size() && compareMaps(first.begin(), first.end(), m_first.begin(), m_first.end());
+
+    std::map<char, int> second(first.begin(), first.end());
+    ft::map<char, int> m_second(m_first.begin(), m_first.end());
+
+    cond = cond && second.size() == m_second.size() && compareMaps(second.begin(), second.end(), m_second.begin(), m_second.end());
+
+    std::map<char, int> third(second);
+    ft::map<char, int> m_third(m_second);
+
+    cond = cond && third.size() == m_third.size() && compareMaps(third.begin(), third.end(), m_third.begin(), m_third.end());
+
+    std::map<char, int, classcomp> fourth;  // class as Compare
+    ft::map<char, int, classcomp> m_fourth; // class as Compare
+
+    cond = fourth.size() == m_fourth.size() && cond && compareMaps(fourth.begin(), fourth.end(), m_fourth.begin(), m_fourth.end());
+
+    bool (*fn_pt)(char, char) = fncomp;
+    std::map<char, int, bool (*)(char, char)> fifth(fn_pt);  // function pointer as Compare
+    ft::map<char, int, bool (*)(char, char)> m_fifth(fn_pt); // function pointer as Compare
+
+    cond = fifth.size() == m_fifth.size() && cond && compareMaps(fifth.begin(), fifth.end(), m_fifth.begin(), m_fifth.end());
+
+    first = std::map<char, int>();
+    m_first = ft::map<char, int>();
+
+    cond = copy.size() == m_copy.size() && cond && compareMaps(copy.begin(), copy.end(), m_copy.begin(), m_copy.end());
+
+    return cond;
+}
+
+bool testMapIterators()
+{
+    bool cond;
+
+    std::map<char, int> map;
+    ft::map<char, int> mymap;
+
+    mymap['b'] = 100;
+    mymap['a'] = 200;
+    mymap['c'] = 300;
+
+    map['b'] = 100;
+    map['a'] = 200;
+    map['c'] = 300;
+
+    std::map<char, int>::iterator it = map.begin();
+    std::map<char, int>::const_iterator cIt = map.begin();
+    std::map<char, int>::reverse_iterator rIt = map.rbegin();
+    std::map<char, int>::const_reverse_iterator cRIt = map.rbegin();
+    
+    ft::map<char, int>::iterator myit = mymap.begin();
+    ft::map<char, int>::const_iterator mycIt = mymap.begin();
+    ft::map<char, int>::reverse_iterator myrIt = mymap.rbegin();
+    ft::map<char, int>::const_reverse_iterator mycRIt = mymap.rbegin();
+
+    // test iterators contents:
+
+    cond = (it->first == mycIt->first) && (cIt->first == mycIt->first);
+    cond = cond && (rIt->first == myrIt->first) && (cRIt->first == mycRIt->first);
+
+    it++; myit++; mycIt++; cIt++; myrIt++; rIt++; mycRIt++; cRIt++;
+
+    cond = (it->first == mycIt->first) && (cIt->first == mycIt->first);
+    cond = cond && (rIt->first == myrIt->first) && (cRIt->first == mycRIt->first);
+
+    it--; myit--; mycIt--; cIt--; myrIt--; rIt--; mycRIt--; cRIt--;
+
+    for (; myit != mymap.end() && it != map.end(); it++, myit++)
+        if (it->first != myit->first && it->second != myit->second) cond = false;
+
+    for (; mycIt != mymap.end() && cIt != map.end(); cIt++, mycIt++)
+        if (cIt->first != mycIt->first && cIt->second != mycIt->second) cond = false;
+
+    for (; myrIt != mymap.rend() && rIt != map.rend(); myrIt++, rIt++)
+        if (rIt->first != myrIt->first && rIt->second != myrIt->second) cond = false;
+
+    for (; mycRIt != mymap.rend() && cRIt != map.rend(); cRIt++, mycRIt++)
+        if (cRIt->first != mycRIt->first && cRIt->second != mycRIt->second) cond = false;
+    return cond;
+}
+
+#define TEST_CASE(fn)                                                                                                       \
+    cout << GREEN << "==================================================================================" << RESET << endl; \
+    cout << "   Running " << #fn << "... \t\t\t\t\t\t";                                                                     \
+    showResult(fn());                                                                                                       \
+    cout << GREEN << "==================================================================================" << RESET << endl
 
 int main()
 {
-
-    //     ft::map<char,std::string> mymap;
-
-    //     mymap['a']="an element";
-    //     mymap['b']="another element";
-    //     mymap['c']=mymap['b'];
-
-    //     std::cout << "mymap['a'] is " << mymap['a'] << '\n';
-    //     std::cout << "mymap['b'] is " << mymap['b'] << '\n';
-    //     std::cout << "mymap['c'] is " << mymap['c'] << '\n';
-    //     std::cout << "mymap['d'] is " << mymap['d'] << '\n';
-
-    //   std::cout << "mymap now contains " << mymap.size() << " elements.\n";
-    // std::chrono::steady_clock::time_point _start = std::chrono::steady_clock::now();
-    // ft::map<int, int> m;
-
-    // for (size_t i = 0; i < 1e6; i++)
-    //     m.insert(ft::make_pair(i, -1));
-
-    // std::chrono::steady_clock::time_point _end = std::chrono::steady_clock::now();
-    // std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::milliseconds>(_end - _start).count()
-    //           << "[ms]" << std::endl;
-
-    // std::map<int, int> m1;
-
-    // std::chrono::steady_clock::time_point _start = std::chrono::steady_clock::now();
-    // for (size_t i = 0; i < 1e6; i++)
-    //     m1.insert(std::make_pair(i, -1));
-    // std::chrono::steady_clock::time_point _end = std::chrono::steady_clock::now();
-    // std::cout << "Time difference = " << std::chrono::duration_cast<std::chrono::milliseconds>(_end - _start).count()
-    //           << "[ms]" << std::endl;
-
-#if 0
-
-    ft::avltree<ft::pair<int, int> > avl1;
-    ft::avltree<ft::pair<int, int> > avl2;
-    for (size_t i = 0; i < 10; i++)
-        avl1.insert(ft::make_pair(i, -1));
-
-    avl2 = avl1;
-
-
-    std::cout << (avl1.size() == avl2.size()) << std::endl;
-    std::cout << (avl1 == avl2) << std::endl;
-
-    for ( ft::avltree<ft::pair<int, int> >::iterator it = avl1.begin(); it != avl1.end(); it++)
-        std::cout << *it << std::endl;
-    
-    std::cout << "--------------------------------------------------------------------------" << std::endl;
-
-    for ( ft::avltree<ft::pair<int, int> >::iterator it = avl2.begin(); it != avl1.end(); it++)
-        std::cout << *it << std::endl;
-
-#endif
-
-    // ft::map<char, int> foo, bar;
-
-    // foo['x'] = 100;
-    // foo['y'] = 200;
-
-    // bar['a'] = 11;
-    // bar['b'] = 22;
-    // bar['c'] = 33;
-
-    // // bar = foo;
-    // // foo = bar;
-
-    // foo.swap(bar);
-
-    // std::cout << "foo contains:\n";
-    // for (ft::map<char, int>::iterator it = foo.begin(); it != foo.end(); ++it)
-    //     std::cout << it->first << " => " << it->second << '\n';
-
-    // std::cout << "bar contains:\n";
-    // for (ft::map<char, int>::iterator it = bar.begin(); it != bar.end(); ++it)
-    //     std::cout << it->first << " => " << it->second << '\n';
-    // ft::map<char, int> mymap;
-    // ft::map<char, int>::iterator it;
-
-    // mymap['a'] = 50;
-    // mymap['b'] = 100;
-    // mymap['c'] = 150;
-    // mymap['d'] = 200;
-
-    // it = mymap.find('b');
-    // if (it != mymap.end())
-    //     mymap.erase(it);
-
-    // // print content:
-    // std::cout << "elements in mymap:" << '\n';
-    // std::cout << "a => " << mymap.find('a')->second << '\n';
-    // std::cout << "c => " << mymap.find('c')->second << '\n';
-    // std::cout << "d => " << mymap.find('d')->second << '\n';
-    // return 0;
-
-    ft::map<char, int> mymap;
-    ft::map<char, int>::iterator itlow, itup;
-
-    mymap['a'] = 20;
-    mymap['b'] = 40;
-    mymap['c'] = 60;
-    mymap['d'] = 80;
-    mymap['e'] = 100;
-
-    itlow = mymap.lower_bound('b'); // itlow points to b
-    itup = mymap.upper_bound('d');  // itup points to e (not d!)
-
-    // mymap.erase(itlow, itup); // erases [itlow,itup)
-
-      ft::map<char, int>::iterator it_low_copy, it_up_copy;
-
-      it_low_copy = itlow;
-      it_up_copy = itup;
-
-      it_low_copy->second = -1;
-      it_up_copy->second = -2;
-
-      std::cout << * it_low_copy << std::endl;
-      std::cout << * it_up_copy << std::endl;
-
-      std::cout << * itlow << std::endl;
-      std::cout << * itup << std::endl;
-
-    // print content:
-    // for (ft::map<char, int>::iterator it = mymap.begin(); it != mymap.end(); ++it)
-    //     std::cout << it->first << " => " << it->second << '\n';
+    TEST_CASE(testOperatorEqual);
+    TEST_CASE(testMapConstructors);
+    TEST_CASE(testMapIterators);
+    return 0;
 }
