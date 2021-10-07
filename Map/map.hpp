@@ -129,7 +129,7 @@ namespace ft
 
         bool empty() const _NOEXCEPT { return _tree.isEmpty(); }
 
-        size_type max_size() const _NOEXCEPT { return _alloc.max_size(); }
+        size_type max_size() const _NOEXCEPT { return _tree.max_size(); }
 
         // Element access: ************************************************************************** //
 
