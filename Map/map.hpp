@@ -6,6 +6,7 @@
 #define __MAP_HPP__
 
 #include <functional>
+
 #include "../Utility/avltree.hpp"
 #include "../Utility/reverse_iterator.hpp"
 #include "../Utility/enable_if.hpp"
@@ -124,9 +125,9 @@ namespace ft
 
         // Capacity: ************************************************************************** //
 
-        size_type size() const _NOEXCEPT { return _size; }
+        size_type size() const _NOEXCEPT { return _tree.size(); }
 
-        bool empty() const _NOEXCEPT { return !_size; }
+        bool empty() const _NOEXCEPT { return _tree.isEmpty(); }
 
         size_type max_size() const _NOEXCEPT { return _alloc.max_size(); }
 
