@@ -316,7 +316,6 @@ namespace ft
 
         avltree &operator=(avltree const &other)
         {
-            std::cout << "tree copy" << std::endl;
             makeEmpty();
             _alloc = other._alloc;
             _node_alloc = other._node_alloc;
@@ -330,6 +329,7 @@ namespace ft
         }
 
         ~avltree() { makeEmpty(); }
+
 
         void init(const Compare &p_comp, const Alloc &p_allocator)
         {
@@ -436,6 +436,11 @@ namespace ft
         std::size_t size() const _NOEXCEPT
         {
             return _size;
+        }
+        
+         std::size_t max_size() const _NOEXCEPT
+        {
+            return std::min<size_type>( _node_alloc.max_size(), std::numeric_limits<difference_type>::max() );
         }
 
         /* Test if the tree is logically empty.
