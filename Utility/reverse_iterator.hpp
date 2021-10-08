@@ -28,7 +28,11 @@ namespace ft {
         // Constructors.
         reverse_iterator() : _baseIter() {}
 
-        explicit reverse_iterator(const iterator_type &it) : _baseIter(it - 1) {}
+        explicit reverse_iterator(const iterator_type &it) {
+            Iterator cIt = it;
+            --cIt;
+            _baseIter = cIt;
+        }
 
         reverse_iterator(const reverse_iterator &revIt) { *this = revIt; }
 
@@ -94,7 +98,8 @@ namespace ft {
 
     template<typename Iterator>
     typename reverse_iterator<Iterator>::iterator_type reverse_iterator<Iterator>::base() const {
-        return _baseIter + 1;
+        Iterator tmp(this->_baseIter);
+        return ++tmp;
     }
 
     template<typename Iterator>
