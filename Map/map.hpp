@@ -168,21 +168,25 @@ namespace ft
          */
         void erase(iterator pos)
         {
-            _tree.remove(*pos);
+            _tree.remove((*pos).first);
         }
 
         void erase(iterator first, iterator last)
         {
-            ft::Vector<ft::pair<Key, mapped_type> > pairs;
-            for (; last != first; first++)   pairs.push_back(*first);
-            
-            for (size_t i = 0; i < pairs.size(); i++) erase(pairs[i].first);
+            ft::Vector<Key> keys;
+            for (; last != first; first++)   keys.push_back((*first).first);
+            // std::cout << "done getting keys." << std::endl; 
+
+            for (size_t i = 0; i < keys.size(); ++i){
+                // std::cout << keys[i] << " is deleted!" << std::endl;
+                erase(keys[i]);
+            }
             
         }
 
         size_type erase(const key_type &key)
         {
-            return _tree.remove(ft::make_pair(key, mapped_type())) ? 1 : 0;
+            return _tree.remove(key) ? 1 : 0;
         }
 
         /**
