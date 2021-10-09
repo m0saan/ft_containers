@@ -461,19 +461,19 @@ namespace ft
          * Remove x from the tree. Nothing is done if x is not found.
          */
 
-        bool    remove(value_type const &x)
+        bool    remove(const first_type &x)
         {
             bool isRemoved(false);
 
             if (isEmpty())
                 return isRemoved;
 
-            _remove(_root, x, isRemoved);
+            _root = _remove(_root, x, isRemoved);
 
             return isRemoved;
         }
 
-        Node *_remove(Node *currNode, const value_type &x, bool &isDeleted)
+        Node *_remove(Node *currNode, const first_type &x, bool &isDeleted)
         {
             /*
              * 1. Find the element we wish to remove
@@ -498,7 +498,7 @@ namespace ft
             if (!currNode)
                 return currNode;
 
-            if (!_comp(x.first, currNode->_value->first) && !_comp(currNode->_value->first, x.first))
+            if (!_comp(x, currNode->_value->first) && !_comp(currNode->_value->first, x))
             {
                 --_size;
                 isDeleted = true;
@@ -521,9 +521,9 @@ namespace ft
 
                     if (currNode->_parent)
                     {
-                        if (currNode->_parent->_leftChild && *currNode->_parent->_leftChild->_value == x)
+                        if (currNode->_parent->_leftChild && currNode->_parent->_leftChild->_value->first == x)
                             currNode->_parent->_leftChild = NULL;
-                        else if (currNode->_parent->_rightChild && *currNode->_parent->_rightChild->_value == x)
+                        else if (currNode->_parent->_rightChild && currNode->_parent->_rightChild->_value->first == x)
                             currNode->_parent->_rightChild = NULL;
                     }
                     currNode->_parent = NULL;
@@ -551,7 +551,7 @@ namespace ft
                     successorRef = currNode->_leftChild;
                     Node *currNodeParent = currNode->_parent;
 
-                    currNodeParent->_leftChild = successorRef;
+                    currNodeParent->_rightChild = successorRef;
 
                     _deleteNode(currNode);
                     successorRef->_parent = currNodeParent;
@@ -574,7 +574,7 @@ namespace ft
                     successorRef = currNode->_rightChild;
                     Node *currNodeParent = currNode->_parent;
 
-                    currNodeParent->_rightChild = successorRef;
+                    currNodeParent->_leftChild = successorRef;
 
                     _deleteNode(currNode);
                     successorRef->_parent = currNodeParent;
@@ -624,7 +624,7 @@ namespace ft
                         successorRef = _min(currNode->_rightChild);
                         _swapNodes(successorRef, currNode);
 
-                        currNode->_rightChild = _remove(currNode->_rightChild, *(successorRef->_value), isDeleted);
+                        currNode->_rightChild = _remove(currNode->_rightChild, successorRef->_value->first, isDeleted);
                         return currNode;
                     }
                     else if (currNode->_leftChild)
@@ -632,14 +632,14 @@ namespace ft
                         successorRef = _max(currNode->_leftChild);
                         _swapNodes(successorRef, currNode);
 
-                        currNode->_leftChild = _remove(currNode->_leftChild, *successorRef->_value, isDeleted);
+                        currNode->_leftChild = _remove(currNode->_leftChild, successorRef->_value->first, isDeleted);
                         return currNode;
                     }
                 }
             }
 
             // Finding the __x__ node which we want to remove;
-            if (!_comp(x.first, currNode->_value->first))
+            if (!_comp(x, currNode->_value->first))
                 currNode->_rightChild = _remove(currNode->_rightChild, x, isDeleted);
             else
                 currNode->_leftChild = _remove(currNode->_leftChild, x, isDeleted);
@@ -945,13 +945,13 @@ namespace ft
                 return;
 
             _inOrderTraversal(root->_leftChild);
-            // std::cout << *root->_value;
-            // if (root->_parent)
-            //     std::cout << " Parent"
-            //               << "[" << *root->_parent->_value << "]" << std::endl;
-            // else
-            //     std::cout << " Parent"
-            //               << "[(null)]" << std::endl;
+            std::cout << *root->_value;
+            if (root->_parent)
+                std::cout << " Parent"
+                          << "[" << *root->_parent->_value << "]" << std::endl;
+            else
+                std::cout << " Parent"
+                          << "[(null)]" << std::endl;
 
             _inOrderTraversal(root->_rightChild);
         }
