@@ -431,30 +431,87 @@ namespace ft
             _lower_bound(_root, key, &ret);
             if (!ret)
                 return iterator(NULL, this);
-            else return iterator(ret, this);
+            else
+                return iterator(ret, this);
         }
 
-        void _lower_bound(Node* currNode, const first_type &key, Node **ret) {
-            
+        const_iterator lower_bound(const first_type &key) const
+        {
+            Node *ret = NULL;
+            _lower_bound(_root, key, &ret);
+            if (!ret)
+                return const_iterator(NULL, this);
+            else
+                return const_iterator(ret, this);
+        }
+
+        iterator upper_bound(const first_type &key)
+        {
+            Node *ret = NULL;
+            _upper_bound(_root, key, &ret);
+            if (!ret)
+                return iterator(NULL, this);
+            else
+                return iterator(ret, this);
+        }
+
+        
+        const_iterator upper_bound(const first_type &key) const
+        {
+            Node *ret = NULL;
+            _upper_bound(_root, key, &ret);
+            if (!ret)
+                return const_iterator(NULL, this);
+            else
+                return const_iterator(ret, this);
+        }
+
+        
+
+        void _lower_bound(Node *currNode, const first_type &key, Node **ret)
+        {
+
             if (!currNode)
                 return;
 
-            if (_comp(key, currNode->_value->first)) 
+            if (_comp(key, currNode->_value->first))
                 _lower_bound(currNode->_leftChild, key, ret);
 
-            if (!_comp(key, currNode->_value->first) && !_comp(currNode->_value->first, key)){
+            if (!_comp(key, currNode->_value->first) && !_comp(currNode->_value->first, key))
+            {
                 *ret = currNode;
                 return;
             }
 
-            if (*ret == NULL && _comp(key, currNode->_value->first)){
+            if (*ret == NULL && _comp(key, currNode->_value->first))
+            {
                 *ret = currNode;
                 return;
             }
 
-            if (!_comp(key, currNode->_value->first))  
+            if (!_comp(key, currNode->_value->first))
                 _lower_bound(currNode->_rightChild, key, ret);
         }
+
+        void _upper_bound(Node *currNode, const first_type &key, Node **ret)
+        {
+
+            if (!currNode)
+                return;
+
+            if (_comp(key, currNode->_value->first))
+                _upper_bound(currNode->_leftChild, key, ret);
+
+            if (*ret == NULL && _comp(key, currNode->_value->first))
+            {
+                *ret = currNode;
+                return;
+            }
+
+            if (!_comp(key, currNode->_value->first))
+                _upper_bound(currNode->_rightChild, key, ret);
+        }
+
 
         /*
          * returns true if found otherwise false
@@ -589,7 +646,7 @@ namespace ft
                     else
                         currNodeParent->_leftChild = successorRef;
 
-                            _deleteNode(currNode);
+                    _deleteNode(currNode);
                     successorRef->_parent = currNodeParent;
                     return successorRef;
                 }
