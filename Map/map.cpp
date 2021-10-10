@@ -1304,6 +1304,37 @@ void testModifiers()
     }
 }
 
+void testObservers()
+{
+    std::cout << "\t\033[1;37m[-------------------- [" << std::setw(40) << std::left << " key_comp method "
+              << "] --------------------]\t\t\033[0m";
+    {
+        bool cond(true);
+        std::map<int, int> m;
+        ft::map<int, int> ft_m;
+        std::map<int, int>::key_compare comp = m.key_comp();
+        ft::map<int, int>::key_compare mycomp = ft_m.key_comp();
+
+        for (size_t i = 0; i < 1e2; i++)
+        {
+            m.insert(std::make_pair(i, -1));
+            ft_m.insert(ft::make_pair(i, -1));
+        }
+
+        int highest = m.rbegin()->first; // key value of last element
+        int ft_highest = ft_m.rbegin()->first; // key value of last element
+
+        std::map<int, int>::iterator it = m.begin();
+        ft::map<int, int>::iterator ft_it = ft_m.begin();
+        do
+        {
+            if (! (it->first == ft_it->first && it->second == ft_it->second)) { cond = false; break;}
+                
+        } while (comp((*it++).first, highest) && mycomp((*ft_it++).first, ft_highest));
+        EQUAL(cond);
+    }
+}
+
 int main()
 {
     // std::cout << YELLOW << "Testing Constructors;" << RESET << std::endl;
@@ -1325,6 +1356,10 @@ int main()
 
     std::cout << YELLOW << "Testing Modifiers Methods; " << RESET << std::endl;
     TEST_CASE(testModifiers);
+    std::cout << std::endl;
+
+    std::cout << YELLOW << "Testing Observers Methods; " << RESET << std::endl;
+    TEST_CASE(testObservers);
     std::cout << std::endl;
 
     //    std::cout << ( ft_m1 == ft_m2) << std::endl;
