@@ -83,9 +83,10 @@ namespace ft
             const Alloc &alloc = Alloc()) : _alloc(alloc), _compare(comp)
         {
             _tree.init(_compare, _alloc);
-            for (; first != last; ++first)
+            for (; first != last; first++){
+                // std::cout << *first << " is inserted!" << std::endl;
                 _tree.insert(*first);
-            _size = _tree.size();
+            }
         }
 
         map(const map &other)
@@ -111,17 +112,17 @@ namespace ft
 
         iterator end() { return _tree.end(); }
 
-        reverse_iterator rbegin() { return _tree.rbegin(); }
+        reverse_iterator rbegin() { return reverse_iterator(end()); }
 
-        reverse_iterator rend() { return _tree.rend(); }
+        reverse_iterator rend() { return reverse_iterator(begin()); }
 
         const_iterator begin() const { return _tree.begin(); }
 
         const_iterator end() const { return _tree.end(); }
 
-        const_reverse_iterator rbegin() const { return _tree.rbegin(); }
+        const_reverse_iterator rbegin() const { return const_reverse_iterator(end()); }
 
-        const_reverse_iterator rend() const { return _tree.rend(); }
+        const_reverse_iterator rend() const { return const_reverse_iterator(begin()); }
 
         // Capacity: ************************************************************************** //
 
@@ -155,12 +156,14 @@ namespace ft
         template <class InputIt>
         void insert(InputIt first, InputIt last)
         {
+            int size = 0;
             for (; first != last; ++first)
             {
                 // std::cout << *first << " is inserted!" << std::endl;
                 insert(*first);
+                ++size;
             }
-            _size += std::distance(first, last);
+            _size = size;
         }
 
         /**
