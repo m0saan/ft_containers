@@ -29,9 +29,13 @@ namespace ft {
         reverse_iterator() : _baseIter() {}
 
         explicit reverse_iterator(const iterator_type &it) {
+            // if (it.getNodePtr() == NULL && std::is_same<iterator_category, std::bidirectional_iterator_tag>::value)
+                // _baseIter = it;
+            // else {
             Iterator cIt = it;
             --cIt;
             _baseIter = cIt;
+            // }
         }
 
         reverse_iterator(const reverse_iterator &revIt) { *this = revIt; }
@@ -122,6 +126,8 @@ namespace ft {
     reverse_iterator<Iterator> reverse_iterator<Iterator>::operator--(int) {
         reverse_iterator tmp(*this);
         ++_baseIter;
+
+        std::cout << *this << *tmp << std::endl;
         return tmp;
     }
 
