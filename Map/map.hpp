@@ -236,11 +236,7 @@ namespace ft
          */
         iterator lower_bound(const key_type &k)
         {
-            iterator it = _tree.find(k);
-            if (it->first == k)
-                return it;
-            else
-                return ++it;
+            return _tree.lower_bound(k);
         }
 
         /**
