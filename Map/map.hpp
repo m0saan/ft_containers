@@ -244,11 +244,7 @@ namespace ft
          */
         const_iterator lower_bound(const key_type &k) const
         {
-            const_iterator c_it = _tree.find(k);
-            if (c_it->first == k)
-                return c_it;
-            else
-                return ++c_it;
+          return _tree.lower_bound(k);
         }
 
         /**
@@ -257,7 +253,7 @@ namespace ft
 
         iterator upper_bound(const Key &key)
         {
-            return ++(_tree.find(key));
+            return _tree.upper_bound(key);
         }
 
         /**
@@ -265,7 +261,7 @@ namespace ft
          */
         const_iterator upper_bound(const Key &key) const
         {
-            return ++(_tree.find(key));
+            return _tree.upper_bound(key);
         }
 
 
