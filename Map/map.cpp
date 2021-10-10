@@ -1121,8 +1121,49 @@ void testModifiers()
 
         cond = cond && m.empty() == ft_m.empty() && compareMaps(m.begin(), m.end(), ft_m.begin(), ft_m.end());
 
+        /* ---------- Testing some edge cases ---------- */
 
-        /* ---------- Testing some edge cases ---------- */ 
+        std::map<int, std::string> m2;
+        ft::map<int, std::string> ft_m2;
+
+        for (size_t i = 0; i < 100; i++)
+        {
+            m2.insert(std::make_pair(i, "string1"));
+            ft_m2.insert(ft::make_pair(i, "string1"));
+        }
+
+        std::map<int, std::string>::reverse_iterator it2 = m2.rbegin();
+        ft::map<int, std::string>::reverse_iterator ft_it2 = ft_m2.rbegin();
+
+        m2.erase(m2.begin());
+        ft_m2.erase(ft_m2.begin());
+
+        cond = cond && m2.size() == ft_m2.size() && compareMaps(m2.begin(), m2.end(), ft_m2.begin(), ft_m2.end());
+
+        int count = 0;
+        for (; it2 != m2.rend(); ++it2, ++ft_it2)
+        {
+            m2.erase(it2->first);
+            // ft_m2.erase(ft_it2->first);
+        }
+
+        // cond = cond && m2.size() == ft_m2.size() && compareMaps(m2.begin(), m2.end(), ft_m2.begin(), ft_m2.end());
+
+        // it2 = m2.begin();
+        // ft_it2 = ft_m2.begin();
+
+        // m2.erase(--m2.end());
+        // ft_m2.erase(--ft_m2.end());
+
+        // cond = cond && m2.size() == ft_m2.size() && compareMaps(m2.begin(), m2.end(), ft_m2.begin(), ft_m2.end());
+
+        // for (; it2 != m2.end(); ++it2, ++ft_it2)
+        // {
+        //     m2.erase(it2);
+        //     ft_m2.erase(ft_it2);
+        // }
+
+        // cond = cond && m2.size() == ft_m2.size() && compareMaps(m2.begin(), m2.end(), ft_m2.begin(), ft_m2.end());
 
         EQUAL(cond);
     }
@@ -1147,40 +1188,34 @@ int main()
     // TEST_CASE(testElementAccess);
     // std::cout << std::endl;
 
-    std::cout << YELLOW << "Testing Modifiers Methods; " << RESET << std::endl;
-    TEST_CASE(testModifiers);
-    std::cout << std::endl;
+    // std::cout << YELLOW << "Testing Modifiers Methods; " << RESET << std::endl;
+    // TEST_CASE(testModifiers);
+    // std::cout << std::endl;
 
-    // std::map<int, std::string> m1;
-    // ft::map<int, std::string> ft_m1;
-    // for (size_t i = 0; i < 1e6; i++)
-    // {
-    //     m1.insert(std::make_pair(i, "string2"));
-    //     ft_m1.insert(ft::make_pair(i, "string2"));
-    // }
+    int arr[] = {20, 50, 30, 28, 60, 90, 100, 10, 55, 56};
+    ft::map<int, int, std::greater<int> > ft_m1;
+    ft::map<int, int, std::greater<int> > ft_m2;
+    std::map<int, int, std::greater<int> > m;
+    for(size_t i = 0; i < 10; i+=1) {
+        ft_m1.insert(ft::make_pair(arr[i], i));
+        ft_m2.insert(ft::make_pair(arr[i], i));
+        m.insert(std::make_pair(arr[i], i));
+    }
 
-    // ft_m1.erase(ft_m1.begin(), ft_m1.end());
+    // time_t s = get_time();
+    // int n = 50;
 
-    // // ft::map<char, int> mymap;
-    // // ft::map<char, int>::iterator it;
+    // std::cout << (e - s) << std::endl;
 
-    // // // insert some values:
-    // // mymap['a'] = 10;
-    // // mymap['b'] = 20;
-    // // mymap['c'] = 30;
-    // // mymap['d'] = 40;
-    // // mymap['e'] = 50;
-    // // mymap['f'] = 60;
+    // s = get_time();
+    // e = get_time();
+    // std::cout << (e - s) << std::endl;
 
-    // // it = mymap.find('b');
-    // // mymap.erase(it); // erasing by iterator
+    // std::cout << ( m.equal_range(n).first->first ) << std::endl;
+    // std::cout << ( m.equal_range(n).first->second ) << std::endl;
+    // std::cout << ( ft_m.equal_range(n).first->first ) << std::endl;
+    // std::cout << ( ft_m.equal_range(n).first->second ) << std::endl;
+    // return 0;
 
-    // // mymap.erase('c'); // erasing by key
-
-    // // it = mymap.find('e');
-    // // mymap.erase(it, mymap.end()); // erasing by range
-
-    // // // show content:
-    // // for (it = mymap.begin(); it != mymap.end(); ++it)
-    // //     std::cout << it->first << " => " << it->second << '\n';
+    std::cout << ( ft_m1 == ft_m2) << std::endl;
 }
