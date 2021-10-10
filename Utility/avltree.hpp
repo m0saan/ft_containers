@@ -220,7 +220,7 @@ namespace ft
             if (!lhs._nodePtr && !rhs._nodePtr)
                 return true;
 
-            if ( (lhs._nodePtr && !rhs._nodePtr) || (!lhs._nodePtr && rhs._nodePtr) )
+            if ((lhs._nodePtr && !rhs._nodePtr) || (!lhs._nodePtr && rhs._nodePtr))
                 return false;
             return (lhs._nodePtr->_value->first == rhs._nodePtr->_value->first);
         }
@@ -330,7 +330,6 @@ namespace ft
 
         ~avltree() { makeEmpty(); }
 
-
         void init(const Compare &p_comp, const Alloc &p_allocator)
         {
             _comp = p_comp;
@@ -339,7 +338,8 @@ namespace ft
 
         avltree getRoot() const { return _root; }
 
-        iterator _copy_iter(value_type const& p) {
+        iterator _copy_iter(value_type const &p)
+        {
             return iterator(_createNode(ft::make_pair(p.first, p.second)), NULL);
         }
 
@@ -437,10 +437,10 @@ namespace ft
         {
             return _size;
         }
-        
-         std::size_t max_size() const _NOEXCEPT
+
+        std::size_t max_size() const _NOEXCEPT
         {
-            return std::min<size_type>( _node_alloc.max_size(), std::numeric_limits<difference_type>::max() );
+            return std::min<size_type>(_node_alloc.max_size(), std::numeric_limits<difference_type>::max());
         }
 
         /* Test if the tree is logically empty.
@@ -461,7 +461,7 @@ namespace ft
          * Remove x from the tree. Nothing is done if x is not found.
          */
 
-        bool    remove(const first_type &x)
+        bool remove(const first_type &x)
         {
             bool isRemoved(false);
 
@@ -469,6 +469,9 @@ namespace ft
                 return isRemoved;
 
             _root = _remove(_root, x, isRemoved);
+
+            // if (isRemoved)
+            //     --_size;
 
             return isRemoved;
         }
@@ -500,7 +503,8 @@ namespace ft
 
             if (!_comp(x, currNode->_value->first) && !_comp(currNode->_value->first, x))
             {
-                --_size;
+                if (!isDeleted)
+                    --_size;
                 isDeleted = true;
                 Node *successorRef;
 
@@ -509,7 +513,6 @@ namespace ft
                 {
 
                     /* has no left or right subtree.
-
                         **
                      //    \\
                      
@@ -535,7 +538,6 @@ namespace ft
                 {
 
                     /* has only a left subtree.
-
                      **
                    //   \\
                   **     
@@ -551,9 +553,12 @@ namespace ft
                     successorRef = currNode->_leftChild;
                     Node *currNodeParent = currNode->_parent;
 
-                    currNodeParent->_rightChild = successorRef;
+                    if (!_comp(currNode->_value->first, currNodeParent->_value->first))
+                        currNodeParent->_rightChild = successorRef;
+                    else
+                        currNodeParent->_leftChild = successorRef;
 
-                    _deleteNode(currNode);
+                            _deleteNode(currNode);
                     successorRef->_parent = currNodeParent;
                     return successorRef;
                 }
@@ -574,7 +579,10 @@ namespace ft
                     successorRef = currNode->_rightChild;
                     Node *currNodeParent = currNode->_parent;
 
-                    currNodeParent->_leftChild = successorRef;
+                    if (_comp(currNode->_value->first, currNodeParent->_value->first))
+                        currNodeParent->_leftChild = successorRef;
+                    else
+                        currNodeParent->_rightChild = successorRef;
 
                     _deleteNode(currNode);
                     successorRef->_parent = currNodeParent;
@@ -656,6 +664,194 @@ namespace ft
             return _balanceTree(currNode);
         }
 
+        // Node *_remove(Node *currNode, const first_type &x, bool &isDeleted)
+        // {
+        //     /*
+        //      * 1. Find the element we wish to remove
+        //      * 2. Replace the node we want to remove with its successor if any
+        //      *      to maintain the bst invariant.
+        //      */
+
+        //     /*
+        //      * There are Four main cases concerning removing a node.
+        //      *  -> Case 1: Node to remove is a leaf Node.
+        //      *  -> Case 2: Node to remove has a left but no right subtree.
+        //      *  -> Case 3: Node to remove has a right but no left subtree.
+        //      *  -> Case 4: Node to remove has both left and right subtree.
+        //      */
+
+        //     /*
+        //     *
+        //         base condition.
+        //     *
+        //     */
+
+        //     if (!currNode)
+        //         return currNode;
+
+        //     if (!_comp(x, currNode->_value->first) && !_comp(currNode->_value->first, x))
+        //     {
+        //         isDeleted = true;
+        //         Node *successorRef;
+
+        //         // Case 1
+        //         if (_isLeaf(currNode))
+        //         {
+
+        //             /* has no left or right subtree.
+
+        //                 **
+        //              //    \\
+
+        //                 */
+
+        //             // Algorithm
+        //             // if the current node is leaf node we just cut the egde
+        //             // that links it to its parent and destroy the node.
+
+        //             if (currNode->_parent)
+        //             {
+        //                 if (currNode->_parent->_leftChild && currNode->_parent->_leftChild->_value->first == x)
+        //                     currNode->_parent->_leftChild = NULL;
+        //                 else if (currNode->_parent->_rightChild && currNode->_parent->_rightChild->_value->first == x)
+        //                     currNode->_parent->_rightChild = NULL;
+        //             }
+        //             currNode->_parent = NULL;
+        //             _deleteNode(currNode);
+        //             return NULL;
+        //         }
+        //         // Case 2
+        //         else if (_hasLeftOnly(currNode) && _size > 1)
+        //         {
+
+        //             /* has only a left subtree.
+
+        //              **
+        //            //   \\
+        //           **
+
+        //             */
+        //             // Algorithm
+        //             // if the current node has a left subtree only
+        //             // we put a ref to its successor (its left child)
+        //             // cut the edge if the current node from its parent
+        //             // then choose which side to put it in i.e left or right of
+        //             // parent of the node we want to remove.
+
+        //             successorRef = currNode->_leftChild;
+        //             Node *currNodeParent = currNode->_parent;
+
+        //              if (!_comp(currNode->_value->first, currNodeParent->_value->first))
+        //                 currNodeParent->_rightChild = successorRef;
+        //             else
+        //                 currNodeParent->_leftChild = successorRef;
+
+        //             _deleteNode(currNode);
+        //             successorRef->_parent = currNodeParent;
+        //             return successorRef;
+        //         }
+
+        //         // Case 3
+        //         else if (_hasRightOnly(currNode) && _size > 1)
+        //         {
+        //             /* has only a right subtree.
+        //              **
+        //            //   \\
+        //                  **
+
+        //             */
+
+        //             // Algorithm
+        //             // same as if the node has a left subtree only.
+
+        //             successorRef = currNode->_rightChild;
+        //             Node *currNodeParent = currNode->_parent;
+
+        //             if (_comp(currNode->_value->first, currNodeParent->_value->first))
+        //                 currNodeParent->_leftChild = successorRef;
+        //             else
+        //                 currNodeParent->_rightChild = successorRef;
+
+        //             _deleteNode(currNode);
+        //             successorRef->_parent = currNodeParent;
+        //             return successorRef;
+        //         }
+
+        //         // Case 4
+        //         else
+        //         {
+
+        //             // -> Algorithm:
+        //             // the successor can either be the largest value
+        //             // in the left subtree OR the smallest value
+        //             // in the right subtree.
+
+        //             // Once the successor  node has been found,
+        //             // replace the value of the node to remove with
+        //             // the value in the successor node.
+
+        //             // and remove the duplicate value of the successor node
+        //             // that still exists in the tree.
+
+        //             if (_size == )
+        //             {
+        //                 if (currNode->_rightChild)
+        //                 {
+        //                     successorRef = currNode->_rightChild;
+        //                     _swapNodes(successorRef, currNode);
+
+        //                     _deleteNode(currNode->_rightChild);
+        //                     currNode->_rightChild = NULL;
+        //                     return currNode;
+        //                 }
+        //                 else
+        //                 {
+        //                     successorRef = currNode->_leftChild;
+        //                     _swapNodes(successorRef, currNode);
+
+        //                     _deleteNode(currNode->_leftChild);
+        //                     currNode->_leftChild = NULL;
+        //                     return currNode;
+        //                 }
+        //             }
+
+        //             if (currNode->_rightChild)
+        //             {
+        //                 successorRef = _min(currNode->_rightChild);
+        //                 _swapNodes(successorRef, currNode);
+
+        //                 currNode->_rightChild = _remove(currNode->_rightChild, successorRef->_value->first, isDeleted);
+        //                 return currNode;
+        //             }
+        //             else if (currNode->_leftChild)
+        //             {
+        //                 successorRef = _max(currNode->_leftChild);
+        //                 _swapNodes(successorRef, currNode);
+
+        //                 currNode->_leftChild = _remove(currNode->_leftChild, successorRef->_value->first, isDeleted);
+        //                 return currNode;
+        //             }
+        //         }
+        //     }
+
+        //     // Finding the __x__ node which we want to remove;
+        //     if (!_comp(x, currNode->_value->first))
+        //         currNode->_rightChild = _remove(currNode->_rightChild, x, isDeleted);
+        //     else
+        //         currNode->_leftChild = _remove(currNode->_leftChild, x, isDeleted);
+
+        //     /*
+        //     * Update Balance Factor.
+        //     */
+
+        //     currNode->_height = 1 + std::max(_getHeight(currNode->_leftChild), _getHeight(currNode->_rightChild));
+
+        //     /*
+        //     * Rebalance tree.
+        //     */
+        //     return _balanceTree(currNode);
+        // }
+
         /**
          * 
          * return an iterator pointing to the first item (in-order-traversal).
@@ -678,15 +874,15 @@ namespace ft
          * 
          */
 
-        reverse_iterator rbegin()
-        {
-            return reverse_iterator(iterator(max(), this));
-        }
+        // reverse_iterator rbegin()
+        // {
+        //     return reverse_iterator(iterator(NULL, this));
+        // }
 
-        const_reverse_iterator rbegin() const
-        {
-            return const_reverse_iterator(const_iterator(max(), this));
-        }
+        // const_reverse_iterator rbegin() const
+        // {
+        //     return const_reverse_iterator(const_iterator(NULL, this));
+        // }
 
         /**
          * 
@@ -704,15 +900,15 @@ namespace ft
             return const_iterator(NULL, this);
         }
 
-        reverse_iterator rend()
-        {
-            return reverse_iterator(iterator(NULL, this));
-        }
+        // reverse_iterator rend()
+        // {
+        //     return reverse_iterator(iterator(max(), this));
+        // }
 
-        const_reverse_iterator rend() const
-        {
-            return const_reverse_iterator(const_iterator(NULL, this));
-        }
+        // const_reverse_iterator rend() const
+        // {
+        //     return const_reverse_iterator(const_iterator(max(), this));
+        // }
 
         /**
          * Relational Operators
@@ -809,13 +1005,11 @@ namespace ft
         {
             return _max(_root);
         }
-        
-        Node *max() const 
+
+        Node *max() const
         {
             return _max(_root);
         }
-
-
 
         bool equals(const avltree &other) const
         {
@@ -990,7 +1184,7 @@ namespace ft
             return minNode;
         }
 
-        Node *_max(Node *root) const 
+        Node *_max(Node *root) const
         { // O(Log(n)) time complexity.
             if (!_root)
                 return NULL;
