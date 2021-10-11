@@ -7,6 +7,7 @@
 #include "../Vector/Vector.hpp"
 // #include "map-test-helper.hpp"
 #include <map>
+#include <random>
 
 #include <vector>
 #include <iostream>
@@ -1392,6 +1393,99 @@ void testOperations()
     std::cout << "\t\033[1;37m[-------------------- [" << std::setw(40) << std::left << " find method "
               << "] --------------------]\t\t\033[0m";
     {
+        bool cond(true);
+        {
+            time_t start, end, diff;
+            /*------------------ std::maps ---------------------*/
+            std::map<int, std::string> m1;
+            ft::map<int, std::string> ft_m1;
+            for (size_t i = 0; i < 1e6; i++)
+            {
+                m1.insert(std::make_pair(i, "string2"));
+                ft_m1.insert(ft::make_pair(i, "string2"));
+            }
+
+            start = get_time();
+
+            for (size_t i = 1e1; i < 1e5; i += 10)
+                m1.find(i);
+
+            end = get_time();
+            diff = end - start;
+            diff = (diff) ? (diff * TIME_FAC) : TIME_FAC;
+            /*-----------------------------------------------------*/
+            /*------------------ ft::maps ---------------------*/
+            ualarm(diff * 1e3, 0);
+            for (size_t i = 1e1; i < 1e5; i += 10)
+                ft_m1.find(i);
+            ualarm(0, 0);
+            /*----------------------------------------------------*/
+        }
+
+        std::vector<int> vec;
+        std::vector<int> ft_vec;
+        std::random_device randDev;
+        std::mt19937 generator(randDev());
+        std::uniform_int_distribution<int> distr(0, 1e8);
+
+        std::map<int, std::string> m1;
+        ft::map<int, std::string> ft_m1;
+        std::map<int, std::string>::iterator it;
+        ft::map<int, std::string>::iterator ft_it;
+
+        for (size_t i = 0; i < 1e6; i++)
+        {
+            m1.insert(std::make_pair(i, "string2"));
+            ft_m1.insert(ft::make_pair(i, "string2"));
+        }
+
+        for (size_t i = 0; i < 1e6; i++)
+        {
+            int n = distr(generator);
+            it = m1.find(n);
+            ft_it = ft_m1.find(n);
+            if (it == m1.end() && ft_it == ft_m1.end())
+                continue;
+            if (it == m1.end() && ft_it != ft_m1.end())
+            {
+                cond = false;
+                break;
+            }
+            else
+            {
+                vec.push_back(it->first);
+                ft_vec.push_back(ft_it->first);
+            }
+        }
+
+        std::map<char, int> m;
+        ft::map<char, int> ft_m;
+        std::map<char, int>::iterator it2;
+        ft::map<char, int>::iterator ft_it2;
+
+        m['a'] = 50;
+        m['b'] = 100;
+        m['c'] = 150;
+        m['d'] = 200;
+
+        ft_m['a'] = 50;
+        ft_m['b'] = 100;
+        ft_m['c'] = 150;
+        ft_m['d'] = 200;
+
+        it2 = m.find('b');
+        ft_it2 = ft_m.find('b');
+
+        cond = cond && it2->first == ft_it2->first && it2->second == ft_it2->second;
+
+        if (it2 != m.end())
+            m.erase(it2);
+        if (ft_it2 != ft_m.end())
+            ft_m.erase(ft_it2);
+
+        cond = cond && compareMaps(m.begin(), m.end(), ft_m.begin(), ft_m.end());
+
+        EQUAL(cond && vec == ft_vec);
     }
 }
 
@@ -1404,7 +1498,7 @@ void testRationalOperators()
     foo['b'] = 200;
     bar['a'] = 10;
     bar['z'] = 1000;
-    
+
     ft_foo['a'] = 100;
     ft_foo['b'] = 200;
     ft_bar['a'] = 10;
@@ -1412,7 +1506,7 @@ void testRationalOperators()
 
     std::cout << "\t\033[1;37m[-------------------- [" << std::setw(40) << std::left << " operator == "
               << "] --------------------]\t\t\033[0m";
-    EQUAL( !((foo == bar) && (ft_foo == ft_bar)));
+    EQUAL(!((foo == bar) && (ft_foo == ft_bar)));
 
     std::cout << "\t\033[1;37m[-------------------- [" << std::setw(40) << std::left << " operator != "
               << "] --------------------]\t\t\033[0m";
@@ -1428,11 +1522,11 @@ void testRationalOperators()
 
     std::cout << "\t\033[1;37m[-------------------- [" << std::setw(40) << std::left << " operator < "
               << "] --------------------]\t\t\033[0m";
-    EQUAL( !((foo < bar) && (ft_foo < ft_bar)));
+    EQUAL(!((foo < bar) && (ft_foo < ft_bar)));
 
     std::cout << "\t\033[1;37m[-------------------- [" << std::setw(40) << std::left << " operator <= "
               << "] --------------------]\t\t\033[0m";
-    EQUAL ( !((foo <= bar) && (ft_foo <= ft_bar)));
+    EQUAL(!((foo <= bar) && (ft_foo <= ft_bar)));
 }
 
 int main()
@@ -1462,11 +1556,29 @@ int main()
     // TEST_CASE(testObservers);
     // std::cout << std::endl;
 
-    std::cout << YELLOW << "Testing Operations Methods; " << RESET << std::endl;
-    TEST_CASE(testOperations);
-    std::cout << std::endl;
-    
-    std::cout << YELLOW << "Testing Rational Operators; " << RESET << std::endl;
-    TEST_CASE(testRationalOperators);
-    std::cout << std::endl;
+    // std::cout << YELLOW << "Testing Operations Methods; " << RESET << std::endl;
+    // TEST_CASE(testOperations);
+    // std::cout << std::endl;
+
+    // std::cout << YELLOW << "Testing Rational Operators; " << RESET << std::endl;
+    // TEST_CASE(testRationalOperators);
+    // std::cout << std::endl;
+
+    ft::map<char, int> mymap;
+    ft::map<char, int>::iterator it;
+
+    mymap['a'] = 50;
+    mymap['b'] = 100;
+    mymap['c'] = 150;
+    mymap['d'] = 200;
+
+    it = mymap.find('b');
+    if (it != mymap.end())
+        mymap.erase(it);
+
+    // print content:
+    std::cout << "elements in mymap:" << '\n';
+    std::cout << "a => " << mymap.find('a')->second << '\n';
+    std::cout << "c => " << mymap.find('c')->second << '\n';
+    std::cout << "d => " << mymap.find('d')->second << '\n';
 }
