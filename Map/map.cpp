@@ -1198,8 +1198,8 @@ void testModifiers()
 
         cond = cond && foo.size() == ft_foo.size() && bar.size() == ft_bar.size() && compareMaps(foo.begin(), foo.end(), ft_foo.begin(), ft_foo.end()) && compareMaps(bar.begin(), bar.end(), ft_bar.begin(), ft_bar.end());
 
-        std::map<std::string, std::string, std::greater<std::string>> m1, m2;
-        ft::map<std::string, std::string, std::greater<std::string>> ft_m1, ft_m2;
+        std::map<std::string, std::string, std::greater<std::string> > m1, m2;
+        ft::map<std::string, std::string, std::greater<std::string> > ft_m1, ft_m2;
 
         m1["γ"] = "gamma";
         m1["β"] = "beta";
@@ -1304,6 +1304,14 @@ void testModifiers()
     }
 }
 
+struct ModCmp
+{
+    bool operator()(const int lhs, const int rhs) const
+    {
+        return (lhs % 97) < (rhs % 97);
+    }
+};
+
 void testObservers()
 {
     std::cout << "\t\033[1;37m[-------------------- [" << std::setw(40) << std::left << " key_comp method "
@@ -1321,18 +1329,110 @@ void testObservers()
             ft_m.insert(ft::make_pair(i, -1));
         }
 
-        int highest = m.rbegin()->first; // key value of last element
+        int highest = m.rbegin()->first;       // key value of last element
         int ft_highest = ft_m.rbegin()->first; // key value of last element
 
         std::map<int, int>::iterator it = m.begin();
         ft::map<int, int>::iterator ft_it = ft_m.begin();
         do
         {
-            if (! (it->first == ft_it->first && it->second == ft_it->second)) { cond = false; break;}
-                
+            if (!(it->first == ft_it->first && it->second == ft_it->second))
+            {
+                cond = false;
+                break;
+            }
+
         } while (comp((*it++).first, highest) && mycomp((*ft_it++).first, ft_highest));
         EQUAL(cond);
     }
+
+    std::cout << "\t\033[1;37m[-------------------- [" << std::setw(40) << std::left << " value_comp method "
+              << "] --------------------]\t\t\033[0m";
+    {
+        bool cond = true;
+        std::map<int, char, ModCmp> cont;
+        ft::map<int, char, ModCmp> ft_cont;
+
+        cont['a'] = 1;
+        cont['b'] = 2;
+        cont['c'] = 3;
+        cont['d'] = 4;
+
+        ft_cont['a'] = 1;
+        ft_cont['b'] = 2;
+        ft_cont['c'] = 3;
+        ft_cont['d'] = 4;
+
+        auto comp_func = cont.value_comp();
+        auto ft_comp_func = ft_cont.value_comp();
+
+        const std::pair<int, char> val = std::make_pair('a', 100);
+        const ft::pair<int, char> ft_val = ft::make_pair('a', 100);
+
+        for (auto it : cont)
+        {
+            bool before = comp_func(it, val);
+            bool after = comp_func(val, it);
+            bool ft_before = comp_func(it, val);
+            bool ft_after = comp_func(val, it);
+
+            if (!(before == ft_before && after == ft_after))
+            {
+                cond = false;
+                break;
+            }
+        }
+
+        EQUAL(cond);
+    }
+}
+
+void testOperations()
+{
+    std::cout << "\t\033[1;37m[-------------------- [" << std::setw(40) << std::left << " find method "
+              << "] --------------------]\t\t\033[0m";
+    {
+    }
+}
+
+void testRationalOperators()
+{
+    std::map<char, int> foo, bar;
+    ft::map<char, int> ft_foo, ft_bar;
+    bool cond(false);
+    foo['a'] = 100;
+    foo['b'] = 200;
+    bar['a'] = 10;
+    bar['z'] = 1000;
+    
+    ft_foo['a'] = 100;
+    ft_foo['b'] = 200;
+    ft_bar['a'] = 10;
+    ft_bar['z'] = 1000;
+
+    std::cout << "\t\033[1;37m[-------------------- [" << std::setw(40) << std::left << " operator == "
+              << "] --------------------]\t\t\033[0m";
+    EQUAL( !((foo == bar) && (ft_foo == ft_bar)));
+
+    std::cout << "\t\033[1;37m[-------------------- [" << std::setw(40) << std::left << " operator != "
+              << "] --------------------]\t\t\033[0m";
+    EQUAL((foo != bar) && (ft_foo != ft_bar));
+
+    std::cout << "\t\033[1;37m[-------------------- [" << std::setw(40) << std::left << " operator > "
+              << "] --------------------]\t\t\033[0m";
+    EQUAL((foo > bar) && (ft_foo > ft_bar));
+
+    std::cout << "\t\033[1;37m[-------------------- [" << std::setw(40) << std::left << " operator >= "
+              << "] --------------------]\t\t\033[0m";
+    EQUAL((foo >= bar) && (ft_foo >= ft_bar));
+
+    std::cout << "\t\033[1;37m[-------------------- [" << std::setw(40) << std::left << " operator < "
+              << "] --------------------]\t\t\033[0m";
+    EQUAL( !((foo < bar) && (ft_foo < ft_bar)));
+
+    std::cout << "\t\033[1;37m[-------------------- [" << std::setw(40) << std::left << " operator <= "
+              << "] --------------------]\t\t\033[0m";
+    EQUAL ( !((foo <= bar) && (ft_foo <= ft_bar)));
 }
 
 int main()
@@ -1354,13 +1454,19 @@ int main()
     // TEST_CASE(testElementAccess);
     // std::cout << std::endl;
 
-    std::cout << YELLOW << "Testing Modifiers Methods; " << RESET << std::endl;
-    TEST_CASE(testModifiers);
-    std::cout << std::endl;
+    // std::cout << YELLOW << "Testing Modifiers Methods; " << RESET << std::endl;
+    // TEST_CASE(testModifiers);
+    // std::cout << std::endl;
 
-    std::cout << YELLOW << "Testing Observers Methods; " << RESET << std::endl;
-    TEST_CASE(testObservers);
-    std::cout << std::endl;
+    // std::cout << YELLOW << "Testing Observers Methods; " << RESET << std::endl;
+    // TEST_CASE(testObservers);
+    // std::cout << std::endl;
 
-    //    std::cout << ( ft_m1 == ft_m2) << std::endl;
+    std::cout << YELLOW << "Testing Operations Methods; " << RESET << std::endl;
+    TEST_CASE(testOperations);
+    std::cout << std::endl;
+    
+    std::cout << YELLOW << "Testing Rational Operators; " << RESET << std::endl;
+    TEST_CASE(testRationalOperators);
+    std::cout << std::endl;
 }
