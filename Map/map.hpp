@@ -25,7 +25,7 @@ namespace ft
         typename T,
         typename Compare = std::less<Key>,
         typename Alloc = std::allocator<ft::pair<const Key, T> > >
-    class map
+    class Map
     {
 
     public:
@@ -50,7 +50,7 @@ namespace ft
         class value_compare
         {
 
-            friend class map;
+            friend class Map;
         protected:
             Compare comp;
             value_compare(Compare c) : comp(c) {}
@@ -67,19 +67,19 @@ namespace ft
         // Member functions ************************************************************************** //
 
         // Constructor, Destructor , copy assignment operator.
-        map() : _tree(), _size(), _compare()
+        Map() : _tree(), _size(), _compare()
         {
             _tree.init(_compare, _alloc);
         }
 
-        explicit map(const Compare &comp, const Alloc &alloc = Alloc())
+        explicit Map(const Compare &comp, const Alloc &alloc = Alloc())
             : _tree(), _alloc(alloc), _size(), _compare(comp)
         {
             _tree.init(_compare, _alloc);
         }
 
         template <typename InputIt>
-        map(InputIt first, InputIt last, const Compare &comp = Compare(),
+        Map(InputIt first, InputIt last, const Compare &comp = Compare(),
             const Alloc &alloc = Alloc()) : _alloc(alloc), _compare(comp)
         {
             _tree.init(_compare, _alloc);
@@ -89,12 +89,12 @@ namespace ft
             }
         }
 
-        map(const map &other)
+        Map(const Map &other)
         {
             *this = other;
         }
 
-        map &operator=(const map &other)
+        Map &operator=(const Map &other)
         {
             if (this != &other)
             {
@@ -177,6 +177,10 @@ namespace ft
         void erase(iterator first, iterator last)
         {
             ft::Vector<Key> keys;
+            if (first == begin() && last == end())
+                keys.reserve(size());
+            else
+                keys.reserve(size() / 2);
             for (; last != first; first++)   keys.push_back((*first).first);
             // std::cout << "done getting keys." << std::endl; 
 
@@ -195,7 +199,7 @@ namespace ft
         /**
          * swaps the contents 
          */
-        void swap(map &other)
+        void swap(Map &other)
         {
             std::swap(_alloc, other._alloc);
             std::swap(_size, other._size);
@@ -304,12 +308,12 @@ namespace ft
          * Rational Operators (==,!=,<,<=,>,>=,<=>)
          */
 
-        friend bool operator==(const map &lhs, const map &rhs)      {  return   (lhs.size() == rhs.size() && lhs._tree == rhs._tree);  }
-        friend bool operator!=( const map& lhs, const map& rhs)     {  return   !(lhs == rhs);                                         }
-        friend bool operator>( const map& lhs, const map& rhs )     {  return   ft::lexicographical_compare( lhs.begin(), lhs.end(), rhs.begin(), rhs.end() );}
-        friend bool operator<( const map& lhs, const map& rhs )     {  return   !ft::lexicographical_compare( lhs.begin(), lhs.end(), rhs.begin(), rhs.end() );}
-        friend bool operator>=( const map& lhs,const map& rhs )     {  return   !ft::lexicographical_compare(rhs.begin(), rhs.end(), lhs.begin(), lhs.end() ); }
-        friend bool operator<=( const map& lhs,const map& rhs )     {  return   ft::lexicographical_compare(rhs.begin(), rhs.end(), lhs.begin(), lhs.end() ); }
+        friend bool operator==(const Map &lhs, const Map &rhs)      {  return   (lhs.size() == rhs.size() && lhs._tree == rhs._tree);  }
+        friend bool operator!=( const Map& lhs, const Map& rhs)     {  return   !(lhs == rhs);                                         }
+        friend bool operator>( const Map& lhs, const Map& rhs )     {  return   ft::lexicographical_compare( lhs.begin(), lhs.end(), rhs.begin(), rhs.end() );}
+        friend bool operator<( const Map& lhs, const Map& rhs )     {  return   !ft::lexicographical_compare( lhs.begin(), lhs.end(), rhs.begin(), rhs.end() );}
+        friend bool operator>=( const Map& lhs,const Map& rhs )     {  return   !ft::lexicographical_compare(rhs.begin(), rhs.end(), lhs.begin(), lhs.end() ); }
+        friend bool operator<=( const Map& lhs,const Map& rhs )     {  return   ft::lexicographical_compare(rhs.begin(), rhs.end(), lhs.begin(), lhs.end() ); }
 
 
 
@@ -321,4 +325,4 @@ namespace ft
     };
 }
 
-#endif // __MAP_HPP__
+#endif // __Map_HPP__
