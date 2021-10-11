@@ -465,7 +465,7 @@ namespace ft
                 return const_iterator(ret, this);
         }
 
-        void _lower_bound(Node *currNode, const first_type &key, Node **ret)
+        void _lower_bound(Node *currNode, const first_type &key, Node **ret) const
         {
 
             if (!currNode)
@@ -490,7 +490,7 @@ namespace ft
                 _lower_bound(currNode->_rightChild, key, ret);
         }
 
-        void _upper_bound(Node *currNode, const first_type &key, Node **ret)
+        void _upper_bound(Node *currNode, const first_type &key, Node **ret) const
         {
 
             if (!currNode)
@@ -626,9 +626,15 @@ namespace ft
                     // then choose which side to put it in i.e left or right of
                     // parent of the node we want to remove.
 
+                    bool isLeftNode = currNode == currNode->_parent->_leftChild ? true : false;
+
                     successorRef = currNode->_leftChild;
                     Node *currNodeParent = currNode->_parent;
 
+                    if (isLeftNode)
+                        currNodeParent->_leftChild = successorRef;
+                    else
+                        currNodeParent->_rightChild = successorRef;
 
                     _deleteNode(currNode);
                     successorRef->_parent = currNodeParent;
@@ -649,16 +655,16 @@ namespace ft
                     // Algorithm
                     // same as if the node has a left subtree only.
 
-                    bool isLeftNode = currNode == currNode->_parent->_leftChil
+                    bool isLeftNode = currNode == currNode->_parent->_leftChild ? true : false;
 
                     successorRef = currNode->_rightChild;
                     Node *currNodeParent = currNode->_parent;
 
 
-                    if (_comp(currNodeParent->_value->first, currNode->_value->first))
-                        currNodeParent->_rightChild = successorRef;
-                    else
+                    if (isLeftNode)
                         currNodeParent->_leftChild = successorRef;
+                    else
+                        currNodeParent->_rightChild = successorRef;
 
                     _deleteNode(currNode);
                     successorRef->_parent = currNodeParent;
