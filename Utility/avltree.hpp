@@ -309,7 +309,7 @@ namespace ft
          */
         avltree() : _root(NULL), _size(0), _comp(), _alloc() {}
 
-        avltree(const avltree &other)
+        avltree(const avltree &other) : _root(NULL)
         {
             *this = other;
         }
@@ -510,15 +510,6 @@ namespace ft
 
             if (!_comp(key, currNode->_value->first))
                 _upper_bound(currNode->_rightChild, key, ret);
-        }
-
-
-        /*
-         * returns true if found otherwise false
-         */
-
-        bool contains(const value_type &x) const _NOEXCEPT
-        {
         }
 
         std::size_t size() const _NOEXCEPT
