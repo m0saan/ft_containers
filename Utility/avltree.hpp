@@ -455,7 +455,6 @@ namespace ft
                 return iterator(ret, this);
         }
 
-        
         const_iterator upper_bound(const first_type &key) const
         {
             Node *ret = NULL;
@@ -465,8 +464,6 @@ namespace ft
             else
                 return const_iterator(ret, this);
         }
-
-        
 
         void _lower_bound(Node *currNode, const first_type &key, Node **ret)
         {
@@ -613,7 +610,7 @@ namespace ft
                     return NULL;
                 }
                 // Case 2
-                else if (_hasLeftOnly(currNode) && _size > 1)
+                else if (_hasLeftOnly(currNode) && _size > 2)
                 {
 
                     /* has only a left subtree.
@@ -632,10 +629,6 @@ namespace ft
                     successorRef = currNode->_leftChild;
                     Node *currNodeParent = currNode->_parent;
 
-                    if (!_comp(currNode->_value->first, currNodeParent->_value->first))
-                        currNodeParent->_rightChild = successorRef;
-                    else
-                        currNodeParent->_leftChild = successorRef;
 
                     _deleteNode(currNode);
                     successorRef->_parent = currNodeParent;
@@ -643,25 +636,29 @@ namespace ft
                 }
 
                 // Case 3
-                else if (_hasRightOnly(currNode) && _size > 1)
+                else if (_hasRightOnly(currNode) && _size > 2)
                 {
                     /* has only a right subtree.
                      **
                    //   \\
                          **
                   
+
                     */
 
                     // Algorithm
                     // same as if the node has a left subtree only.
 
+                    bool isLeftNode = currNode == currNode->_parent->_leftChil
+
                     successorRef = currNode->_rightChild;
                     Node *currNodeParent = currNode->_parent;
 
-                    if (_comp(currNode->_value->first, currNodeParent->_value->first))
-                        currNodeParent->_leftChild = successorRef;
-                    else
+
+                    if (_comp(currNodeParent->_value->first, currNode->_value->first))
                         currNodeParent->_rightChild = successorRef;
+                    else
+                        currNodeParent->_leftChild = successorRef;
 
                     _deleteNode(currNode);
                     successorRef->_parent = currNodeParent;
@@ -684,7 +681,7 @@ namespace ft
                     // and remove the duplicate value of the successor node
                     // that still exists in the tree.
 
-                    if (_size == 1)
+                    if (_size == 2)
                     {
                         if (currNode->_rightChild)
                         {
@@ -811,6 +808,19 @@ namespace ft
             return lhs.equals(rhs);
         }
 
+        friend bool operator>(const avltree &lhs, const avltree &rhs)
+        {
+            bool res = lhs.greater(rhs);
+            std::cout << res << std::endl;;
+            return res;
+        }
+
+        friend bool operator>=(const avltree &lhs, const avltree &rhs)
+        {
+            return lhs.greaterOrEqual(rhs);
+        }
+
+
         void preOrderTraversal() const _NOEXCEPT
         {
             _preOrderTraversal(_root);
@@ -887,25 +897,17 @@ namespace ft
             return _height(_root);
         }
 
-        Node *min() const
-        {
-            return _min(_root);
-        }
+        Node *min() const { return _min(_root); }
 
-        Node *max()
-        {
-            return _max(_root);
-        }
+        Node *max() { return _max(_root); }
 
-        Node *max() const
-        {
-            return _max(_root);
-        }
+        Node *max() const { return _max(_root); }
 
-        bool equals(const avltree &other) const
-        {
-            return _equals(_root, other._root);
-        }
+        bool equals(const avltree &other) const { return _equals(_root, other._root); }
+
+        bool greater(const avltree &other) const { return _greater(_root, other._root); }
+
+        bool greaterOrEqual(const avltree &other) const { return _greaterOrEqual(_root, other._root); }
 
         /*
         void getNodesAtDistance(int k) {
@@ -1095,7 +1097,34 @@ namespace ft
                 return true;
 
             if (root != NULL && other != NULL)
-                return (root->_value == other->_value && _equals(root->_leftChild, other->_leftChild) && _equals(root->_rightChild, other->_rightChild));
+                return ((!_comp(root->_value->first, other->_value->first)
+                && !_comp(other->_value->first, root->_value->first) && root->_value->second == other->_value->second)
+                && _equals(root->_leftChild, other->_leftChild) && _equals(root->_rightChild, other->_rightChild));
+            return false;
+        }
+
+        bool _greater(Node *root, Node *other) const
+        {
+            if (root == NULL && other == NULL)
+                return true;
+
+            if (root != NULL && other != NULL)
+                return ( ( root->_value->first > other->_value->first
+                && root->_value->second > other->_value->second )
+                && _greater(root->_leftChild, other->_leftChild)
+                && _greater(root->_rightChild, other->_rightChild));
+            return false;
+        }
+
+        bool _greaterOrEqual(Node *root, Node *other) const
+        {
+            if (root == NULL && other == NULL)
+                return true;
+
+            if (root != NULL && other != NULL)
+                return ((root->_value->first >= other->_value->first && root->_value->second >= other->_value->second)
+                && _greaterOrEqual(root->_leftChild, other->_leftChild)
+                && _greaterOrEqual(root->_rightChild, other->_rightChild));
             return false;
         }
 

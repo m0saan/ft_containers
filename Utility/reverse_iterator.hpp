@@ -46,11 +46,6 @@ namespace ft {
         // Member functions.
         iterator_type base() const;
 
-        // Conversion operator
-        // operator reverse_iterator<const_iterator>() {
-        //     return reverse_iterator<const_iterator>(_baseIter);
-        // }
-
         // Overloaded operators.
         reverse_iterator &operator=(const reverse_iterator &revIter) {
             if (this != &revIter)
