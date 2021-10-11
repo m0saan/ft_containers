@@ -304,12 +304,13 @@ namespace ft
          * Rational Operators (==,!=,<,<=,>,>=,<=>)
          */
 
-        friend bool operator==(const map &lhs, const map &rhs) { return (lhs.size() == rhs.size() && lhs._tree == rhs._tree); }
-        friend bool operator!=( const map& lhs, const map& rhs ) { return !(lhs == rhs); }
-        friend bool operator<( const map& lhs, const map& rhs ) { if (lhs._size < rhs._size) return true; return lhs._tree < rhs._tree; }
-        friend bool operator<=( const map& lhs,const map& rhs ) { if (lhs._size <= rhs._size) return true; return lhs._tree <= rhs._tree; }
-        friend bool operator>( const map& lhs, const map& rhs ) { return !(lhs < rhs); }
-        friend bool operator>=( const map& lhs,const map& rhs ) { return !(lhs <= rhs); }
+        friend bool operator==(const map &lhs, const map &rhs)      {  return   (lhs.size() == rhs.size() && lhs._tree == rhs._tree);  }
+        friend bool operator!=( const map& lhs, const map& rhs)     {  return   !(lhs == rhs);                                         }
+        friend bool operator>( const map& lhs, const map& rhs )     {  return   ft::lexicographical_compare( lhs.begin(), lhs.end(), rhs.begin(), rhs.end() );}
+        friend bool operator<( const map& lhs, const map& rhs )     {  return   !ft::lexicographical_compare( lhs.begin(), lhs.end(), rhs.begin(), rhs.end() );}
+        friend bool operator>=( const map& lhs,const map& rhs )     {  return   !ft::lexicographical_compare(rhs.begin(), rhs.end(), lhs.begin(), lhs.end() ); }
+        friend bool operator<=( const map& lhs,const map& rhs )     {  return   ft::lexicographical_compare(rhs.begin(), rhs.end(), lhs.begin(), lhs.end() ); }
+
 
 
     private:
