@@ -8,7 +8,7 @@
 #include <ostream>
 #include "iterator_traits.hpp"
 #include "iterator.hpp"
-#include "../Utility/choose.hpp"
+#include "../utility/choose.hpp"
 
 namespace ft {
 
@@ -41,7 +41,7 @@ namespace ft {
         reverse_iterator(const reverse_iterator &revIt) { *this = revIt; }
 
         template<typename U>
-        reverse_iterator(const reverse_iterator<U>& x) : _baseIter(x.base()) {  }
+        reverse_iterator(const reverse_iterator<U>& x) : _baseIter(--x.base()) {  }
 
         // Member functions.
         iterator_type base() const;
@@ -75,7 +75,7 @@ namespace ft {
 
         reference operator[](difference_type n);
 
-        friend std::ostream &operator<<(std::ostream &os, const reverse_iterator &iterator);
+        // friend std::ostream &operator<<(std::ostream &os, const reverse_iterator &iterator);
 
         template<typename Iter1, typename Iter2>
         friend typename reverse_iterator<Iter1>::difference_type
@@ -121,8 +121,6 @@ namespace ft {
     reverse_iterator<Iterator> reverse_iterator<Iterator>::operator--(int) {
         reverse_iterator tmp(*this);
         ++_baseIter;
-
-        std::cout << *this << *tmp << std::endl;
         return tmp;
     }
 
@@ -140,11 +138,11 @@ namespace ft {
         return *this;
     }
 
-    template<typename Iterator>
-    std::ostream &operator<<(std::ostream &os, const reverse_iterator<Iterator> &iterator) {
-        os << iterator._baseIter;
-        return os;
-    }
+    // template<typename Iterator>
+    // std::ostream &operator<<(std::ostream &os, const reverse_iterator<Iterator> &iterator) {
+    //     os << iterator._baseIter;
+    //     return os;
+    // }
 
     template<typename Iterator>
     reverse_iterator<Iterator> reverse_iterator<Iterator>::operator+(difference_type n) const {

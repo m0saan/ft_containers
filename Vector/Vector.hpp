@@ -7,13 +7,13 @@
 
 #include <memory>
 
-#include "../Utility/iterator.hpp"
-#include "../Utility/reverse_iterator.hpp"
-#include "../Utility/enable_if.hpp"
-#include "../Utility/is_integral.hpp"
-#include "../Utility/iterator_traits.hpp"
-#include "../Utility/choose.hpp"
-#include "../Utility/Algorithms.hpp"
+#include "../utility/iterator.hpp"
+#include "../utility/reverse_iterator.hpp"
+#include "../utility/enable_if.hpp"
+#include "../utility/is_integral.hpp"
+#include "../utility/iterator_traits.hpp"
+#include "../utility/choose.hpp"
+#include "../utility/Algorithms.hpp"
 #include <iterator>
 #include <algorithm>
 
@@ -340,20 +340,11 @@ namespace ft {
             return true;
         }
 
-        friend bool operator!=(const Vector &lhs,
-                               const Vector &rhs) {
-            return !(lhs == rhs);
-        }
+        friend bool operator!=(const Vector &lhs,const Vector &rhs) {return !(lhs == rhs); }
 
-        friend bool operator<(const Vector &lhs,
-                              const Vector &rhs) {
-            return ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end());
-        }
+        friend bool operator<(const Vector &lhs, const Vector &rhs) { return ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end()); }
 
-        friend bool operator<=(const Vector &lhs,
-                               const Vector &rhs) {
-            return !ft::lexicographical_compare(rhs.begin(), rhs.end(), lhs.begin(), lhs.end());
-        }
+        friend bool operator<=(const Vector &lhs, const Vector &rhs) { return !ft::lexicographical_compare(rhs.begin(), rhs.end(), lhs.begin(), lhs.end()); }
 
         friend bool operator>(const Vector &lhs,
                               const Vector &rhs) {
@@ -366,10 +357,10 @@ namespace ft {
         }
 
     private:
-        size_type _size;
-        size_type _capacity;
-        allocator_type _alloc;
-        T *_arr;
+        size_type       _size;
+        size_type       _capacity;
+        allocator_type  _alloc;
+        T*              _arr;
 
     private:
         void _allocate(std::allocator<T> &alloc, std::size_t n);
@@ -390,6 +381,7 @@ namespace ft {
     template<typename T, typename Alloc>
     Vector<T, Alloc>::Vector(Vector::size_type n, const value_type &val, const allocator_type &alloc)
             : _size(n), _capacity(n), _alloc(alloc) {
+                
         _allocate(_alloc, n);
         _fill(0, n, val);
     }
@@ -430,8 +422,9 @@ namespace ft {
 
     template<typename T, typename Alloc>
     Vector<T, Alloc>::~Vector() {
+        for (int i =0; i<_size; ++i)
+            _alloc.destroy(&_arr[i]);
         _alloc.deallocate(_arr, _capacity);
-        // _deallocate(0, _size, true);
     }
 
     template<typename T, typename Alloc>
