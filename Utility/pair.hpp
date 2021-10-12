@@ -44,19 +44,19 @@ namespace ft {
         }
 
         friend bool operator<(const pair<T1, T2> &lhs, const pair<T1, T2> &rhs) {
-            return (lhs.first < rhs.first && lhs.second < rhs.second);
+            return (lhs.first<rhs.first || (!(rhs.first<lhs.first) && lhs.second<rhs.second));
         }
 
         friend bool operator<=(const pair<T1, T2> &lhs, const pair<T1, T2> &rhs) {
-            return (lhs.first <= rhs.first && lhs.second <= rhs.second);
+            return !(rhs<lhs);
         }
 
         friend bool operator>(const pair<T1, T2> &lhs, const pair<T1, T2> &rhs) {
-            return !(lhs < rhs);
+            return rhs < lhs;
         }
 
         friend bool operator>=(const pair<T1, T2> &lhs, const pair<T1, T2> &rhs) {
-            return !(lhs <= rhs);
+            return !(lhs < rhs);
         }
 
         T1 first;
