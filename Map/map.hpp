@@ -7,12 +7,12 @@
 
 #include <functional>
 
-#include "../Utility/avltree.hpp"
-#include "../Utility/reverse_iterator.hpp"
-#include "../Utility/enable_if.hpp"
-#include "../Utility/iterator_traits.hpp"
-#include "../Utility/pair.hpp"
-#include "../Vector/Vector.hpp"
+#include "../utility/avltree.hpp"
+#include "../utility/reverse_iterator.hpp"
+#include "../utility/enable_if.hpp"
+#include "../utility/iterator_traits.hpp"
+#include "../utility/pair.hpp"
+#include "../vector/Vector.hpp"
 
 namespace ft
 {
@@ -203,9 +203,7 @@ namespace ft
         {
             std::swap(_alloc, other._alloc);
             std::swap(_size, other._size);
-            avltree tmp = other._tree;
-            other._tree = _tree;
-            _tree = tmp;
+            _tree.swap(other._tree);
 
             std::swap(_compare, other._compare);
         }
@@ -305,16 +303,15 @@ namespace ft
         const avltree &getTree() const { return _tree; }
 
         /*
-         * Rational Operators (==,!=,<,<=,>,>=,<=>)
+         * Rational Operators (==,!=,<,<=,>,>=)
          */
 
         friend bool operator==(const Map &lhs, const Map &rhs)      {  return   (lhs.size() == rhs.size() && lhs._tree == rhs._tree);  }
         friend bool operator!=( const Map& lhs, const Map& rhs)     {  return   !(lhs == rhs);                                         }
-        friend bool operator>( const Map& lhs, const Map& rhs )     {  return   ft::lexicographical_compare( lhs.begin(), lhs.end(), rhs.begin(), rhs.end() );}
-        friend bool operator<( const Map& lhs, const Map& rhs )     {  return   !ft::lexicographical_compare( lhs.begin(), lhs.end(), rhs.begin(), rhs.end() );}
-        friend bool operator>=( const Map& lhs,const Map& rhs )     {  return   !ft::lexicographical_compare(rhs.begin(), rhs.end(), lhs.begin(), lhs.end() ); }
-        friend bool operator<=( const Map& lhs,const Map& rhs )     {  return   ft::lexicographical_compare(rhs.begin(), rhs.end(), lhs.begin(), lhs.end() ); }
-
+        friend bool operator<(const Map& lhs,const Map& rhs)        {   return    ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end()); }
+        friend bool operator<=(const Map& lhs,const Map& rhs)        { return   !ft::lexicographical_compare(rhs.begin(), rhs.end(), lhs.begin(), lhs.end()); }
+        friend bool operator>( const Map& lhs, const Map& rhs )     {  return   ft::lexicographical_compare( rhs.begin(), rhs.end(), lhs.begin(), lhs.end() );}
+        friend bool operator>=( const Map& lhs,const Map& rhs )     {  return   !ft::lexicographical_compare(lhs.begin(), lhs.end(), rhs.begin(), rhs.end() ); }
 
 
     private:
