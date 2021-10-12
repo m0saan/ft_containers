@@ -354,8 +354,7 @@ void const_iterator_tests(void)
     // std::cout << "\t\033[1;36m\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\033[0m\n\n";
 }
 
-#if 0 
-void    reverse_iterator_tests(void)
+void reverse_iterator_tests(void)
 {
     // std::cout << "\033[1;36m<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< reverse_iterator tests >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\033[0m\n\n";
     /*------------ std::reverse_iterator ---------*/
@@ -368,72 +367,71 @@ void    reverse_iterator_tests(void)
 
     ft::reverse_iterator<std::map<int, char>::iterator> my_rit(m.end()), my_rit1(--m.end());
     /*----------------------------------*/
-    std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " copy constructor " << "] --------------------]\t\t\033[0m";
+    std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " copy constructor "
+              << "] --------------------]\t\t\033[0m";
     {
         ft::reverse_iterator<std::map<int, char>::iterator> ob(my_rit);
         EQUAL(*my_rit == *ob);
     }
-    std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " riterator to const_riterator " << "] --------------------]\t\t\033[0m";
+    std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " riterator to const_riterator "
+              << "] --------------------]\t\t\033[0m";
     {
-		ft::Map<int, char> my_m;
-        m.insert(std::make_pair(10, 'A'));
-        m.insert(std::make_pair(20, 'B'));
-        m.insert(std::make_pair(30, 'C'));
-        m.insert(std::make_pair(40, 'D'));
- 
-		ft::Map<int, char>::reverse_iterator 		my_rit2(my_m.end());
+        ft::Map<int, char> my_m;
+        my_m.insert(ft::make_pair(10, 'A'));
+        my_m.insert(ft::make_pair(20, 'B'));
+        my_m.insert(ft::make_pair(30, 'C'));
+        my_m.insert(ft::make_pair(40, 'D'));
+
+        ft::Map<int, char>::reverse_iterator my_rit2(my_m.end());
         ft::Map<int, char>::const_reverse_iterator c_it, c_ob(my_m.end());
         c_it = my_rit2;
-        EQUAL(*my_rit2 == *c_it && *my_rit2 == *c_ob);
+        EQUAL(my_rit2->first == c_it->first && my_rit2->first == c_ob->first);
     }
-    std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " base function " << "] --------------------]\t\t\033[0m";
-    // EQUAL((&(*rit) == &(*rit_1.base())) && (&(*my_rit) == &(*my_rit1.base())));
-    // std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " == operator " << "] --------------------]\t\t\033[0m";
-    // EQUAL((rit == rit_1) == (my_rit == my_rit1));
-    // std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " != operator " << "] --------------------]\t\t\033[0m";
-    // EQUAL((rit != rit_1) == (my_rit != my_rit1));
-    // std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " > operator " << "] --------------------]\t\t\033[0m";
-    // EQUAL((rit > rit_1) == (my_rit > my_rit1));
-    // std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " >= operator " << "] --------------------]\t\t\033[0m";
-    // EQUAL((rit >= rit_1) == (my_rit >= my_rit1));
-    // std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " < operator " << "] --------------------]\t\t\033[0m";
-    // EQUAL((rit < rit_1) == (my_rit < my_rit1));
-    // std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " <= operator " << "] --------------------]\t\t\033[0m";
-    // EQUAL((rit <= rit_1) == (my_rit <= my_rit1));
-    // std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " * operator " << "] --------------------]\t\t\033[0m";
-    // EQUAL(((*my_rit == *(v.end() - 1)) && (&(*my_rit) == &(*(v.end() - 1))))
-    // && ((*rit == *(v.end() - 1)) && (&(*rit) == &(*(v.end() - 1)))));
+    std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " base function "
+              << "] --------------------]\t\t\033[0m";
+    EQUAL((rit->first == (rit_1.base()->first)) && (my_rit->first == my_rit1.base()->first));
+    std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " == operator "
+              << "] --------------------]\t\t\033[0m";
+    EQUAL((rit == rit_1) == (my_rit == my_rit1));
+    std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " != operator "
+              << "] --------------------]\t\t\033[0m";
+    EQUAL((rit != rit_1) == (my_rit != my_rit1));
+    std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " * operator "
+              << "] --------------------]\t\t\033[0m";
+    EQUAL((my_rit->first == (--m.end())->first) && (my_rit->first == (--m.end())->first) && (rit->first == (--m.end())->first) && (rit->first == (--m.end())->first));
+
     // std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " -> operator " << "] --------------------]\t\t\033[0m";
     // {
     //     std::map<int, std::string>   v(3, "hello");
     //     std::reverse_iterator<std::map<int, std::string>  ::iterator> rit(v.end());
     //     ft::reverse_iterator<std::map<int, std::string>  ::iterator> my_rit(v.end());
-    //     EQUAL(rit->length() == my_rit->length());
+    //     EQUAL(rit->first.length() == my_rit->first.length());
     // }
+
     // std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " - operator " << "] --------------------]\t\t\033[0m";
-	// EQUAL((&(*my_rit) == &(*(my_rit1 - 1))) && (&(*rit) == &(*(rit_1 - 1))));
+    // EQUAL((&(*my_rit) == &(*(my_rit1 - 1))) && (&(*rit) == &(*(rit_1 - 1))));
     // std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " + operator " << "] --------------------]\t\t\033[0m";
-	// EQUAL((&(*(my_rit + 1)) == &(*my_rit1)) && (&(*(rit + 1)) == &(*rit_1)));
+    // EQUAL((&(*(my_rit + 1)) == &(*my_rit1)) && (&(*(rit + 1)) == &(*rit_1)));
     // std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " += operator " << "] --------------------]\t\t\033[0m";
-	// my_rit += 1;
-	// rit += 1;
-	// EQUAL((&(*my_rit) == &(*my_rit1)) && (&(*rit) == &(*rit_1)));
+    // my_rit += 1;
+    // rit += 1;
+    // EQUAL((&(*my_rit) == &(*my_rit1)) && (&(*rit) == &(*rit_1)));
     // std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " -= operator " << "] --------------------]\t\t\033[0m";
-	// my_rit -= 1;
-	// rit -= 1;
-	// EQUAL((&(*my_rit) == &(*(my_rit1 - 1))) && (&(*rit) == &(*(rit_1 - 1))));
+    // my_rit -= 1;
+    // rit -= 1;
+    // EQUAL((&(*my_rit) == &(*(my_rit1 - 1))) && (&(*rit) == &(*(rit_1 - 1))));
     // std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " [] operator " << "] --------------------]\t\t\033[0m";
-	// EQUAL(((my_rit[0] = 5) == 5) && (rit[0] == 5));
+    // EQUAL(((my_rit[0] = 5) == 5) && (rit[0] == 5));
     // std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " ++rit operator " << "] --------------------]\t\t\033[0m";
     // ++my_rit; // I incremented here to make sure that the object changes
     // ++rit;
-	// EQUAL(&(*my_rit) == &(*my_rit1)) && (&(*rit) == &(*rit_1));
+    // EQUAL(&(*my_rit) == &(*my_rit1)) && (&(*rit) == &(*rit_1));
     // std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " --rit operator " << "] --------------------]\t\t\033[0m";
     // --my_rit; // I incremented here to make sure that the object changes
     // --rit;
-	// EQUAL((&(*my_rit) == &(*(my_rit1 - 1))) && (&(*rit) == &(*(rit_1 - 1))));
+    // EQUAL((&(*my_rit) == &(*(my_rit1 - 1))) && (&(*rit) == &(*(rit_1 - 1))));
     // std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " + operator (n + rit) " << "] --------------------]\t\t\033[0m";
-	// EQUAL((&(*(2 + my_rit)) == &(*(1 + my_rit1))) && (&(*(2 + rit)) == &(*(1 + rit_1))));
+    // EQUAL((&(*(2 + my_rit)) == &(*(1 + my_rit1))) && (&(*(2 + rit)) == &(*(1 + rit_1))));
     // std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " - operator (rit1 - rit) " << "] --------------------]\t\t\033[0m";
     // EQUAL(((my_rit - my_rit1) == (rit - rit_1)) && ((my_rit1 - my_rit) == (rit_1 - rit)));
     // std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " rit++ operator " << "] --------------------]\t\t\033[0m";
@@ -463,10 +461,7 @@ void    reverse_iterator_tests(void)
     //         my_res.push_back(*my_start++);
     //     EQUAL(res == my_res);
     // }
-    // std::cout << "\033[1;36m\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\033[0m\n\n";
 }
-
-#endif
 
 void testConstructors()
 {
@@ -2162,40 +2157,6 @@ void alarm_handler(int seg)
     kill(getpid(), SIGINT);
 }
 
-class A
-{
-public:
-    A()
-    {
-        std::cout << "Con" << std::endl;
-    };
-
-    ~A()
-    {
-        std::cout << "Des" << std::endl;
-    };
-};
-
-void DrawProgressBar(int len, double percent)
-{
-    cout << "\x1B[2K"; // Erase the entire current line.
-    cout << "\x1B[0E"; // Move to the beginning of the current line.
-    string progress;
-    for (int i = 0; i < len; ++i)
-    {
-        if (i < static_cast<int>(len * percent))
-        {
-            progress += "=";
-        }
-        else
-        {
-            progress += " ";
-        }
-    }
-    cout << "[" << progress << "] " << (static_cast<int>(100 * percent)) << "%";
-    flush(cout); // Required.
-}
-
 int main()
 {
 
@@ -2204,38 +2165,39 @@ int main()
     std::cout << RED << "--------------------------------------------------------------------------------------------------------" << RESET << std::endl;
     signal(SIGALRM, alarm_handler);
 
-    std::cout << YELLOW << "Testing Constructors;" << RESET << std::endl;
-    TEST_CASE(testConstructors);
+    // std::cout << YELLOW << "Testing Constructors;" << RESET << std::endl;
+    // TEST_CASE(testConstructors);
 
     std::cout << YELLOW << "Testing Iterators;" << RESET << std::endl;
-    TEST_CASE(iterator_tests);
-    TEST_CASE(const_iterator_tests);
+    // TEST_CASE(iterator_tests);
+    // TEST_CASE(const_iterator_tests);
+    TEST_CASE(reverse_iterator_tests);
     std::cout << std::endl;
 
-    std::cout << YELLOW << "Testing Capacity Methods;" << RESET << std::endl;
-    TEST_CASE(testCapacityMethods)
-    std::cout << std::endl;
+    // std::cout << YELLOW << "Testing Capacity Methods;" << RESET << std::endl;
+    // TEST_CASE(testCapacityMethods)
+    // std::cout << std::endl;
 
-    std::cout << YELLOW << "Testing Access Element Methods; " << RESET << std::endl;
-    TEST_CASE(testElementAccess);
-    std::cout << std::endl;
+    // std::cout << YELLOW << "Testing Access Element Methods; " << RESET << std::endl;
+    // TEST_CASE(testElementAccess);
+    // std::cout << std::endl;
 
-    std::cout << YELLOW << "Testing Modifiers Methods; " << RESET << std::endl;
-    TEST_CASE(testModifiers);
-    std::cout << std::endl;
+    // std::cout << YELLOW << "Testing Modifiers Methods; " << RESET << std::endl;
+    // TEST_CASE(testModifiers);
+    // std::cout << std::endl;
 
-    std::cout << YELLOW << "Testing Observers Methods; " << RESET << std::endl;
-    TEST_CASE(testObservers);
-    std::cout << std::endl;
+    // std::cout << YELLOW << "Testing Observers Methods; " << RESET << std::endl;
+    // TEST_CASE(testObservers);
+    // std::cout << std::endl;
 
-    std::cout << YELLOW << "Testing Operations Methods; " << RESET << std::endl;
-    TEST_CASE(testOperations);
-    std::cout << std::endl;
-    std::cout << YELLOW << "Testing Allocator Methodes; " << RESET << std::endl;
-    TEST_CASE(testAllocatorMethodes);
-    std::cout << std::endl;
+    // std::cout << YELLOW << "Testing Operations Methods; " << RESET << std::endl;
+    // TEST_CASE(testOperations);
+    // std::cout << std::endl;
+    // std::cout << YELLOW << "Testing Allocator Methodes; " << RESET << std::endl;
+    // TEST_CASE(testAllocatorMethodes);
+    // std::cout << std::endl;
 
-    std::cout << YELLOW << "Testing Rational Operators; " << RESET << std::endl;
-    TEST_CASE(testRationalOperators);
-    std::cout << std::endl;
+    // std::cout << YELLOW << "Testing Rational Operators; " << RESET << std::endl;
+    // TEST_CASE(testRationalOperators);
+    // std::cout << std::endl;
 }
