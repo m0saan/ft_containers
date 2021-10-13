@@ -226,6 +226,30 @@ void iterator_tests(void)
                 ;
             ualarm(0, 0);
         }
+        bool cond(false);
+        {
+            int res(0);
+            int myints[] = {12, 82, 37, 64, 15};
+            ft::Map<int, int> m;
+            for (size_t i = 0; i < 5; ++i)
+                m.insert(ft::make_pair(myints[i], i));
+            for (ft::Map<int, int>::iterator it = m.begin(); it != m.end(); ++it)
+                res += it->first;
+            cond = res == 210;
+        }
+        {
+            int res(0), tmp;
+            int myints[] = {12, 82, 37, 64, 15};
+            ft::Map<int, int> m;
+            for (size_t i = 0; i < 5; ++i)
+                m.insert(ft::make_pair(myints[i], i));
+            ft::Map<int, int>::iterator it = m.begin(), eit = --m.end();
+            tmp = eit->first;
+            m.erase(eit);
+            for (; it != m.end(); ++it)
+                res += it->first;
+            cond = cond && (res == (210 - tmp));
+        }
         ++my_it; // I incremented here to make sure that the object changes
         EQUAL(*my_it == *my_it1);
     }
@@ -256,6 +280,23 @@ void iterator_tests(void)
             for (; ft_it != ft_m.begin(); --ft_it)
                 ;
             ualarm(0, 0);
+        }
+        int res(0);
+        {
+            int myints[] = {12, 82, 37, 64, 15};
+            ft::Map<int, int> m;
+            for (size_t i = 0; i < 5; ++i)
+                m.insert(ft::make_pair(myints[i], i));
+            ft::Map<int, int>::iterator it = --m.end();
+            for (;; --it)
+            {
+                if (it == m.begin())
+                {
+                    res += it->first;
+                    break;
+                }
+                res += it->first;
+            }
         }
         --my_it; // I decremented here to make sure that the object changes
         EQUAL(*my_it != *my_it1);
@@ -359,108 +400,74 @@ void reverse_iterator_tests(void)
     // std::cout << "\033[1;36m<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< reverse_iterator tests >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\033[0m\n\n";
     /*------------ std::reverse_iterator ---------*/
     std::map<int, char> m;
-    m.insert(std::make_pair(10, 'A'));
-    m.insert(std::make_pair(20, 'B'));
-    m.insert(std::make_pair(30, 'C'));
-    m.insert(std::make_pair(40, 'D'));
+    for (int i = 0; i < 1e2; i++)
+        m.insert(std::make_pair(i, 'A'));
+
     std::reverse_iterator<std::map<int, char>::iterator> rit(m.end()), rit_1(--m.end());
 
     ft::reverse_iterator<std::map<int, char>::iterator> my_rit(m.end()), my_rit1(--m.end());
     /*----------------------------------*/
-    std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " copy constructor "
+    std::cout << "\t\033[1;37m[-------------------- [" << std::setw(40) << std::left << " copy constructor "
               << "] --------------------]\t\t\033[0m";
     {
         ft::reverse_iterator<std::map<int, char>::iterator> ob(my_rit);
         EQUAL(*my_rit == *ob);
     }
-    std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " riterator to const_riterator "
+    std::cout << "\t\033[1;37m[-------------------- [" << std::setw(40) << std::left << " riterator to const_riterator "
               << "] --------------------]\t\t\033[0m";
     {
         ft::Map<int, char> my_m;
-        my_m.insert(ft::make_pair(10, 'A'));
-        my_m.insert(ft::make_pair(20, 'B'));
-        my_m.insert(ft::make_pair(30, 'C'));
-        my_m.insert(ft::make_pair(40, 'D'));
+        for (int i = 0; i < 1e2; i++)
+            my_m.insert(ft::make_pair(i, 'A'));
 
         ft::Map<int, char>::reverse_iterator my_rit2(my_m.end());
         ft::Map<int, char>::const_reverse_iterator c_it, c_ob(my_m.end());
         c_it = my_rit2;
         EQUAL(my_rit2->first == c_it->first && my_rit2->first == c_ob->first);
     }
-    std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " base function "
+    std::cout << "\t\033[1;37m[-------------------- [" << std::setw(40) << std::left << " base function "
               << "] --------------------]\t\t\033[0m";
     EQUAL((rit->first == (rit_1.base()->first)) && (my_rit->first == my_rit1.base()->first));
-    std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " == operator "
+    std::cout << "\t\033[1;37m[-------------------- [" << std::setw(40) << std::left << " == operator "
               << "] --------------------]\t\t\033[0m";
     EQUAL((rit == rit_1) == (my_rit == my_rit1));
-    std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " != operator "
+    std::cout << "\t\033[1;37m[-------------------- [" << std::setw(40) << std::left << " != operator "
               << "] --------------------]\t\t\033[0m";
     EQUAL((rit != rit_1) == (my_rit != my_rit1));
-    std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " * operator "
+    std::cout << "\t\033[1;37m[-------------------- [" << std::setw(40) << std::left << " -> operator "
               << "] --------------------]\t\t\033[0m";
-    EQUAL((my_rit->first == (--m.end())->first) && (my_rit->first == (--m.end())->first) && (rit->first == (--m.end())->first) && (rit->first == (--m.end())->first));
+    EQUAL(((my_rit->first == (--m.end())->first) && ((my_rit->first) == ((--m.end())->first))) && ((rit->first == (--m.end())->first) && ((rit->first) == ((--m.end())->first))));
 
-    // std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " -> operator " << "] --------------------]\t\t\033[0m";
-    // {
-    //     std::map<int, std::string>   v(3, "hello");
-    //     std::reverse_iterator<std::map<int, std::string>  ::iterator> rit(v.end());
-    //     ft::reverse_iterator<std::map<int, std::string>  ::iterator> my_rit(v.end());
-    //     EQUAL(rit->first.length() == my_rit->first.length());
-    // }
+    std::cout << "\t\033[1;37m[-------------------- [" << std::setw(40) << std::left << " * operator "
+              << "] --------------------]\t\t\033[0m";
+    EQUAL((((*my_rit).first == (*(--m.end())).first) && (((*my_rit).first) == ((*(--m.end())).first))) && (((*rit).first == (*(--m.end())).first) && ((*(rit)).first) == ((*(--m.end())).first)));
 
-    // std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " - operator " << "] --------------------]\t\t\033[0m";
-    // EQUAL((&(*my_rit) == &(*(my_rit1 - 1))) && (&(*rit) == &(*(rit_1 - 1))));
-    // std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " + operator " << "] --------------------]\t\t\033[0m";
-    // EQUAL((&(*(my_rit + 1)) == &(*my_rit1)) && (&(*(rit + 1)) == &(*rit_1)));
-    // std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " += operator " << "] --------------------]\t\t\033[0m";
-    // my_rit += 1;
-    // rit += 1;
-    // EQUAL((&(*my_rit) == &(*my_rit1)) && (&(*rit) == &(*rit_1)));
-    // std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " -= operator " << "] --------------------]\t\t\033[0m";
-    // my_rit -= 1;
-    // rit -= 1;
-    // EQUAL((&(*my_rit) == &(*(my_rit1 - 1))) && (&(*rit) == &(*(rit_1 - 1))));
-    // std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " [] operator " << "] --------------------]\t\t\033[0m";
-    // EQUAL(((my_rit[0] = 5) == 5) && (rit[0] == 5));
-    // std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " ++rit operator " << "] --------------------]\t\t\033[0m";
-    // ++my_rit; // I incremented here to make sure that the object changes
-    // ++rit;
-    // EQUAL(&(*my_rit) == &(*my_rit1)) && (&(*rit) == &(*rit_1));
-    // std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " --rit operator " << "] --------------------]\t\t\033[0m";
-    // --my_rit; // I incremented here to make sure that the object changes
-    // --rit;
-    // EQUAL((&(*my_rit) == &(*(my_rit1 - 1))) && (&(*rit) == &(*(rit_1 - 1))));
-    // std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " + operator (n + rit) " << "] --------------------]\t\t\033[0m";
-    // EQUAL((&(*(2 + my_rit)) == &(*(1 + my_rit1))) && (&(*(2 + rit)) == &(*(1 + rit_1))));
-    // std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " - operator (rit1 - rit) " << "] --------------------]\t\t\033[0m";
-    // EQUAL(((my_rit - my_rit1) == (rit - rit_1)) && ((my_rit1 - my_rit) == (rit_1 - rit)));
-    // std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " rit++ operator " << "] --------------------]\t\t\033[0m";
-    // {
-    //     std::reverse_iterator<std::map<int>::iterator>   tmp(rit++);
-    //     ft::reverse_iterator<std::map<int>::iterator>    my_tmp(my_rit++);
-    //     EQUAL((&(*tmp) == &(*(--rit))) && (&(*my_tmp) == &(*(--my_rit))));
-    // }
-    // std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " rit-- operator " << "] --------------------]\t\t\033[0m";
-    // {
-    //     std::reverse_iterator<std::map<int>::iterator>   tmp(rit--);
-    //     ft::reverse_iterator<std::map<int>::iterator>    my_tmp(my_rit--);
-    //     EQUAL((&(*tmp) == &(*(++rit))) && (&(*my_tmp) == &(*(++my_rit))));
-    // }
-    // std::cout << "\033[1;37m[-------------------- [" << std::setw(40) << std::left << " *rit++ test " << "] --------------------]\t\t\033[0m";
-    // {
-    //     std::map<int, char>   v(10);
-    //     std::string res, my_res;
-    //     std::reverse_iterator<std::map<int, char>  ::iterator> start(v.end()), end(v.begin());
-    //     ft::reverse_iterator<std::map<int, char>  ::iterator> my_start(v.end()), my_end(v.begin());
-
-    //     for(size_t i = 0; i < 10; ++i)
-    //         v[i] = '0' + i;
-    //     while (start != end)
-    //         res.push_back(*start++);
-    //     while (my_start != my_end)
-    //         my_res.push_back(*my_start++);
-    //     EQUAL(res == my_res);
-    // }
+    std::cout << "\t\033[1;37m[-------------------- [" << std::setw(40) << std::left << " ++rit operator "
+              << "] --------------------]\t\t\033[0m";
+    ++my_rit; // I incremented here to make sure that the object changes
+    ++rit;
+    EQUAL(&(*my_rit) == &(*my_rit1)) && (&(*rit) == &(*rit_1));
+    std::cout << "\t\033[1;37m[-------------------- [" << std::setw(40) << std::left << " --rit operator "
+              << "] --------------------]\t\t\033[0m";
+    --my_rit; // I incremented here to make sure that the object changes
+    --rit;
+    EQUAL((my_rit->first == (--my_rit1)->first) && (rit->first == (--rit_1)->first));
+    std::cout << "\t\033[1;37m[-------------------- [" << std::setw(40) << std::left << " rit++ operator "
+              << "] --------------------]\t\t\033[0m";
+    {
+        std::reverse_iterator<std::map<int, char>::iterator> tmp(rit++);
+        ft::reverse_iterator<std::map<int, char>::iterator> my_tmp(my_rit++);
+        EQUAL(tmp->first == (--rit)->first && my_tmp->first == (--my_rit)->first);
+    }
+    std::cout << "\t\033[1;37m[-------------------- [" << std::setw(40) << std::left << " rit-- operator "
+              << "] --------------------]\t\t\033[0m";
+    {
+        rit++;
+        my_rit++;
+        std::reverse_iterator<std::map<int, char>::iterator> tmp(rit--);
+        ft::reverse_iterator<std::map<int, char>::iterator> my_tmp(my_rit--);
+        EQUAL(tmp->first == (++rit)->first && my_tmp->first == (++my_rit)->first);
+    }
 }
 
 void testConstructors()
@@ -2165,39 +2172,34 @@ int main()
     std::cout << RED << "--------------------------------------------------------------------------------------------------------" << RESET << std::endl;
     signal(SIGALRM, alarm_handler);
 
-    // std::cout << YELLOW << "Testing Constructors;" << RESET << std::endl;
-    // TEST_CASE(testConstructors);
+    std::cout << YELLOW << "Testing Constructors;" << RESET << std::endl;
+    TEST_CASE(testConstructors);
 
     std::cout << YELLOW << "Testing Iterators;" << RESET << std::endl;
-    // TEST_CASE(iterator_tests);
-    // TEST_CASE(const_iterator_tests);
+    TEST_CASE(iterator_tests);
+    TEST_CASE(const_iterator_tests);
     TEST_CASE(reverse_iterator_tests);
     std::cout << std::endl;
 
-    // std::cout << YELLOW << "Testing Capacity Methods;" << RESET << std::endl;
-    // TEST_CASE(testCapacityMethods)
-    // std::cout << std::endl;
+    std::cout << YELLOW << "Testing Capacity Methods;" << RESET << std::endl;
+    TEST_CASE(testCapacityMethods)
+    std::cout << std::endl;
 
-    // std::cout << YELLOW << "Testing Access Element Methods; " << RESET << std::endl;
-    // TEST_CASE(testElementAccess);
-    // std::cout << std::endl;
+    std::cout << YELLOW << "Testing Iterators;" << RESET << std::endl;
+    TEST_CASE(iterator_tests);
+    TEST_CASE(const_iterator_tests);
+    TEST_CASE(testIterators);
+    std::cout << std::endl;
 
-    // std::cout << YELLOW << "Testing Modifiers Methods; " << RESET << std::endl;
-    // TEST_CASE(testModifiers);
-    // std::cout << std::endl;
+    std::cout << YELLOW << "Testing Capacity Methods;" << RESET << std::endl;
+    TEST_CASE(testCapacityMethods)
+    std::cout << std::endl;
 
-    // std::cout << YELLOW << "Testing Observers Methods; " << RESET << std::endl;
-    // TEST_CASE(testObservers);
-    // std::cout << std::endl;
+    std::cout << YELLOW << "Testing Access Element Methods; " << RESET << std::endl;
+    TEST_CASE(testElementAccess);
+    std::cout << std::endl;
 
-    // std::cout << YELLOW << "Testing Operations Methods; " << RESET << std::endl;
-    // TEST_CASE(testOperations);
-    // std::cout << std::endl;
-    // std::cout << YELLOW << "Testing Allocator Methodes; " << RESET << std::endl;
-    // TEST_CASE(testAllocatorMethodes);
-    // std::cout << std::endl;
-
-    // std::cout << YELLOW << "Testing Rational Operators; " << RESET << std::endl;
-    // TEST_CASE(testRationalOperators);
-    // std::cout << std::endl;
+    std::cout << YELLOW << "Testing Rational Operators; " << RESET << std::endl;
+    TEST_CASE(testRationalOperators);
+    std::cout << std::endl;
 }
