@@ -1560,25 +1560,25 @@ int main()
     // TEST_CASE(testOperations);
     // std::cout << std::endl;
 
-    // std::cout << YELLOW << "Testing Rational Operators; " << RESET << std::endl;
-    // TEST_CASE(testRationalOperators);
-    // std::cout << std::endl;
+    std::cout << YELLOW << "Testing Rational Operators; " << RESET << std::endl;
+    TEST_CASE(testRationalOperators);
+    std::cout << std::endl;
 
-    ft::map<char, int> mymap;
-    ft::map<char, int>::iterator it;
+    // ft::map<char, int> mymap;
+    // ft::map<char, int>::iterator it;
 
-    mymap['a'] = 50;
-    mymap['b'] = 100;
-    mymap['c'] = 150;
-    mymap['d'] = 200;
+    // mymap['a'] = 50;
+    // mymap['b'] = 100;
+    // mymap['c'] = 150;
+    // mymap['d'] = 200;
 
-    it = mymap.find('b');
-    if (it != mymap.end())
-        mymap.erase(it);
+    // it = mymap.find('b');
+    // if (it != mymap.end())
+    //     mymap.erase(it);
 
-    // print content:
-    std::cout << "elements in mymap:" << '\n';
-    std::cout << "a => " << mymap.find('a')->second << '\n';
-    std::cout << "c => " << mymap.find('c')->second << '\n';
-    std::cout << "d => " << mymap.find('d')->second << '\n';
+    // // print content:
+    // std::cout << "elements in mymap:" << '\n';
+    // std::cout << "a => " << mymap.find('a')->second << '\n';
+    // std::cout << "c => " << mymap.find('c')->second << '\n';
+    // std::cout << "d => " << mymap.find('d')->second << '\n';
 }
