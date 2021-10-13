@@ -92,7 +92,7 @@ namespace ft
 
                 // error! ++ requested for an empty tree
                 if (_nodePtr == NULL)
-                    throw std::logic_error("Underflow Exception.");
+                    return *this;
 
                 // move to the smallest value in the tree,
                 // which is the first node inorder
@@ -145,12 +145,16 @@ namespace ft
             {
 
                 // -- from end(). get the root of the tree
-                _nodePtr = _tree->max()->_parent;
+                _nodePtr = _tree->max();
+                if (_nodePtr)
+                    _nodePtr = _nodePtr->_parent;
+                else
+                    return *this;
+                    
 
                 // error! ++ requested for an empty tree
                 if (_nodePtr == NULL)
-                    throw std::logic_error("Underflow Exception.");
-
+                    return *this;
                 // move to the farthest value in the tree,
                 // which is the last node inorder
                 while (_nodePtr->_rightChild != NULL)
@@ -360,6 +364,11 @@ namespace ft
                 return ft::make_pair(iterator(newNode, this), true);
             }
             return ft::make_pair(iterator(ret, this), false);
+        }
+
+        void swap(avltree& other) {
+            std::swap(this->_root, other._root);
+            std::swap(_size, other._size);
         }
 
         // ft::pair<iterator, bool> insert(iterator hint, const T &value)
