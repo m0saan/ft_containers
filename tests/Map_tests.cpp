@@ -297,7 +297,7 @@ void const_iterator_tests(void)
     ft::Map<int, char> my_m;
     ft::Map<int, char>::const_iterator my_it, my_it1, tmp;
 
-    for (int i = 0; i < 10; ++i)
+    for (int i = 0; i < 5; ++i)
     {
         my_m.insert(ft::make_pair(i, static_cast<char>(i + 97)));
         m.insert(std::make_pair(i, static_cast<char>(i + 97)));
