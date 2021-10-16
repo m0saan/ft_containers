@@ -28,7 +28,7 @@
 #define RESET "\e[0m"
 
 #define EQUAL(x) ((x) ? (std::cout << "\033[1;32mAC\033[0m\n") : (std::cout << "\033[1;31mWA\033[0m\n"))
-#define TIME_FAC 3 // the ft::Map methods can be slower up to std::map methods * TIME_FAC (MAX 20)
+#define TIME_FAC 4 // the ft::Map methods can be slower up to std::map methods * TIME_FAC (MAX 20)
 
 typedef std::pair<std::map<int, std::string>::iterator, std::map<int, std::string>::iterator> iter_def;
 typedef ft::pair<ft::Map<int, std::string>::iterator, ft::Map<int, std::string>::iterator> ft_iter_def;
@@ -51,14 +51,6 @@ time_t get_time(void)
     gettimeofday(&time_now, NULL);
     time_t msecs_time = (time_now.tv_sec * 1e3) + (time_now.tv_usec / 1e3);
     return (msecs_time);
-}
-
-void showResult(bool cond)
-{
-    if (cond)
-        std::cout << GREEN << "ok" << RESET << std::endl;
-    else
-        std::cout << RED << "ko" << RESET << std::endl;
 }
 
 template <typename Iter1, typename Iter2>
@@ -101,7 +93,6 @@ bool testMapConstructors()
     ft::Map<char, int> m_second(m_first.begin(), m_first.end());
 
     cond = cond && second.size() == m_second.size() && compareMaps(second.begin(), second.end(), m_second.begin(), m_second.end());
-
     std::map<char, int> third(second);
     ft::Map<char, int> m_third(m_second);
 
@@ -128,7 +119,6 @@ bool testMapConstructors()
 
 void iterator_tests(void)
 {
-    // std::cout << "\033[1;36m<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Vector iterator tests >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\033[0m\n\n";
     /*------------ std::map ---------*/
     std::map<int, char> m;
     std::map<int, char>::iterator it, it1;
@@ -178,8 +168,8 @@ void iterator_tests(void)
 
         for (int i = 0; i < 5; ++i)
         {
-            m.insert(std::make_pair(13, "HELLO"));
-            my_m.insert(ft::make_pair(13, "HELLO"));
+            m.insert(std::make_pair(i, "HELLO"));
+            my_m.insert(ft::make_pair(i, "HELLO"));
         }
 
         ft::Map<int, std::string>::iterator my_it = my_m.begin();
@@ -296,12 +286,10 @@ void iterator_tests(void)
               << "] --------------------]\t\t\033[0m";
     tmp = my_it--;
     EQUAL(*my_it != *tmp && *my_it == *(my_m.begin()));
-    // std::cout << "\t\033[1;36m\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\033[0m\n\n";
 }
 
 void const_iterator_tests(void)
 {
-    // std::cout << "\033[1;36m<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< Vector iterator tests >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\033[0m\n\n";
     /*------------ std::map ---------*/
     std::map<int, char> m;
     std::map<int, char>::const_iterator it, it1;
@@ -367,12 +355,10 @@ void const_iterator_tests(void)
               << "] --------------------]\t\t\033[0m";
     tmp = my_it--;
     EQUAL(*my_it != *tmp && *my_it == *(my_m.begin()));
-    // std::cout << "\t\033[1;36m\n<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\033[0m\n\n";
 }
 
 void reverse_iterator_tests(void)
 {
-    // std::cout << "\033[1;36m<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<< reverse_iterator tests >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>\033[0m\n\n";
     /*------------ std::reverse_iterator ---------*/
     std::map<int, char> m;
     for (int i = 0; i < 1e2; i++)
@@ -656,30 +642,22 @@ void testConstructors()
     std::cout << "\t\033[1;37m[-------------------- [" << std::setw(40) << std::left << " operator= deep copy "
               << "] --------------------]\t\t\033[0m";
     {
-        std::map<int, std::string> *m1;
-        ft::Map<int, std::string> *ft_m1;
-        std::string res, ft_res;
-
+        std::map<int, std::string> m1;
+        std::map<int, std::string> m2;
+        ft::Map<int, std::string> ft_m2;
+        ft::Map<int, std::string> ft_m1;
+        for (int i = 0; i < 1e4; ++i)
         {
-            std::map<int, std::string> *m2 = new std::map<int, std::string>;
-            ft::Map<int, std::string> *ft_m2 = new ft::Map<int, std::string>;
-            for (int i = 0; i < 1e4; ++i)
-            {
-                m2->insert(std::make_pair(i, "string2"));
-                ft_m2->insert(ft::make_pair(i, "string2"));
-            }
-
-            m1 = m2;
-            ft_m1 = ft_m2;
+            m2.insert(std::make_pair(i, "string2"));
+            ft_m2.insert(ft::make_pair(i, "string2"));
         }
 
-        for (std::map<int, std::string>::iterator it = m1->begin(); it != m1->end(); ++it) // fill res from m1
-            res += it->first;
+        m1 = m2;
+        ft_m1 = ft_m2;
+        m2.begin()->second = "hello";
+        ft_m2.begin()->second = "hello";
 
-        for (ft::Map<int, std::string>::iterator it = ft_m1->begin(); it != ft_m1->end(); ++it) // fill ft_res from ft_m1
-            ft_res += it->first;
-
-        EQUAL(res == ft_res);
+        EQUAL((m1.begin()->second != m2.begin()->second) && (ft_m1.begin()->second != ft_m2.begin()->second));
     }
 
     /*-------------------------------------------------------------------------------------------------------------------------------------------------------*/
@@ -726,6 +704,11 @@ void testConstructors()
         std::map<int, std::string> m2;
         ft::Map<int, std::string> ft_m1;
         ft::Map<int, std::string> ft_m2;
+        for(size_t i = 0; i < 100; ++i)
+        {
+            m2.insert(std::make_pair(i, "value"));
+            ft_m2.insert(ft::make_pair(i, "value"));
+        }
         m1 = m2;
         /*-----------------------------------------------------*/
         /*------------------ ft::Map ---------------------*/
@@ -994,8 +977,14 @@ void testIterators()
             ft_res += it->second;
         for (ft::Map<int, std::string>::const_iterator rit = ft_m2.begin(); rit != ft_m2.end(); ++rit) // fill c_ft_res from const ft_m1
             c_ft_res += rit->second;
-
-        EQUAL(res == ft_res && c_res == c_ft_res);
+        
+        int arr[] = {12, 82, 37, 64, 15};
+        ft::Map<int, int> end_test;
+        for(size_t i = 0; i < 5; ++i)
+            end_test.insert(ft::make_pair(arr[i], i));
+        ft::Map<int, int>::iterator eit = end_test.end();
+        eit--;
+        EQUAL(res == ft_res && c_res == c_ft_res && eit->first == 82);
     }
     std::cout << "\t\033[1;37m[-------------------- [" << std::setw(40) << std::left << " rbegin and rend methods "
               << "] --------------------]\t\t\033[0m";
@@ -1055,7 +1044,13 @@ void testIterators()
             ft_res += it->second;
         for (ft::Map<int, std::string>::const_reverse_iterator rit = ft_m2.rbegin(); rit != ft_m2.rend(); ++rit) // fill c_ft_res from const ft_m1
             c_ft_res += rit->second;
-        EQUAL(res == ft_res && c_res == c_ft_res);
+        int arr[] = {12, 82, 37, 64, 15};
+        ft::Map<int, int> end_test;
+        for(size_t i = 0; i < 5; ++i)
+            end_test.insert(ft::make_pair(arr[i], i));
+        ft::Map<int, int>::reverse_iterator rit = end_test.rend();
+        rit--;
+        EQUAL(res == ft_res && c_res == c_ft_res && rit->first == 12);
     }
 }
 
@@ -1109,7 +1104,6 @@ void testCapacityMethods()
         ft::Map<int, std::string> ft_m4(ft_m1);
         ft::Map<int, std::string> ft_m5(ft_m1.rbegin(), ft_m1.rend());
         /*----------------------------------------------------*/
-        // std::cout << ft_m5.size() << " " << m5.size() << std::endl;
         EQUAL(m1.size() == ft_m1.size() && m2.size() == ft_m2.size() && m3.size() == ft_m3.size() && m5.size() == ft_m5.size() && m4.size() == ft_m4.size());
     }
 
@@ -1410,15 +1404,15 @@ void testModifiers()
 
         for (size_t i = 0; i < 1e6; i++)
         {
-            m2.insert(std::make_pair(i, "string1"));
-            ft_m2.insert(ft::make_pair(i, "string1"));
+            m3.insert(std::make_pair(i, "string1"));
+            ft_m3.insert(ft::make_pair(i, "string1"));
         }
 
         for (size_t i = 0; i < 1e6; ++i)
         {
             int n = distr(generator);
-            int ret1 = m2.erase(n);
-            int ret2 = ft_m2.erase(n);
+            int ret1 = m3.erase(n);
+            int ret2 = ft_m3.erase(n);
 
             if (ret1 != ret2)
             {
@@ -1432,7 +1426,11 @@ void testModifiers()
             m3.erase(m3.begin(), m3.end());
             m3.erase(m3.begin(), m3.end());
         }
-
+        if (!ft_m3.empty())
+        {
+            ft_m3.erase(ft_m3.begin(), ft_m3.end());
+            ft_m3.erase(ft_m3.begin(), ft_m3.end());
+        }
         cond = cond && (m3.size() == ft_m3.size() && compareMaps(m3.begin(), m3.end(), ft_m3.begin(), ft_m3.end()));
 
         EQUAL(cond);
@@ -2063,13 +2061,12 @@ void testAllocatorMethodes()
         // allocate an array of 5 elements using mymap's allocator:
         p = mymap.get_allocator().allocate(5);
 
-        // assign some values to array
         psize = sizeof(std::map<char, int>::value_type) * 5;
         EQUAL(psize == 40);
         mymap.get_allocator().deallocate(p, 5);
     }
 }
-void testRationalOperators()
+void testRetionalOperators()
 {
 
     /* ---------------  pretty simple tests --------------- */
@@ -2229,33 +2226,46 @@ int main()
     TEST_CASE(reverse_iterator_tests);
     std::cout << std::endl;
 
-    std::cout << YELLOW << "Testing Constructors;" << RESET << std::endl;
-    TEST_CASE(testConstructors);
-    std::cout << std::endl;
+    // std::cout << YELLOW << "Testing Constructors;" << RESET << std::endl;
+    // TEST_CASE(testConstructors);
+    // std::cout << std::endl;
 
-    std::cout << YELLOW << "Testing Iterator Methods;" << RESET << std::endl;
-    TEST_CASE(testIterators);
-    std::cout << std::endl;
+    // std::cout << YELLOW << "Testing Iterator Methods;" << RESET << std::endl;
+    // TEST_CASE(testIterators);
+    // std::cout << std::endl;
 
-    std::cout << YELLOW << "Testing Capacity Methods;" << RESET << std::endl;
-    TEST_CASE(testCapacityMethods)
-    std::cout << std::endl;
+    // std::cout << YELLOW << "Testing Capacity Methods;" << RESET << std::endl;
+    // TEST_CASE(testCapacityMethods)
+    // std::cout << std::endl;
 
-    std::cout << YELLOW << "Testing Access Element Methods; " << RESET << std::endl;
-    TEST_CASE(testElementAccess);
-    std::cout << std::endl;
+    // std::cout << YELLOW << "Testing Access Element Methods; " << RESET << std::endl;
+    // TEST_CASE(testElementAccess);
+    // std::cout << std::endl;
 
-    std::cout << YELLOW << "Testing Modifiers Methods;" << RESET << std::endl;
-    TEST_CASE(testModifiers)
-    std::cout << std::endl;
+    // std::cout << YELLOW << "Testing Modifiers Methods;" << RESET << std::endl;
+    // TEST_CASE(testModifiers)
+    // std::cout << std::endl;
 
-    std::cout << YELLOW << "Testing Rational Operators; " << RESET << std::endl;
-    TEST_CASE(testRationalOperators);
-    std::cout << std::endl;
+    // std::cout << YELLOW << "Testing Observers Methods;" << RESET << std::endl;
+    // TEST_CASE(testObservers)
+    // std::cout << std::endl;
 
-    std::cout << YELLOW << "Testing Non-Member Swap  ; " << RESET << std::endl;
-    TEST_CASE(testNonMemberSwap);
-    std::cout << std::endl;
-    std::cout << GREEN << "****                               Well done 👍 Waiting to free the memory....                      ****" << RESET << std::endl;
+    // std::cout << YELLOW << "Testing Operations Methods;" << RESET << std::endl;
+    // TEST_CASE(testOperations)
+    // std::cout << std::endl;
+
+    // std::cout << YELLOW << "Testing Allocator Methods;" << RESET << std::endl;
+    // TEST_CASE(testAllocatorMethodes)
+    // std::cout << std::endl;
+
+    // std::cout << YELLOW << "Testing Retional Operators; " << RESET << std::endl;
+    // TEST_CASE(testRetionalOperators);
+    // std::cout << std::endl;
+
+    // std::cout << YELLOW << "Testing Non-Member Swap  ; " << RESET << std::endl;
+    // TEST_CASE(testNonMemberSwap);
+    // std::cout << std::endl;
+
+    
     return 0;
 }
