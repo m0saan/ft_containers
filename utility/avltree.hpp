@@ -281,8 +281,8 @@ namespace ft
         typedef ft::reverse_iterator<iterator> reverse_iterator;
         typedef ft::reverse_iterator<const_iterator> const_reverse_iterator;
 
-        friend class Iterator<Node, T, Compare, Alloc, avltree>;
-        friend class Iterator<Node, const T, Compare, Alloc, avltree>;
+        // friend class Iterator<Node, const T, Compare, Alloc, avltree>;
+        // friend class Iterator<Node, T, Compare, Alloc, avltree>;
 
         typedef void (avltree::*fnType(Node *))();
 
@@ -835,6 +835,18 @@ namespace ft
             return lhs.greaterOrEqual(rhs);
         }
 
+        Node *min() const { return _min(_root); }
+
+        Node *max() { return _max(_root); }
+
+        Node *max() const { return _max(_root); }
+
+        bool equals(const avltree &other) const { return _equals(_root, other._root); }
+
+        bool greater(const avltree &other) const { return _greater(_root, other._root); }
+
+        bool greaterOrEqual(const avltree &other) const { return _greaterOrEqual(_root, other._root); }
+
 
         void preOrderTraversal() const _NOEXCEPT
         {
@@ -912,17 +924,6 @@ namespace ft
             return _height(_root);
         }
 
-        Node *min() const { return _min(_root); }
-
-        Node *max() { return _max(_root); }
-
-        Node *max() const { return _max(_root); }
-
-        bool equals(const avltree &other) const { return _equals(_root, other._root); }
-
-        bool greater(const avltree &other) const { return _greater(_root, other._root); }
-
-        bool greaterOrEqual(const avltree &other) const { return _greaterOrEqual(_root, other._root); }
 
         /*
         void getNodesAtDistance(int k) {
@@ -1150,7 +1151,7 @@ namespace ft
     private:
         std::size_t _size;
         Compare _comp;
-        std::allocator<Node> _node_alloc;
+        typename Alloc::template rebind<Node>::other 	_node_alloc;
         Alloc _alloc;
     };
 
