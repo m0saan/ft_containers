@@ -334,11 +334,8 @@ namespace ft {
                                const Vector &rhs) {
             if (lhs._size != rhs._size)
                 return false;
-            for (uint64_t i = 0; i < lhs._size; i++)
-                if (lhs._arr[i] != rhs._arr[i])
-                    return false;
-            return true;
-        }
+            return ft::equal(lhs.begin(), lhs.end(), rhs.begin());
+            }
 
         friend bool operator!=(const Vector &lhs,const Vector &rhs) {return !(lhs == rhs); }
 
@@ -422,7 +419,7 @@ namespace ft {
 
     template<typename T, typename Alloc>
     Vector<T, Alloc>::~Vector() {
-        for (int i =0; i<_size; ++i)
+        for (size_t i =0; i <_size; ++i)
             _alloc.destroy(&_arr[i]);
         _alloc.deallocate(_arr, _capacity);
     }
@@ -704,7 +701,7 @@ namespace ft {
         difference_type dst = pos - begin();
         iterator newPositon = begin() + dst;
         _alloc.destroy(&(*pos));
-        for (; dst < _size - 1; ++dst)
+        for (; dst < static_cast<difference_type>(_size) - 1; ++dst)
             _arr[dst] = _arr[dst + 1];
         --_size;
         return newPositon;
@@ -726,15 +723,11 @@ namespace ft {
         for (; first != last; ++first)
             // std::cout << "deleting: " << *first << std::endl;
             _alloc.destroy(&(*first));
-        if (count != _size) {
+        if (count != static_cast<difference_type>(_size)) {
             for (difference_type i = dst; i < dst + count; i++)
                 _arr[i] = _arr[i + 1];
         }
-        if (ret)
-            return end();
-        if (dst == 0)
-            return last;
-        return iterator(_arr + (last - first) + 1);
+        return iterator(_arr + dst);
     }
 
     template<typename T, typename Alloc>
@@ -758,12 +751,12 @@ namespace ft {
                                   typename ft::enable_if<!ft::is_integral<InputIt>::value, InputIt>::type) {
         difference_type dst = last - first;
 
-        if (dst < _size) {
-            for (size_type i = _size; i < dst; --i) {
+        if (dst < static_cast<difference_type>(_size)) {
+            for (difference_type i = _size; i < dst; --i) {
                 _alloc.destroy(_arr + i);
             }
             _size = dst;
-        } else if (dst > _capacity) {
+        } else if (dst > static_cast<difference_type>(_capacity)) {
             _capacity = std::max(static_cast<size_type>(dst), _size * 2);
             _reallocate(_alloc, _capacity);
         }
