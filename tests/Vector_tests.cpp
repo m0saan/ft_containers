@@ -2419,18 +2419,18 @@ void vector_tests(void)
             it = v.erase(v.begin() + 60, v.end());
             ft_it = ft_v.erase(ft_v.begin() + 60, ft_v.end());
 
-            // str.clear();
-            // ft_str.clear();
-            // s = v.size();
-            // ft_s = ft_v.size();
-            // c = v.size();
-            // ft_c = ft_v.size();
-            // for (size_t i = 0; i < v.size(); ++i)
-            //     str += v[i];
-            // for (size_t i = 0; i < ft_v.size(); ++i)
-            //     ft_str += ft_v[i];
-            // cond = (cond && (str == ft_str) && (s == ft_s) && (c == ft_c));
-            // cond = (cond && (std::distance(v.begin(), it) == std::distance(ft_v.begin(), ft_it)));
+            str.clear();
+            ft_str.clear();
+            s = v.size();
+            ft_s = ft_v.size();
+            c = v.size();
+            ft_c = ft_v.size();
+            for (size_t i = 0; i < v.size(); ++i)
+                str += v[i];
+            for (size_t i = 0; i < ft_v.size(); ++i)
+                ft_str += ft_v[i];
+            cond = (cond && (str == ft_str) && (s == ft_s) && (c == ft_c));
+            cond = (cond && (std::distance(v.begin(), it) == std::distance(ft_v.begin(), ft_it)));
         }
 
 /*--------------------------------------------------------------------------*/
@@ -3339,13 +3339,27 @@ int main(void)
     // reverse_iterator_with_ft_vector();
     // vector_tests();
 
+    std::string str, ft_str;
+    std::vector<std::string>::size_type s = 0, ft_s = 0, c, ft_c;
     std::vector<std::string> v(100, "hello");
     ft::Vector<std::string> ft_v(100, "hello");
 
     auto it = v.erase(v.begin() + 60, v.end());
     auto ft_it = ft_v.erase(ft_v.begin() + 60, ft_v.end());
 
-    std::cout << *it << std::endl << *ft_it << std::endl;
+    bool cond;
 
+    str.clear();
+    ft_str.clear();
+    s = v.size();
+    ft_s = ft_v.size();
+    c = v.size();
+    ft_c = ft_v.size();
+    for (size_t i = 0; i < v.size(); ++i)
+        str += v[i];
+    for (size_t i = 0; i < ft_v.size(); ++i)
+        ft_str += ft_v[i];
+    cond = ((str == ft_str) && (s == ft_s) && (c == ft_c));
+    cond = (cond && (std::distance(v.begin(), it) == std::distance(ft_v.begin(), ft_it)));
     return 0;
 }
