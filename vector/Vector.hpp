@@ -277,8 +277,6 @@ namespace ft
         const reference operator[](difference_type n) const { return *(_arr + n); }
         // reference operator->() { return _arr; }
 
-        void print();
-
         allocator_type get_allocator() const;
 
         void push_back(const T &value);
@@ -454,15 +452,6 @@ namespace ft
         for (size_t i = 0; i < _size; ++i)
             _alloc.destroy(&_arr[i]);
         _alloc.deallocate(_arr, _capacity);
-    }
-
-    template <typename T, typename Alloc>
-    void Vector<T, Alloc>::print()
-    {
-        std::cout << "[ ";
-        for (std::size_t i = 0; i < _size; ++i)
-            std::cout << _arr[i] << ' ';
-        std::cout << ']' << std::endl;
     }
 
     template <typename T, typename Alloc>
@@ -785,19 +774,18 @@ namespace ft
     typename Vector<T, Alloc>::iterator
     Vector<T, Alloc>::erase(typename Vector<T, Alloc>::iterator first, typename Vector<T, Alloc>::iterator last)
     {
-
         difference_type count = last - first;
 
         difference_type dst = std::distance(first, begin());
 
-        iterator retIterator = begin() + dst;
-
         for (; first != last; ++first)
             _alloc.destroy(&(*first));
+        if (dst > 0) {
         for (difference_type i = 0; i < (static_cast<difference_type>(_size) - count); ++i)
             _arr[i+dst] = _arr[i+count];
+        }
         _size -= count;
-        return (retIterator);
+        return (begin() + abs(dst));
     }
 
     template <typename T, typename Alloc>
