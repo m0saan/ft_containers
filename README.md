@@ -7,9 +7,9 @@ implemented, but every old feature (even deprecated) is present.
 
 
 ### NOTES:
-  - implemented containers: vector, stack, map.
+  - implemented containers: ```vector, stack, map.```
   - iterators_traits, reverse_iterator, enable_if, is_integral, equal/lexicographical com-
-pare, std::pair, std::make_pair, are reimplemented.
+pare, std::pair, std::make_pair, are re-implemented.
 
 
 ### - Observations : 
