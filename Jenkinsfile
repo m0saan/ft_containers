@@ -12,6 +12,7 @@ pipeline {
         stage('Test') {
             step {
                 echo 'Testing ft_containers...'
+                // sh make -C tests/ || true
             }
         }
 
